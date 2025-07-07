@@ -1,0 +1,305 @@
+/* ===================================================
+   THEME LEBAYO - Palette Harmonisée Moderne
+   =================================================== */
+
+:root {
+  /* Palette moderne harmonisée */
+  --theme-dark-blue: #003049;
+  --theme-red: #D62828;
+  --theme-orange: #F77F00;
+  --theme-yellow: #FCBF49;
+  --theme-beige: #EAE2B7;
+  
+  /* Variables principales */
+  --primary-color: #003049;
+  --secondary-color: #D62828;
+  --accent-color: #F77F00;
+  --highlight-color: #FCBF49;
+  --light-color: #EAE2B7;
+  
+  /* Variables Bootstrap surchargées */
+  --bs-primary: #003049;
+  --bs-primary-rgb: 0, 48, 73;
+}
+
+/* ===================================================
+   COULEURS PRINCIPALES
+   =================================================== */
+
+/* Texte principal */
+.text-primary {
+  color: var(--primary-color) !important;
+}
+
+/* Arrière-plan principal */
+.bg-primary {
+  background-color: var(--primary-color) !important;
+}
+
+/* Labels et badges */
+.bg-label-primary {
+  background-color: rgba(0, 48, 73, 0.12) !important;
+  color: var(--primary-color) !important;
+}
+
+/* Bordures */
+.border-primary,
+.border-label-primary {
+  border-color: var(--primary-color) !important;
+}
+
+/* ===================================================
+   BOUTONS
+   =================================================== */
+
+/* Bouton principal */
+.btn-primary {
+  background-color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+  color: #fff !important;
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active,
+.btn-primary.active {
+  background-color: var(--accent-color) !important;
+  border-color: var(--accent-color) !important;
+}
+
+/* Bouton outline */
+.btn-outline-primary {
+  color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus,
+.btn-outline-primary:active {
+  background-color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+  color: #fff !important;
+}
+
+/* ===================================================
+   NAVIGATION ET MENU
+   =================================================== */
+
+/* Lien actif dans le menu */
+.bg-menu-theme .menu-inner > .menu-item.active > .menu-link {
+  background: linear-gradient(270deg, rgba(0, 48, 73, 0.24) 0%, rgba(0, 48, 73, 0.06) 100%) !important;
+  color: var(--primary-color) !important;
+  box-shadow: 0 2px 6px 0 rgba(0, 48, 73, 0.4) !important;
+}
+
+/* Indicateur du menu actif */
+.bg-menu-theme .menu-inner > .menu-item.active:before {
+  background: var(--primary-color) !important;
+}
+
+/* Icônes du menu actif */
+.bg-menu-theme .menu-inner > .menu-item.active .menu-icon {
+  color: var(--primary-color) !important;
+}
+
+/* Hover sur les liens du menu */
+.bg-menu-theme .menu-link:hover {
+  color: var(--primary-color) !important;
+}
+
+/* ===================================================
+   FORMULAIRES
+   =================================================== */
+
+/* Focus sur les champs de formulaire */
+.form-control:focus {
+  border-color: var(--accent-color) !important;
+  box-shadow: 0 0 0 0.2rem rgba(0, 48, 73, 0.25) !important;
+}
+
+/* Checkbox et radio boutons */
+.form-check-input:checked {
+  background-color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+}
+
+/* Switch */
+.form-switch .form-check-input:checked {
+  background-color: var(--primary-color) !important;
+}
+
+/* ===================================================
+   COMPOSANTS UI
+   =================================================== */
+
+/* Dropdown actif */
+.dropdown-item:active,
+.dropdown-item.active {
+  background-color: var(--primary-color) !important;
+}
+
+/* Navigation pills */
+.nav-pills .nav-link.active {
+  background-color: var(--primary-color) !important;
+}
+
+/* Progress bar */
+.progress-bar {
+  background-color: var(--primary-color) !important;
+}
+
+/* Pagination */
+.page-item.active .page-link {
+  background-color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+}
+
+/* Alerts */
+.alert-primary {
+  color: var(--primary-color) !important;
+  background-color: rgba(0, 48, 73, 0.12) !important;
+  border-color: rgba(0, 48, 73, 0.3) !important;
+}
+
+/* ===================================================
+   GRAPHIQUES ET CHARTS
+   =================================================== */
+
+/* Variables CSS pour ApexCharts */
+.chart-primary {
+  --chart-color: #003049;
+}
+
+/* Surcharge des couleurs dans les graphiques */
+.apexcharts-svg .apexcharts-series [fill="#696cff"] {
+  fill: var(--primary-color) !important;
+}
+
+/* ===================================================
+   CARTES ET CONTENEURS
+   =================================================== */
+
+/* Bordure accent sur les cartes importantes */
+.card-accent-primary {
+  border-left: 4px solid var(--primary-color) !important;
+}
+
+/* Header de carte avec thème principal */
+.card-header-primary {
+  background-color: var(--primary-color) !important;
+  color: #fff !important;
+}
+
+/* ===================================================
+   UTILITAIRES ET HELPERS
+   =================================================== */
+
+/* Classes utilitaires personnalisées */
+.text-theme-dark-blue { color: var(--theme-dark-blue) !important; }
+.text-theme-red { color: var(--theme-red) !important; }
+.text-theme-orange { color: var(--theme-orange) !important; }
+.text-theme-yellow { color: var(--theme-yellow) !important; }
+.text-theme-beige { color: var(--theme-beige) !important; }
+
+.bg-theme-dark-blue { background-color: var(--theme-dark-blue) !important; }
+.bg-theme-red { background-color: var(--theme-red) !important; }
+.bg-theme-orange { background-color: var(--theme-orange) !important; }
+.bg-theme-yellow { background-color: var(--theme-yellow) !important; }
+.bg-theme-beige { background-color: var(--theme-beige) !important; }
+
+/* Boutons spécialisés avec la palette */
+.btn-danger-theme {
+  background-color: var(--theme-red) !important;
+  border-color: var(--theme-red) !important;
+  color: #fff !important;
+}
+
+.btn-danger-theme:hover {
+  background-color: #B91C1C !important;
+  border-color: #B91C1C !important;
+}
+
+.btn-warning-theme {
+  background-color: var(--theme-yellow) !important;
+  border-color: var(--theme-yellow) !important;
+  color: #1F2937 !important;
+}
+
+.btn-warning-theme:hover {
+  background-color: #F59E0B !important;
+  border-color: #F59E0B !important;
+}
+
+.btn-accent-theme {
+  background-color: var(--theme-orange) !important;
+  border-color: var(--theme-orange) !important;
+  color: #fff !important;
+}
+
+.btn-accent-theme:hover {
+  background-color: #EA580C !important;
+  border-color: #EA580C !important;
+}
+
+/* ===================================================
+   ANIMATIONS ET TRANSITIONS
+   =================================================== */
+
+/* Transition douce pour les changements de couleur */
+.btn, .nav-link, .menu-link, .form-control {
+  transition: all 0.3s ease-in-out;
+}
+
+/* Effet de survol sur les éléments interactifs */
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 48, 73, 0.3);
+}
+
+/* ===================================================
+   RESPONSIVE ET DARK MODE
+   =================================================== */
+
+/* Adaptation pour les écrans sombres */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --primary-color: #F77F00;
+    --secondary-color: #EAE2B7;
+  }
+}
+
+/* ===================================================
+   SURCHARGES SPÉCIFIQUES LEBAYO
+   =================================================== */
+
+/* Logo et branding */
+.app-brand .layout-menu-toggle:hover {
+  color: var(--primary-color) !important;
+}
+
+/* Footer links */
+.footer .footer-link:hover {
+  color: var(--primary-color) !important;
+}
+
+/* Notifications badge */
+.badge.bg-danger {
+  background-color: var(--accent-color) !important;
+}
+
+/* Statut success avec notre thème */
+.text-success, .bg-success {
+  color: var(--primary-color) !important;
+  background-color: rgba(0, 48, 73, 0.12) !important;
+}
+
+/* ===================================================
+   PRINT STYLES
+   =================================================== */
+
+@media print {
+  .btn-primary {
+    background-color: #000 !important;
+    border-color: #000 !important;
+  }
+} 
