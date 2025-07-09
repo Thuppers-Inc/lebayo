@@ -160,7 +160,7 @@
     </li>
 
     <!-- OUTILS DE DÉVELOPPEMENT -->
-    <li class="menu-header small text-uppercase">
+    {{-- <li class="menu-header small text-uppercase">
       <span class="menu-header-text">Outils</span>
     </li>
 
@@ -178,7 +178,7 @@
         <i class="menu-icon tf-icons bx bx-palette"></i>
         <div data-i18n="ThemeDemo">Palette Moderne</div>
       </a>
-    </li>
+    </li> --}}
   </ul>
 </aside>
 <!-- / Menu --> 
