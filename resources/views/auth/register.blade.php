@@ -15,14 +15,24 @@
                 <form class="auth-form" method="POST" action="{{ route('register') }}">
                     @csrf
                     
+                    @if ($errors->any())
+                        <div class="alert-error">
+                            <ul>
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+                    
                     <div class="form-group">
                         <label for="name">Nom complet</label>
-                        <input type="text" id="name" name="name" required>
+                        <input type="text" id="name" name="name" value="{{ old('name') }}" required>
                     </div>
                     
                     <div class="form-group">
                         <label for="email">Adresse email</label>
-                        <input type="email" id="email" name="email" required>
+                        <input type="email" id="email" name="email" value="{{ old('email') }}" required>
                     </div>
                     
                     <div class="form-group">

@@ -15,8 +15,14 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Seeder pour les types de commerce
-        $this->call(CommerceTypeSeeder::class);
+        // Seeders pour les données de base
+        $this->call([
+            CommerceTypeSeeder::class,
+            CategorySeeder::class,
+            CommerceSeeder::class,
+            ProductSeeder::class,
+            UserSeeder::class,
+        ]);
         
         // Créer un super administrateur
         User::factory()->superAdmin()->create([

@@ -114,7 +114,17 @@ class User extends Authenticatable
      */
     public function getPhotoUrlAttribute(): string
     {
-        return $this->photo ? asset('storage/' . $this->photo) : asset('images/default-avatar.png');
+        if ($this->photo) {
+            return asset('storage/' . $this->photo);
+        }
+        
+        // Image par défaut selon le type d'utilisateur
+        return match($this->account_type) {
+            AccountType::AGENT => asset('images/delivery-avatar-placeholder.png'),
+            AccountType::ADMIN => asset('images/admin-avatar-placeholder.png'),
+            AccountType::CLIENT => asset('images/client-avatar-placeholder.png'),
+            default => asset('images/default-avatar.png'),
+        };
     }
 
     /**
@@ -157,5 +167,21 @@ class User extends Authenticatable
     public function isAgent(): bool
     {
         return $this->account_type === AccountType::AGENT;
+    }
+
+    /**
+     * Relation avec le panier de l'utilisateur
+     */
+    public function cart()
+    {
+        return $this->hasOne(Cart::class);
+    }
+
+    /**
+     * Obtenir ou créer le panier de l'utilisateur
+     */
+    public function getOrCreateCart()
+    {
+        return Cart::getOrCreateForUser($this->id);
     }
 }

@@ -39,7 +39,7 @@
                             <p class="text-muted mb-0">{{ $items->total() }} élément(s) au total</p>
                         @endif
                     </div>
-                    @if(isset($createRoute))
+                    @if(isset($createRoute) || isset($modalTarget))
                         <button type="button" class="btn btn-admin-primary" 
                                 @if(isset($modalTarget))
                                     data-bs-toggle="modal" data-bs-target="{{ $modalTarget }}"
@@ -123,6 +123,22 @@
                                                                 <span class="fs-4 me-2">{{ data_get($item, $column['emoji_key']) }}</span>
                                                             @endif
                                                             <strong class="text-dark">{{ data_get($item, $column['key']) }}</strong>
+                                                        </div>
+                                                        @break
+                                                    
+                                                    @case('logo-text')
+                                                        <div class="d-flex align-items-center">
+                                                            @if(isset($column['logo_key']))
+                                                                <div class="me-3">
+                                                                    <img src="{{ data_get($item, $column['logo_key']) }}" 
+                                                                         alt="Logo" 
+                                                                         class="admin-logo-sm rounded-circle"
+                                                                         style="width: 40px; height: 40px; object-fit: cover;">
+                                                                </div>
+                                                            @endif
+                                                            <div>
+                                                                <strong class="text-dark">{{ data_get($item, $column['key']) }}</strong>
+                                                            </div>
                                                         </div>
                                                         @break
                                                     
@@ -211,7 +227,7 @@
                     <!-- Pagination -->
                     @if($showPagination)
                         <div class="d-flex justify-content-center p-4 border-top">
-                            {{ $items->links() }}
+                            {{ $items->links('admin.components.pagination') }}
                         </div>
                     @endif
                 @else
@@ -222,7 +238,7 @@
                         </div>
                         <h5 class="text-dark mb-2">{{ $emptyTitle ?? 'Aucun élément trouvé' }}</h5>
                         <p class="text-muted mb-4">{{ $emptyMessage ?? 'Créez votre premier élément pour commencer' }}</p>
-                        @if(isset($createRoute))
+                        @if(isset($createRoute) || isset($modalTarget))
                             <button type="button" 
                                     class="btn btn-admin-primary btn-lg rounded-pill px-4" 
                                     @if(isset($modalTarget))

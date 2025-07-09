@@ -51,6 +51,30 @@ class CommerceType extends Model
     }
 
     /**
+     * Relation avec les catégories
+     */
+    public function categories()
+    {
+        return $this->hasMany(Category::class);
+    }
+
+    /**
+     * Relation avec les commerces
+     */
+    public function commerces()
+    {
+        return $this->hasMany(Commerce::class);
+    }
+
+    /**
+     * Obtenir les catégories actives
+     */
+    public function activeCategories()
+    {
+        return $this->hasMany(Category::class)->where('is_active', true);
+    }
+
+    /**
      * Obtenir le statut formaté
      */
     public function getStatusBadgeAttribute(): string

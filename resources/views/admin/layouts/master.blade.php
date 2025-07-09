@@ -53,6 +53,9 @@
   
   <!-- Thème Moderne Lebayo -->
   <link rel="stylesheet" href="{{ asset('admin-assets/assets/css/custom-modern-theme.css') }}" />
+  
+  <!-- Composants Réutilisables Admin -->
+  <link rel="stylesheet" href="{{ asset('admin-assets/assets/css/admin-components.css') }}" />
 
     <!-- Vendors CSS -->
     <link rel="stylesheet" href="{{ asset('admin-assets/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css') }}" />
@@ -118,6 +121,9 @@
 
     <!-- Main JS -->
     <script src="{{ asset('admin-assets/assets/js/main.js') }}"></script>
+    
+    <!-- Composants Réutilisables Admin -->
+    <script src="{{ asset('admin-assets/assets/js/admin-components.js') }}"></script>
 
     <!-- Page JS -->
     <script src="{{ asset('admin-assets/assets/js/dashboards-analytics.js') }}"></script>

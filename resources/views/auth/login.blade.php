@@ -15,9 +15,19 @@
                 <form class="auth-form" method="POST" action="{{ route('login') }}">
                     @csrf
                     
+                    @if ($errors->any())
+                        <div class="alert-error">
+                            <ul>
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+                    
                     <div class="form-group">
                         <label for="email">Adresse email</label>
-                        <input type="email" id="email" name="email" required>
+                        <input type="email" id="email" name="email" value="{{ old('email') }}" required>
                     </div>
                     
                     <div class="form-group">
