@@ -115,7 +115,7 @@
 @endforeach
 
 <!-- Popular Restaurants Section -->
-<section class="restaurants-section">
+{{-- <section class="restaurants-section">
     <div class="container">
         <div class="section-header">
             <h2>Featured Restaurants</h2>
@@ -174,7 +174,7 @@
             @endforelse
         </div>
     </div>
-</section>
+</section> --}}
 
 <!-- Faire une Course Section -->
 <section class="grocery-section">
