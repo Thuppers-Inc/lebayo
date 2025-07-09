@@ -55,27 +55,10 @@
 
     <!-- Clients -->
     <li class="menu-item">
-      <a href="javascript:void(0);" class="menu-link menu-toggle">
+      <a href="{{ route('admin.clients.index') }}" class="menu-link">
         <i class="menu-icon tf-icons bx bx-user"></i>
         <div data-i18n="Clients">Clients</div>
       </a>
-      <ul class="menu-sub">
-        <li class="menu-item">
-          <a href="#" class="menu-link">
-            <div data-i18n="All Clients">Tous les clients</div>
-          </a>
-        </li>
-        <li class="menu-item">
-          <a href="#" class="menu-link">
-            <div data-i18n="Add Client">Ajouter un client</div>
-          </a>
-        </li>
-        <li class="menu-item">
-          <a href="#" class="menu-link">
-            <div data-i18n="Client History">Historique clients</div>
-          </a>
-        </li>
-      </ul>
     </li>
 
     <!-- Livreurs -->
