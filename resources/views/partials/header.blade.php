@@ -27,14 +27,7 @@
                     <a href="{{ route('cart.index') }}" class="cart-link">
                         <i class="icon-cart">🛒</i>
                         @php
-                            $cartCount = 0;
-                            if (Auth::check()) {
-                                $cart = Auth::user()->cart;
-                                $cartCount = $cart ? $cart->total_items : 0;
-                            } else {
-                                $cart = \App\Models\Cart::where('session_id', session()->getId())->first();
-                                $cartCount = $cart ? $cart->total_items : 0;
-                            }
+                            $cartCount = \App\Models\Cart::getCurrentCartCount();
                         @endphp
                         <span class="cart-count" style="{{ $cartCount > 0 ? '' : 'display: none;' }}">{{ $cartCount }}</span>
                     </a>

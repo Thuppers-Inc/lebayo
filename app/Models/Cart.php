@@ -143,4 +143,123 @@ class Cart extends Model
         $this->items()->delete();
         return $this;
     }
+
+    /**
+     * Migrer le panier de session vers l'utilisateur connecté
+     */
+    public static function migrateSessionCartToUser($userId, $sessionId)
+    {
+        \Log::info('Cart migration started', [
+            'user_id' => $userId,
+            'session_id' => $sessionId
+        ]);
+
+        // Récupérer le panier de session
+        $sessionCart = static::where('session_id', $sessionId)->first();
+        
+        \Log::info('Session cart found', [
+            'session_cart_exists' => $sessionCart !== null,
+            'session_cart_id' => $sessionCart ? $sessionCart->id : null,
+            'session_cart_items' => $sessionCart ? $sessionCart->total_items : 0
+        ]);
+        
+        if (!$sessionCart || $sessionCart->isEmpty()) {
+            \Log::info('No session cart or empty cart, migration skipped');
+            return null; // Pas de panier de session ou panier vide
+        }
+
+        // Récupérer ou créer le panier utilisateur
+        $userCart = static::getOrCreateForUser($userId);
+        
+        \Log::info('User cart prepared', [
+            'user_cart_id' => $userCart->id,
+            'user_cart_items_before' => $userCart->total_items
+        ]);
+
+        // Migrer tous les articles du panier de session vers le panier utilisateur
+        $sessionItems = $sessionCart->items()->with('product')->get();
+        
+        \Log::info('Session items to migrate', [
+            'items_count' => $sessionItems->count(),
+            'items' => $sessionItems->map(function($item) {
+                return [
+                    'product_id' => $item->product_id,
+                    'quantity' => $item->quantity,
+                    'price' => $item->price
+                ];
+            })->toArray()
+        ]);
+        
+        foreach ($sessionItems as $sessionItem) {
+            // Vérifier si le produit existe déjà dans le panier utilisateur
+            $existingItem = $userCart->items()->where('product_id', $sessionItem->product_id)->first();
+            
+            if ($existingItem) {
+                // Si le produit existe déjà, additionner les quantités
+                $oldQuantity = $existingItem->quantity;
+                $existingItem->increment('quantity', $sessionItem->quantity);
+                \Log::info('Product quantity updated', [
+                    'product_id' => $sessionItem->product_id,
+                    'old_quantity' => $oldQuantity,
+                    'added_quantity' => $sessionItem->quantity,
+                    'new_quantity' => $existingItem->fresh()->quantity
+                ]);
+            } else {
+                // Sinon, créer un nouvel article dans le panier utilisateur
+                $newItem = $userCart->items()->create([
+                    'product_id' => $sessionItem->product_id,
+                    'quantity' => $sessionItem->quantity,
+                    'price' => $sessionItem->price
+                ]);
+                \Log::info('New product added to cart', [
+                    'product_id' => $sessionItem->product_id,
+                    'quantity' => $sessionItem->quantity,
+                    'cart_item_id' => $newItem->id
+                ]);
+            }
+        }
+
+        // Recharger le panier utilisateur pour obtenir les totaux mis à jour
+        $userCart->refresh();
+        
+        \Log::info('User cart after migration', [
+            'user_cart_items_after' => $userCart->total_items,
+            'user_cart_total_price' => $userCart->total_price
+        ]);
+
+        // Supprimer le panier de session après migration
+        $sessionCart->delete();
+        \Log::info('Session cart deleted', [
+            'session_cart_id' => $sessionCart->id
+        ]);
+
+        return $userCart;
+    }
+
+    /**
+     * Obtenir le nombre d'articles dans le panier actuel (utilisateur ou session)
+     */
+    public static function getCurrentCartCount()
+    {
+        if (auth()->check()) {
+            $cart = static::where('user_id', auth()->id())->first();
+            $count = $cart ? $cart->total_items : 0;
+            \Log::info('Cart count for authenticated user', [
+                'user_id' => auth()->id(),
+                'cart_id' => $cart ? $cart->id : null,
+                'count' => $count
+            ]);
+            return $count;
+        }
+
+        $sessionId = session()->getId();
+        $cart = static::where('session_id', $sessionId)->first();
+        $count = $cart ? $cart->total_items : 0;
+        \Log::info('Cart count for session user', [
+            'session_id' => $sessionId,
+            'cart_id' => $cart ? $cart->id : null,
+            'count' => $count
+        ]);
+        return $count;
+    }
 }
