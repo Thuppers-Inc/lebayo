@@ -98,20 +98,20 @@ class ProductSeeder extends Seeder
                         $category = $categories->where('name', str_replace(['🍕', '🍗', '🍔', '🍟', '🥤', '🍰', '🐟', '👕', '👟', '👜', '📱', '🎧', '🔌', '💊', '🧴', '🩺', '🍌', '🥕', '🥛', '🍞', '🥫', '🍫'], '', $productData['category']))->first();
                     }
                     
-                    Product::create([
-                        'name' => $productData['name'],
-                        'description' => $productData['description'] ?? null,
-                        'price' => $productData['price'],
-                        'old_price' => $productData['old_price'] ?? null,
-                        'stock' => $productData['stock'] ?? 0,
-                        'unit' => $productData['unit'] ?? 'pièces',
-                        'commerce_id' => $commerce->id,
-                        'category_id' => $category?->id,
-                        'is_available' => true,
-                        'is_featured' => rand(0, 3) === 0, // 25% de chance d'être en vedette
-                        'sku' => strtoupper(substr($commerce->name, 0, 3)) . '-' . str_pad(rand(1, 999), 3, '0', STR_PAD_LEFT),
-                        'preparation_time' => in_array($commerce->commerceType->name, ['Restaurants', 'Fast Food']) ? rand(5, 30) : null,
-                    ]);
+                    // Product::create([
+                    //     'name' => $productData['name'],
+                    //     'description' => $productData['description'] ?? null,
+                    //     'price' => $productData['price'],
+                    //     'old_price' => $productData['old_price'] ?? null,
+                    //     'stock' => $productData['stock'] ?? 0,
+                    //     'unit' => $productData['unit'] ?? 'pièces',
+                    //     'commerce_id' => $commerce->id,
+                    //     'category_id' => $category?->id,
+                    //     'is_available' => true,
+                    //     'is_featured' => rand(0, 3) === 0, // 25% de chance d'être en vedette
+                    //     'sku' => strtoupper(substr($commerce->name, 0, 3)) . '-' . str_pad(rand(1, 999), 3, '0', STR_PAD_LEFT),
+                    //     'preparation_time' => in_array($commerce->commerceType->name, ['Restaurants', 'Fast Food']) ? rand(5, 30) : null,
+                    // ]);
                 }
             }
         }

@@ -21,23 +21,23 @@ class CommerceTypeSeeder extends Seeder
                 'is_active' => true,
             ],
             [
-                'name' => 'Boutiques',
+                'name' => 'Magasins',
                 'emoji' => '🛍️',
                 'description' => 'Magasins de vêtements, accessoires, chaussures et articles de mode',
                 'is_active' => true,
             ],
-            [
-                'name' => 'Pharmacies',
-                'emoji' => '💊',
-                'description' => 'Pharmacies et parapharmacies pour médicaments et produits de santé',
-                'is_active' => true,
-            ],
-            [
-                'name' => 'Supermarchés',
-                'emoji' => '🛒',
-                'description' => 'Supermarchés, épiceries et magasins d\'alimentation générale',
-                'is_active' => true,
-            ],
+            // [
+            //     'name' => 'Pharmacies',
+            //     'emoji' => '💊',
+            //     'description' => 'Pharmacies et parapharmacies pour médicaments et produits de santé',
+            //     'is_active' => true,
+            // ],
+            // [
+            //     'name' => 'Supermarchés',
+            //     'emoji' => '🛒',
+            //     'description' => 'Supermarchés, épiceries et magasins d\'alimentation générale',
+            //     'is_active' => true,
+            // ],
         ];
 
         foreach ($commerceTypes as $type) {

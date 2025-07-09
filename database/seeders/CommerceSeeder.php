@@ -18,8 +18,8 @@ class CommerceSeeder extends Seeder
         // Récupérer les types de commerce
         $restaurantType = CommerceType::where('name', 'Restaurant')->first();
         $boutiqueType = CommerceType::where('name', 'Boutique')->first();
-        $pharmacieType = CommerceType::where('name', 'Pharmacie')->first();
-        $supermarcheType = CommerceType::where('name', 'Supermarché')->first();
+        // $pharmacieType = CommerceType::where('name', 'Pharmacie')->first();
+        // $supermarcheType = CommerceType::where('name', 'Supermarché')->first();
 
         // Récupérer quelques catégories
         $pizzaCategory = Category::where('name', 'Pizza')->first();
@@ -147,15 +147,15 @@ class CommerceSeeder extends Seeder
 
         // Créer les commerces
         foreach ($commerces as $commerceData) {
-            $categories = $commerceData['categories'] ?? [];
-            unset($commerceData['categories']);
+            // $categories = $commerceData['categories'] ?? [];
+            // unset($commerceData['categories']);
 
-            $commerce = Commerce::create($commerceData);
+            // $commerce = Commerce::create($commerceData);
 
-            // Associer les catégories
-            if (!empty($categories)) {
-                $commerce->categories()->sync(array_filter($categories));
-            }
+            // // Associer les catégories
+            // if (!empty($categories)) {
+            //     $commerce->categories()->sync(array_filter($categories));
+            // }
         }
 
         $this->command->info('✅ Commerces créés avec succès !');

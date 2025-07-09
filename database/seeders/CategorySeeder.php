@@ -16,9 +16,9 @@ class CategorySeeder extends Seeder
     {
         // Récupérer les types de commerce
         $restaurants = CommerceType::where('name', 'Restaurants')->first();
-        $boutiques = CommerceType::where('name', 'Boutiques')->first();
-        $pharmacies = CommerceType::where('name', 'Pharmacies')->first();
-        $supermarches = CommerceType::where('name', 'Supermarchés')->first();
+        $magasins = CommerceType::where('name', 'Magasins')->first();
+        // $pharmacies = CommerceType::where('name', 'Pharmacies')->first();
+        // $supermarches = CommerceType::where('name', 'Supermarchés')->first();
 
         // Catégories pour Restaurants
         if ($restaurants) {
@@ -46,9 +46,9 @@ class CategorySeeder extends Seeder
             }
         }
 
-        // Catégories pour Boutiques
-        if ($boutiques) {
-            $boutiqueCategories = [
+        // Catégories pour Magasins
+        if ($magasins) {
+            $magasinCategories = [
                 ['name' => 'Vêtements', 'emoji' => '👕', 'description' => 'Vêtements et accessoires de mode'],
                 ['name' => 'Chaussures', 'emoji' => '👟', 'description' => 'Chaussures pour tous les styles'],
                 ['name' => 'Sacs', 'emoji' => '👜', 'description' => 'Sacs à main et maroquinerie'],
@@ -56,9 +56,9 @@ class CategorySeeder extends Seeder
                 ['name' => 'Parfums', 'emoji' => '🧴', 'description' => 'Parfums et cosmétiques'],
             ];
 
-            foreach ($boutiqueCategories as $category) {
+            foreach ($magasinCategories as $category) {
                 Category::create([
-                    'commerce_type_id' => $boutiques->id,
+                    'commerce_type_id' => $magasins->id,
                     'name' => $category['name'],
                     'emoji' => $category['emoji'],
                     'description' => $category['description'],
@@ -68,45 +68,45 @@ class CategorySeeder extends Seeder
         }
 
         // Catégories pour Pharmacies
-        if ($pharmacies) {
-            $pharmacieCategories = [
-                ['name' => 'Médicaments', 'emoji' => '💊', 'description' => 'Médicaments sur ordonnance'],
-                ['name' => 'Parapharmacie', 'emoji' => '🧴', 'description' => 'Produits de soins et beauté'],
-                ['name' => 'Vitamines', 'emoji' => '💊', 'description' => 'Compléments alimentaires'],
-                ['name' => 'Premiers secours', 'emoji' => '🩹', 'description' => 'Matériel de premiers secours'],
-            ];
+        // if ($pharmacies) {
+        //     $pharmacieCategories = [
+        //         ['name' => 'Médicaments', 'emoji' => '💊', 'description' => 'Médicaments sur ordonnance'],
+        //         ['name' => 'Parapharmacie', 'emoji' => '🧴', 'description' => 'Produits de soins et beauté'],
+        //         ['name' => 'Vitamines', 'emoji' => '💊', 'description' => 'Compléments alimentaires'],
+        //         ['name' => 'Premiers secours', 'emoji' => '🩹', 'description' => 'Matériel de premiers secours'],
+        //     ];
 
-            foreach ($pharmacieCategories as $category) {
-                Category::create([
-                    'commerce_type_id' => $pharmacies->id,
-                    'name' => $category['name'],
-                    'emoji' => $category['emoji'],
-                    'description' => $category['description'],
-                    'is_active' => true,
-                ]);
-            }
-        }
+        //     foreach ($pharmacieCategories as $category) {
+        //         Category::create([
+        //             'commerce_type_id' => $pharmacies->id,
+        //             'name' => $category['name'],
+        //             'emoji' => $category['emoji'],
+        //             'description' => $category['description'],
+        //             'is_active' => true,
+        //         ]);
+        //     }
+        // }
 
         // Catégories pour Supermarchés
-        if ($supermarches) {
-            $supermarcheCategories = [
-                ['name' => 'Fruits & Légumes', 'emoji' => '🥕', 'description' => 'Produits frais du marché'],
-                ['name' => 'Boulangerie', 'emoji' => '🥖', 'description' => 'Pain frais et viennoiseries'],
-                ['name' => 'Viandes', 'emoji' => '🥩', 'description' => 'Boucherie et charcuterie'],
-                ['name' => 'Poissons', 'emoji' => '🐟', 'description' => 'Poissonnerie fraîche'],
-                ['name' => 'Produits laitiers', 'emoji' => '🥛', 'description' => 'Lait, fromages et yaourts'],
-                ['name' => 'Épicerie', 'emoji' => '🥫', 'description' => 'Produits d\'épicerie générale'],
-            ];
+        // if ($supermarches) {
+        //     $supermarcheCategories = [
+        //         ['name' => 'Fruits & Légumes', 'emoji' => '🥕', 'description' => 'Produits frais du marché'],
+        //         ['name' => 'Boulangerie', 'emoji' => '🥖', 'description' => 'Pain frais et viennoiseries'],
+        //         ['name' => 'Viandes', 'emoji' => '🥩', 'description' => 'Boucherie et charcuterie'],
+        //         ['name' => 'Poissons', 'emoji' => '🐟', 'description' => 'Poissonnerie fraîche'],
+        //         ['name' => 'Produits laitiers', 'emoji' => '🥛', 'description' => 'Lait, fromages et yaourts'],
+        //         ['name' => 'Épicerie', 'emoji' => '🥫', 'description' => 'Produits d\'épicerie générale'],
+        //     ];
 
-            foreach ($supermarcheCategories as $category) {
-                Category::create([
-                    'commerce_type_id' => $supermarches->id,
-                    'name' => $category['name'],
-                    'emoji' => $category['emoji'],
-                    'description' => $category['description'],
-                    'is_active' => true,
-                ]);
-            }
-        }
+        //     foreach ($supermarcheCategories as $category) {
+        //         Category::create([
+        //             'commerce_type_id' => $supermarches->id,
+        //             'name' => $category['name'],
+        //             'emoji' => $category['emoji'],
+        //             'description' => $category['description'],
+        //             'is_active' => true,
+        //         ]);
+        //     }
+        // }
     }
 }
