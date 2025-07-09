@@ -61,6 +61,413 @@
 }
 
 /* ===================================================
+   CARTES ADMIN (ADMIN CARDS)
+   =================================================== */
+
+/* Carte titre principale */
+.admin-title-card {
+    background: linear-gradient(135deg, var(--admin-primary) 0%, var(--admin-primary-dark) 100%);
+    border: none;
+    box-shadow: var(--admin-shadow);
+    margin-bottom: var(--admin-spacing-lg);
+}
+
+.admin-title-card .card-body {
+    padding: var(--admin-spacing-lg);
+}
+
+.admin-title-card h4 {
+    color: white;
+    margin-bottom: var(--admin-spacing-xs);
+}
+
+.admin-title-card p {
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 0;
+}
+
+/* Carte principale */
+.admin-card {
+    border: none;
+    border-radius: var(--admin-border-radius-lg);
+    box-shadow: var(--admin-shadow);
+    overflow: hidden;
+}
+
+/* ===================================================
+   TABLEAUX ADMIN (ADMIN TABLES)
+   =================================================== */
+
+/* Header du tableau */
+.admin-table-header {
+    background: linear-gradient(135deg, var(--admin-primary) 0%, var(--admin-primary-dark) 100%);
+}
+
+.admin-table-header th {
+    color: white !important;
+    font-weight: 600;
+    padding: var(--admin-spacing-md) var(--admin-spacing-lg);
+    border: none;
+    text-transform: uppercase;
+    font-size: 0.875rem;
+    letter-spacing: 0.5px;
+}
+
+/* Lignes du tableau */
+.admin-table-row {
+    transition: var(--admin-transition);
+    border-bottom: 1px solid var(--admin-gray-100);
+}
+
+.admin-table-row:hover {
+    background-color: var(--admin-primary-light);
+    transform: translateX(2px);
+}
+
+.admin-table-row td {
+    padding: var(--admin-spacing-md) var(--admin-spacing-lg);
+    vertical-align: middle;
+    border: none;
+}
+
+/* Conteneur du tableau */
+.admin-table {
+    overflow: hidden;
+    border-radius: var(--admin-border-radius-lg);
+}
+
+/* ===================================================
+   BADGES ADMIN
+   =================================================== */
+
+.admin-badge {
+    padding: var(--admin-spacing-xs) var(--admin-spacing-sm);
+    border-radius: var(--admin-border-radius-lg);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--admin-spacing-xs);
+}
+
+.admin-badge-success {
+    background-color: var(--admin-success);
+    color: white;
+}
+
+.admin-badge-inactive {
+    background-color: var(--admin-gray-400);
+    color: white;
+}
+
+.admin-badge-primary {
+    background-color: var(--admin-primary);
+    color: white;
+}
+
+.admin-badge-warning {
+    background-color: var(--admin-warning);
+    color: var(--admin-primary);
+}
+
+.admin-badge-danger {
+    background-color: var(--admin-danger);
+    color: white;
+}
+
+/* ===================================================
+   BOUTONS D'ACTION ADMIN
+   =================================================== */
+
+.admin-action-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--admin-border-radius);
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--admin-transition);
+    font-size: 0.875rem;
+}
+
+.admin-btn-edit {
+    background-color: var(--admin-info);
+    color: white;
+}
+
+.admin-btn-edit:hover {
+    background-color: #138496;
+    color: white;
+    transform: translateY(-1px);
+}
+
+.admin-btn-delete {
+    background-color: var(--admin-danger);
+    color: white;
+}
+
+.admin-btn-delete:hover {
+    background-color: #c82333;
+    color: white;
+    transform: translateY(-1px);
+}
+
+.admin-btn-toggle-active {
+    background-color: var(--admin-success);
+    color: white;
+}
+
+.admin-btn-toggle-active:hover {
+    background-color: #218838;
+    color: white;
+    transform: translateY(-1px);
+}
+
+.admin-btn-toggle-inactive {
+    background-color: var(--admin-gray-400);
+    color: white;
+}
+
+.admin-btn-toggle-inactive:hover {
+    background-color: var(--admin-gray-500);
+    color: white;
+    transform: translateY(-1px);
+}
+
+.admin-btn-view {
+    background-color: var(--admin-warning);
+    color: var(--admin-primary);
+}
+
+.admin-btn-view:hover {
+    background-color: #e0a800;
+    color: var(--admin-primary);
+    transform: translateY(-1px);
+}
+
+/* ===================================================
+   BOUTONS PRINCIPAUX ADMIN
+   =================================================== */
+
+.btn-admin-primary {
+    background: linear-gradient(135deg, var(--admin-primary) 0%, var(--admin-primary-dark) 100%);
+    border: none;
+    color: white;
+    padding: var(--admin-spacing-sm) var(--admin-spacing-lg);
+    border-radius: var(--admin-border-radius);
+    font-weight: 600;
+    transition: var(--admin-transition);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--admin-spacing-xs);
+}
+
+.btn-admin-primary:hover {
+    background: linear-gradient(135deg, var(--admin-accent) 0%, #ea580c 100%);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: var(--admin-shadow);
+}
+
+.btn-admin-secondary {
+    background: linear-gradient(135deg, var(--admin-secondary) 0%, #b91c1c 100%);
+    border: none;
+    color: white;
+    padding: var(--admin-spacing-sm) var(--admin-spacing-lg);
+    border-radius: var(--admin-border-radius);
+    font-weight: 600;
+    transition: var(--admin-transition);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--admin-spacing-xs);
+}
+
+.btn-admin-secondary:hover {
+    background: linear-gradient(135deg, var(--admin-accent) 0%, #ea580c 100%);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: var(--admin-shadow);
+}
+
+/* ===================================================
+   FORMULAIRES ADMIN
+   =================================================== */
+
+.admin-form-control {
+    border: 2px solid var(--admin-gray-200);
+    border-radius: var(--admin-border-radius);
+    padding: var(--admin-spacing-sm) var(--admin-spacing-md);
+    transition: var(--admin-transition);
+    font-size: 0.875rem;
+}
+
+.admin-form-control:focus {
+    border-color: var(--admin-primary);
+    box-shadow: 0 0 0 0.2rem var(--admin-primary-light);
+    outline: none;
+}
+
+.admin-form-control.is-invalid {
+    border-color: var(--admin-danger);
+}
+
+.admin-form-control.is-valid {
+    border-color: var(--admin-success);
+}
+
+/* ===================================================
+   MODALES ADMIN
+   =================================================== */
+
+.admin-modal .modal-header {
+    background: linear-gradient(135deg, var(--admin-primary) 0%, var(--admin-primary-dark) 100%);
+    color: white;
+    border-bottom: none;
+}
+
+.admin-modal .modal-header .btn-close {
+    filter: invert(1);
+}
+
+.admin-modal .modal-title {
+    font-weight: 600;
+}
+
+.admin-modal .modal-body {
+    padding: var(--admin-spacing-lg);
+}
+
+.admin-modal .modal-footer {
+    border-top: 1px solid var(--admin-gray-100);
+    padding: var(--admin-spacing-md) var(--admin-spacing-lg);
+}
+
+/* ===================================================
+   ALERTES ADMIN
+   =================================================== */
+
+.admin-alert {
+    border: none;
+    border-radius: var(--admin-border-radius-lg);
+    padding: var(--admin-spacing-md) var(--admin-spacing-lg);
+    margin-bottom: var(--admin-spacing-md);
+    font-weight: 500;
+}
+
+.admin-alert.alert-success {
+    background-color: rgba(40, 167, 69, 0.1);
+    color: var(--admin-success);
+    border-left: 4px solid var(--admin-success);
+}
+
+.admin-alert.alert-danger {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: var(--admin-danger);
+    border-left: 4px solid var(--admin-danger);
+}
+
+.admin-alert.alert-warning {
+    background-color: rgba(255, 193, 7, 0.1);
+    color: #856404;
+    border-left: 4px solid var(--admin-warning);
+}
+
+.admin-alert.alert-info {
+    background-color: rgba(23, 162, 184, 0.1);
+    color: var(--admin-info);
+    border-left: 4px solid var(--admin-info);
+}
+
+/* ===================================================
+   ÉTAT VIDE ADMIN
+   =================================================== */
+
+.admin-empty-state {
+    text-align: center;
+    padding: var(--admin-spacing-xl) var(--admin-spacing-lg);
+    color: var(--admin-gray-600);
+}
+
+.admin-empty-state i {
+    font-size: 4rem;
+    color: var(--admin-gray-300);
+    margin-bottom: var(--admin-spacing-lg);
+}
+
+.admin-empty-state h5 {
+    color: var(--admin-gray-700);
+    margin-bottom: var(--admin-spacing-sm);
+}
+
+.admin-empty-state p {
+    color: var(--admin-gray-500);
+    margin-bottom: var(--admin-spacing-lg);
+}
+
+/* ===================================================
+   LOGOS ET IMAGES ADMIN
+   =================================================== */
+
+.admin-logo-sm {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid var(--admin-gray-100);
+}
+
+.admin-logo-md {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: var(--admin-border-radius-lg);
+    border: 2px solid var(--admin-gray-100);
+}
+
+.admin-logo-lg {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: var(--admin-border-radius-xl);
+    border: 3px solid var(--admin-gray-100);
+}
+
+/* ===================================================
+   PAGINATION ADMIN
+   =================================================== */
+
+.admin-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--admin-spacing-xs);
+    padding: var(--admin-spacing-lg);
+}
+
+.admin-pagination .page-link {
+    color: var(--admin-primary);
+    border: 1px solid var(--admin-gray-200);
+    border-radius: var(--admin-border-radius);
+    padding: var(--admin-spacing-xs) var(--admin-spacing-sm);
+    transition: var(--admin-transition);
+}
+
+.admin-pagination .page-link:hover {
+    background-color: var(--admin-primary);
+    color: white;
+    border-color: var(--admin-primary);
+}
+
+.admin-pagination .page-item.active .page-link {
+    background-color: var(--admin-primary);
+    border-color: var(--admin-primary);
+    color: white;
+}
+
+/* ===================================================
    CARTES SPÉCIALES ADMIN
    =================================================== */
 
@@ -119,100 +526,6 @@
 .avatar-initial.bg-theme-red {
     background-color: var(--admin-secondary) !important;
     color: white !important;
-}
-
-/* ===================================================
-   BADGES PERSONNALISÉS
-   =================================================== */
-
-.badge-lebayo {
-    background-color: var(--admin-primary);
-    color: white;
-}
-
-.badge-lebayo-accent {
-    background-color: var(--admin-accent);
-    color: white;
-}
-
-.badge-lebayo-secondary {
-    background-color: var(--admin-secondary);
-    color: white;
-}
-
-/* ===================================================
-   BOUTONS THÉMATIQUES
-   =================================================== */
-
-.btn-lebayo-primary {
-    background: linear-gradient(135deg, var(--admin-primary) 0%, var(--admin-primary-dark) 100%);
-    border-color: var(--admin-primary);
-    color: white;
-    transition: var(--admin-transition);
-}
-
-.btn-lebayo-primary:hover {
-    background: linear-gradient(135deg, var(--admin-accent) 0%, #EA580C 100%);
-    border-color: var(--admin-accent);
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: var(--admin-shadow);
-}
-
-.btn-lebayo-secondary {
-    background: linear-gradient(135deg, var(--admin-secondary) 0%, #B91C1C 100%);
-    border-color: var(--admin-secondary);
-    color: white;
-    transition: var(--admin-transition);
-}
-
-.btn-lebayo-secondary:hover {
-    background: linear-gradient(135deg, var(--admin-accent) 0%, #EA580C 100%);
-    border-color: var(--admin-accent);
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: var(--admin-shadow);
-}
-
-/* ===================================================
-   GRAPHIQUES ET CHARTS
-   =================================================== */
-
-/* Conteneur pour les graphiques */
-.chart-container {
-    position: relative;
-    height: 400px;
-    margin: var(--admin-spacing-md) 0;
-}
-
-.chart-container.chart-sm {
-    height: 200px;
-}
-
-.chart-container.chart-lg {
-    height: 600px;
-}
-
-/* Légende personnalisée */
-.chart-legend {
-    display: flex;
-    justify-content: center;
-    gap: var(--admin-spacing-md);
-    margin-top: var(--admin-spacing-md);
-}
-
-.chart-legend-item {
-    display: flex;
-    align-items: center;
-    gap: var(--admin-spacing-xs);
-    font-size: 0.875rem;
-    color: var(--admin-gray-600);
-}
-
-.chart-legend-color {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
 }
 
 /* ===================================================
@@ -455,53 +768,48 @@
    =================================================== */
 
 @media (max-width: 768px) {
-    .stat-card {
+    .admin-title-card .card-body {
         padding: var(--admin-spacing-md);
     }
     
-    .stat-card-value {
-        font-size: 1.875rem;
-    }
-    
-    .activity-item {
+    .admin-table-header th,
+    .admin-table-row td {
         padding: var(--admin-spacing-sm);
     }
     
-    .activity-avatar {
-        width: 32px;
-        height: 32px;
+    .admin-action-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 0.75rem;
     }
     
-    .chart-container {
-        height: 300px;
+    .admin-empty-state {
+        padding: var(--admin-spacing-lg) var(--admin-spacing-sm);
     }
     
-    .chart-legend {
-        flex-wrap: wrap;
-        gap: var(--admin-spacing-sm);
+    .admin-empty-state i {
+        font-size: 3rem;
     }
 }
 
 @media (max-width: 480px) {
-    .stat-card {
-        padding: var(--admin-spacing-sm);
+    .admin-title-card h4 {
+        font-size: 1.25rem;
     }
     
-    .stat-card-value {
-        font-size: 1.5rem;
+    .admin-table-header th {
+        font-size: 0.75rem;
     }
     
-    .chart-container {
-        height: 250px;
+    .admin-badge {
+        font-size: 0.6875rem;
+        padding: 2px 6px;
     }
     
-    .table-enhanced {
-        font-size: 0.875rem;
-    }
-    
-    .table-enhanced thead th,
-    .table-enhanced tbody td {
-        padding: var(--admin-spacing-sm);
+    .btn-admin-primary,
+    .btn-admin-secondary {
+        padding: var(--admin-spacing-xs) var(--admin-spacing-sm);
+        font-size: 0.8125rem;
     }
 }
 
@@ -576,19 +884,25 @@
    =================================================== */
 
 @media print {
-    .stat-card {
+    .admin-title-card,
+    .admin-card {
         box-shadow: none;
         border: 1px solid var(--admin-gray-200);
     }
     
-    .chart-container {
-        height: 300px;
+    .admin-table-header {
+        background: var(--admin-gray-800) !important;
+        color: white !important;
     }
     
-    .btn-lebayo-primary,
-    .btn-lebayo-secondary {
+    .btn-admin-primary,
+    .btn-admin-secondary {
         background: var(--admin-gray-800) !important;
         border-color: var(--admin-gray-800) !important;
         color: white !important;
+    }
+    
+    .admin-action-btn {
+        display: none;
     }
 } 

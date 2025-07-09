@@ -423,75 +423,16 @@
 
 @push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  // Graphiques simples avec ApexCharts
-  const commerceChartConfig = {
-    chart: {
-      type: 'donut',
-      height: 65,
-      sparkline: {
-        enabled: true
-      }
-    },
-    series: [{{ $stats['active_commerces'] }}, {{ $stats['total_commerces'] - $stats['active_commerces'] }}],
-    colors: ['#003049', '#e3f2fd'],
-    legend: {
-      show: false
-    },
-    dataLabels: {
-      enabled: false
-    }
-  };
+// Données pour les graphiques
+window.commerceData = [{{ $stats['active_commerces'] }}, {{ $stats['total_commerces'] - $stats['active_commerces'] }}];
+window.productData = [{{ $stats['available_products'] }}, {{ $stats['total_products'] - $stats['available_products'] }}];
+window.statsData = [{{ $stats['total_commerces'] }}, {{ $stats['total_products'] }}, {{ $stats['total_categories'] }}, {{ $stats['total_users'] }}];
 
-  const productChartConfig = {
-    chart: {
-      type: 'donut',
-      height: 65,
-      sparkline: {
-        enabled: true
-      }
-    },
-    series: [{{ $stats['available_products'] }}, {{ $stats['total_products'] - $stats['available_products'] }}],
-    colors: ['#F77F00', '#e3f2fd'],
-    legend: {
-      show: false
-    },
-    dataLabels: {
-      enabled: false
-    }
-  };
-
-  const statsChartConfig = {
-    chart: {
-      type: 'bar',
-      height: 200,
-      toolbar: {
-        show: false
-      }
-    },
-    series: [{
-      name: 'Statistiques',
-      data: [{{ $stats['total_commerces'] }}, {{ $stats['total_products'] }}, {{ $stats['total_categories'] }}, {{ $stats['total_users'] }}]
-    }],
-    xaxis: {
-      categories: ['Commerces', 'Produits', 'Catégories', 'Utilisateurs']
-    },
-    colors: ['#003049', '#F77F00', '#FCBF49', '#D62828'],
-    dataLabels: {
-      enabled: false
-    }
-  };
-
-  // Rendu des graphiques
-  if (document.querySelector('#commerceChart')) {
-    new ApexCharts(document.querySelector('#commerceChart'), commerceChartConfig).render();
-  }
-  if (document.querySelector('#productChart')) {
-    new ApexCharts(document.querySelector('#productChart'), productChartConfig).render();
-  }
-  if (document.querySelector('#statsChart')) {
-    new ApexCharts(document.querySelector('#statsChart'), statsChartConfig).render();
-  }
-});
+// Données supplémentaires pour le dashboard
+window.dashboardData = {
+  stats: @json($stats),
+  recent_commerces: @json($recent_commerces),
+  recent_products: @json($recent_products)
+};
 </script>
 @endpush
