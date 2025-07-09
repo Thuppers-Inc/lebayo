@@ -76,6 +76,14 @@ class Cart extends Model
     }
 
     /**
+     * Obtenir le panier d'un utilisateur (sans le créer)
+     */
+    public static function getForUser($userId)
+    {
+        return static::where('user_id', $userId)->with('items.product')->first();
+    }
+
+    /**
      * Obtenir ou créer un panier pour une session
      */
     public static function getOrCreateForSession($sessionId)

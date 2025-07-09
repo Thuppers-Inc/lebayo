@@ -184,4 +184,43 @@ class User extends Authenticatable
     {
         return Cart::getOrCreateForUser($this->id);
     }
+
+    /**
+     * Relation avec les adresses de l'utilisateur
+     */
+    public function addresses()
+    {
+        return $this->hasMany(Address::class);
+    }
+
+    /**
+     * Relation avec les commandes de l'utilisateur
+     */
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    /**
+     * Obtenir l'adresse par défaut de l'utilisateur
+     */
+    public function getDefaultAddressAttribute()
+    {
+        return $this->addresses()->where('is_default', true)->first();
+    }
+
+    /**
+     * Obtenir les initiales de l'utilisateur pour l'avatar
+     */
+    public function getInitialsAttribute(): string
+    {
+        $names = explode(' ', $this->full_name);
+        $initials = '';
+        
+        foreach ($names as $name) {
+            $initials .= strtoupper(substr($name, 0, 1));
+        }
+        
+        return substr($initials, 0, 2);
+    }
 }

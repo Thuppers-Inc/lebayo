@@ -152,3 +152,14 @@ Route::prefix('cart')->name('cart.')->group(function () {
 // Routes de géolocalisation (API publique)
 Route::post('/api/reverse-geocode', [\App\Http\Controllers\LocationController::class, 'reverseGeocode'])->name('api.reverse-geocode');
 Route::get('/api/location-by-ip', [\App\Http\Controllers\LocationController::class, 'getLocationByIp'])->name('api.location-by-ip');
+
+// Routes du processus de checkout (protégées par authentification)
+Route::prefix('checkout')->name('checkout.')->middleware(['auth'])->group(function () {
+    Route::get('/', [App\Http\Controllers\CheckoutController::class, 'index'])->name('index');
+    Route::get('/address', [App\Http\Controllers\CheckoutController::class, 'address'])->name('address');
+    Route::get('/payment', [App\Http\Controllers\CheckoutController::class, 'payment'])->name('payment');
+    Route::get('/confirm', [App\Http\Controllers\CheckoutController::class, 'confirm'])->name('confirm');
+    Route::post('/store', [App\Http\Controllers\CheckoutController::class, 'store'])->name('store');
+    Route::get('/success/{orderNumber}', [App\Http\Controllers\CheckoutController::class, 'success'])->name('success');
+    Route::post('/address/store', [App\Http\Controllers\CheckoutController::class, 'storeAddress'])->name('address.store');
+});

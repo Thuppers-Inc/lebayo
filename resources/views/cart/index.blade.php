@@ -101,10 +101,10 @@
                             <span id="cartTotal">{{ number_format($totalPrice, 0, ',', ' ') }} F</span>
                         </div>
                         
-                        <button type="button" class="checkout-btn">
+                        <a href="{{ route('checkout.index') }}" class="checkout-btn">
                             <span>Passer la commande</span>
                             <span class="checkout-icon">→</span>
-                        </button>
+                        </a>
                         
                         <div class="security-info">
                             <span class="security-icon">🔒</span>
