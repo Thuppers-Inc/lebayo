@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
             CommerceSeeder::class,
             ProductSeeder::class,
             UserSeeder::class,
+            ClientSeeder::class,
         ]);
         
         // Créer un super administrateur

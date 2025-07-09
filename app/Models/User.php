@@ -118,13 +118,66 @@ class User extends Authenticatable
             return asset('storage/' . $this->photo);
         }
         
-        // Image par défaut selon le type d'utilisateur
+        // Générer un avatar par défaut basé sur les initiales et le type d'utilisateur
+        $name = urlencode($this->full_name);
+        
+        // Couleurs selon le type d'utilisateur
+        $colors = match($this->account_type) {
+            AccountType::AGENT => ['background' => '28a745', 'color' => 'ffffff'], // Vert
+            AccountType::ADMIN => ['background' => '003049', 'color' => 'ffffff'], // Bleu foncé
+            AccountType::CLIENT => ['background' => 'F77F00', 'color' => 'ffffff'], // Orange
+            default => ['background' => '6c757d', 'color' => 'ffffff'], // Gris
+        };
+        
+        // Utiliser le service UI Avatars avec fallback local
+        try {
+            // Essayer d'abord le service externe
+            $externalUrl = "https://ui-avatars.com/api/?name={$name}&size=150&background={$colors['background']}&color={$colors['color']}&bold=true&format=png";
+            
+            // Pour éviter les problèmes de réseau, on retourne l'URL externe
+            // mais on a des images locales en fallback
+            return $externalUrl;
+        } catch (\Exception $e) {
+            // En cas d'erreur, utiliser les images locales
+            return $this->getLocalAvatarUrl();
+        }
+    }
+
+    /**
+     * Obtenir l'URL de l'avatar local par défaut
+     */
+    public function getLocalAvatarUrl(): string
+    {
         return match($this->account_type) {
             AccountType::AGENT => asset('images/delivery-avatar-placeholder.png'),
             AccountType::ADMIN => asset('images/admin-avatar-placeholder.png'),
             AccountType::CLIENT => asset('images/client-avatar-placeholder.png'),
             default => asset('images/default-avatar.png'),
         };
+    }
+
+    /**
+     * Générer un avatar SVG local par défaut
+     */
+    public function getLocalAvatarAttribute(): string
+    {
+        $initials = $this->initials;
+        
+        // Couleurs selon le type d'utilisateur
+        $colors = match($this->account_type) {
+            AccountType::AGENT => ['background' => '#28a745', 'color' => '#ffffff'], // Vert
+            AccountType::ADMIN => ['background' => '#003049', 'color' => '#ffffff'], // Bleu foncé
+            AccountType::CLIENT => ['background' => '#F77F00', 'color' => '#ffffff'], // Orange
+            default => ['background' => '#6c757d', 'color' => '#ffffff'], // Gris
+        };
+        
+        $svg = '
+        <svg xmlns="http://www.w3.org/2000/svg" width="150" height="150" viewBox="0 0 150 150">
+            <rect width="150" height="150" fill="' . $colors['background'] . '" rx="75"/>
+            <text x="75" y="85" text-anchor="middle" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="' . $colors['color'] . '">' . $initials . '</text>
+        </svg>';
+        
+        return 'data:image/svg+xml;base64,' . base64_encode($svg);
     }
 
     /**

@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\LivreurController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\ClientController;
 
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
@@ -63,9 +64,9 @@ Route::prefix('admin')->name('admin.')->middleware(['admin'])->group(function ()
     Route::post('orders/{order}/update-payment-status', [OrderController::class, 'updatePaymentStatus'])->name('orders.update-payment-status');
     
     // Clients
-    Route::resource('clients', App\Http\Controllers\Admin\ClientController::class);
-    Route::get('clients/{client}/orders', [App\Http\Controllers\Admin\ClientController::class, 'orders'])->name('clients.orders');
-    Route::get('clients/{client}/addresses', [App\Http\Controllers\Admin\ClientController::class, 'addresses'])->name('clients.addresses');
+    Route::resource('clients', ClientController::class);
+    Route::get('clients/{client}/orders', [ClientController::class, 'orders'])->name('clients.orders');
+    Route::get('clients/{client}/addresses', [ClientController::class, 'addresses'])->name('clients.addresses');
     
     // Page vide pour tests
     Route::get('/blank', function () {
