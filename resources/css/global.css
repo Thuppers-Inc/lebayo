@@ -444,66 +444,347 @@ main {
     background-color: var(--red-dark);
 }
 
+/* Hero image et delivery illustration avec animations avancées */
 .hero-image {
     display: flex;
     justify-content: center;
     align-items: center;
     position: relative;
+    min-height: 400px;
+    overflow: hidden;
 }
 
 .delivery-illustration {
     position: relative;
-    width: 300px;
-    height: 300px;
+    width: 350px;
+    height: 350px;
     display: flex;
     align-items: center;
     justify-content: center;
+    animation: container-pulse 6s ease-in-out infinite;
 }
 
 .delivery-person {
-    font-size: 4rem;
-    z-index: 2;
+    font-size: 3.5rem;
+    z-index: 10;
+    animation: delivery-ride 3s ease-in-out infinite;
+    transform-origin: center bottom;
+    filter: drop-shadow(0 8px 16px rgba(0,0,0,0.2));
+    transition: all 0.3s ease;
 }
 
 .floating-food {
     position: absolute;
-    font-size: 2rem;
-    animation: float 3s ease-in-out infinite;
+    font-size: 2.2rem;
+    opacity: 0;
+    animation-fill-mode: both;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
+    transition: all 0.3s ease;
 }
 
 .floating-food.pizza {
-    top: 10%;
-    right: 10%;
-    animation-delay: 0s;
+    top: 15%;
+    right: 15%;
+    animation: 
+        food-orbit-1 8s linear infinite,
+        food-entrance 1s ease-out 0.5s both;
 }
 
 .floating-food.burger {
-    top: 60%;
-    left: 5%;
-    animation-delay: 1s;
+    top: 25%;
+    left: 10%;
+    animation: 
+        food-orbit-2 10s linear infinite,
+        food-entrance 1s ease-out 1s both;
 }
 
 .floating-food:nth-child(4) {
-    bottom: 10%;
+    bottom: 20%;
     right: 20%;
-    animation-delay: 2s;
+    animation: 
+        food-orbit-3 6s linear infinite,
+        food-entrance 1s ease-out 1.5s both;
 }
 
 .delivery-bag {
     position: absolute;
-    font-size: 1.5rem;
-    bottom: 20%;
-    left: 40%;
-    animation: float 2s ease-in-out infinite;
-    animation-delay: 0.5s;
+    font-size: 2.5rem;
+    bottom: 15%;
+    left: 35%;
+    opacity: 0;
+    animation: 
+        bag-bounce 2.5s ease-in-out infinite,
+        bag-entrance 1.2s ease-out 2s both;
+    transform-origin: center bottom;
+    filter: drop-shadow(0 6px 12px rgba(0,0,0,0.2));
 }
 
-@keyframes float {
+/* Effets décoratifs */
+.delivery-illustration::before {
+    content: '✨';
+    position: absolute;
+    top: 10%;
+    right: 25%;
+    font-size: 1.2rem;
+    opacity: 0;
+    animation: sparkle-1 4s ease-in-out infinite 2.5s;
+    z-index: 5;
+}
+
+.delivery-illustration::after {
+    content: '💨';
+    position: absolute;
+    bottom: 30%;
+    left: 25%;
+    font-size: 1.5rem;
+    opacity: 0;
+    animation: wind-effect 3s ease-in-out infinite 3s;
+    z-index: 5;
+}
+
+/* Animation du conteneur principal */
+@keyframes container-pulse {
     0%, 100% {
-        transform: translateY(0px);
+        transform: scale(1);
     }
     50% {
-        transform: translateY(-20px);
+        transform: scale(1.02);
+    }
+}
+
+/* Animation du livreur - effet de conduite dynamique */
+@keyframes delivery-ride {
+    0%, 100% {
+        transform: translateY(0px) rotate(0deg);
+    }
+    25% {
+        transform: translateY(-8px) rotate(-2deg);
+    }
+    50% {
+        transform: translateY(-15px) rotate(0deg);
+    }
+    75% {
+        transform: translateY(-8px) rotate(2deg);
+    }
+}
+
+/* Animations d'orbite sophistiquées pour les plats */
+@keyframes food-orbit-1 {
+    0% {
+        transform: rotate(0deg) translateX(120px) rotate(0deg) scale(1);
+    }
+    25% {
+        transform: rotate(90deg) translateX(120px) rotate(-90deg) scale(1.1);
+    }
+    50% {
+        transform: rotate(180deg) translateX(120px) rotate(-180deg) scale(1);
+    }
+    75% {
+        transform: rotate(270deg) translateX(120px) rotate(-270deg) scale(0.9);
+    }
+    100% {
+        transform: rotate(360deg) translateX(120px) rotate(-360deg) scale(1);
+    }
+}
+
+@keyframes food-orbit-2 {
+    0% {
+        transform: rotate(180deg) translateX(100px) rotate(-180deg) scale(1);
+    }
+    25% {
+        transform: rotate(270deg) translateX(100px) rotate(-270deg) scale(1.15);
+    }
+    50% {
+        transform: rotate(360deg) translateX(100px) rotate(-360deg) scale(1);
+    }
+    75% {
+        transform: rotate(450deg) translateX(100px) rotate(-450deg) scale(0.85);
+    }
+    100% {
+        transform: rotate(540deg) translateX(100px) rotate(-540deg) scale(1);
+    }
+}
+
+@keyframes food-orbit-3 {
+    0% {
+        transform: rotate(90deg) translateX(90px) rotate(-90deg) scale(1);
+    }
+    25% {
+        transform: rotate(180deg) translateX(90px) rotate(-180deg) scale(0.9);
+    }
+    50% {
+        transform: rotate(270deg) translateX(90px) rotate(-270deg) scale(1.2);
+    }
+    75% {
+        transform: rotate(360deg) translateX(90px) rotate(-360deg) scale(1);
+    }
+    100% {
+        transform: rotate(450deg) translateX(90px) rotate(-450deg) scale(1);
+    }
+}
+
+/* Animation d'entrée dramatique pour les plats */
+@keyframes food-entrance {
+    0% {
+        opacity: 0;
+        transform: scale(0) rotate(180deg);
+    }
+    50% {
+        opacity: 0.8;
+        transform: scale(1.3) rotate(90deg);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+    }
+}
+
+/* Animation du sac de livraison */
+@keyframes bag-bounce {
+    0%, 100% {
+        transform: translateY(0px) scale(1);
+    }
+    25% {
+        transform: translateY(-12px) scale(1.05);
+    }
+    50% {
+        transform: translateY(-25px) scale(1.1);
+    }
+    75% {
+        transform: translateY(-12px) scale(1.05);
+    }
+}
+
+@keyframes bag-entrance {
+    0% {
+        opacity: 0;
+        transform: scale(0) translateY(50px);
+    }
+    60% {
+        opacity: 0.9;
+        transform: scale(1.3) translateY(-15px);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0px);
+    }
+}
+
+/* Animations des effets décoratifs */
+@keyframes sparkle-1 {
+    0%, 100% {
+        opacity: 0;
+        transform: scale(0.5) rotate(0deg);
+    }
+    25% {
+        opacity: 0.8;
+        transform: scale(1.2) rotate(90deg);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.5) rotate(180deg);
+    }
+    75% {
+        opacity: 0.6;
+        transform: scale(1) rotate(270deg);
+    }
+}
+
+@keyframes wind-effect {
+    0%, 100% {
+        opacity: 0;
+        transform: translateX(0px) scale(1);
+    }
+    25% {
+        opacity: 0.6;
+        transform: translateX(20px) scale(1.1);
+    }
+    50% {
+        opacity: 0.9;
+        transform: translateX(40px) scale(1.3);
+    }
+    75% {
+        opacity: 0.4;
+        transform: translateX(60px) scale(1.1);
+    }
+}
+
+/* Effets de survol interactifs */
+.delivery-illustration:hover .delivery-person {
+    animation-duration: 1.5s;
+    transform: scale(1.1);
+    filter: drop-shadow(0 12px 24px rgba(255, 107, 53, 0.3));
+}
+
+.delivery-illustration:hover .floating-food {
+    animation-duration: 4s;
+    filter: drop-shadow(0 8px 16px rgba(255, 107, 53, 0.4));
+}
+
+.delivery-illustration:hover .delivery-bag {
+    animation-duration: 1.2s;
+    filter: drop-shadow(0 10px 20px rgba(255, 107, 53, 0.3));
+}
+
+/* Responsive pour les animations */
+@media (max-width: 768px) {
+    .delivery-illustration {
+        width: 280px;
+        height: 280px;
+    }
+    
+    .delivery-person {
+        font-size: 2.8rem;
+    }
+    
+    .floating-food {
+        font-size: 1.8rem;
+    }
+    
+    .delivery-bag {
+        font-size: 2rem;
+    }
+    
+    /* Réduire les rayons d'orbite sur mobile */
+    @keyframes food-orbit-1 {
+        0% { transform: rotate(0deg) translateX(80px) rotate(0deg) scale(1); }
+        25% { transform: rotate(90deg) translateX(80px) rotate(-90deg) scale(1.1); }
+        50% { transform: rotate(180deg) translateX(80px) rotate(-180deg) scale(1); }
+        75% { transform: rotate(270deg) translateX(80px) rotate(-270deg) scale(0.9); }
+        100% { transform: rotate(360deg) translateX(80px) rotate(-360deg) scale(1); }
+    }
+    
+    @keyframes food-orbit-2 {
+        0% { transform: rotate(180deg) translateX(70px) rotate(-180deg) scale(1); }
+        25% { transform: rotate(270deg) translateX(70px) rotate(-270deg) scale(1.15); }
+        50% { transform: rotate(360deg) translateX(70px) rotate(-360deg) scale(1); }
+        75% { transform: rotate(450deg) translateX(70px) rotate(-450deg) scale(0.85); }
+        100% { transform: rotate(540deg) translateX(70px) rotate(-540deg) scale(1); }
+    }
+    
+    @keyframes food-orbit-3 {
+        0% { transform: rotate(90deg) translateX(60px) rotate(-90deg) scale(1); }
+        25% { transform: rotate(180deg) translateX(60px) rotate(-180deg) scale(0.9); }
+        50% { transform: rotate(270deg) translateX(60px) rotate(-270deg) scale(1.2); }
+        75% { transform: rotate(360deg) translateX(60px) rotate(-360deg) scale(1); }
+        100% { transform: rotate(450deg) translateX(60px) rotate(-450deg) scale(1); }
+    }
+}
+
+/* Animation supplémentaire pour performance douce */
+@media (prefers-reduced-motion: reduce) {
+    .delivery-illustration,
+    .delivery-person,
+    .floating-food,
+    .delivery-bag,
+    .delivery-illustration::before,
+    .delivery-illustration::after {
+        animation: none !important;
+    }
+    
+    .floating-food,
+    .delivery-bag {
+        opacity: 1 !important;
     }
 }
 
