@@ -1,5 +1,5 @@
 /**
- * Dashboard Analytics
+ * Dashboard Analytics - Lebayo Admin
  */
 
 'use strict';
@@ -7,656 +7,413 @@
 (function () {
   let cardColor, headingColor, axisColor, shadeColor, borderColor;
 
-  cardColor = config.colors.white;
-  headingColor = config.colors.headingColor;
-  axisColor = config.colors.axisColor;
-  borderColor = config.colors.borderColor;
+  // Couleurs du thème Lebayo
+  cardColor = '#ffffff';
+  headingColor = '#566a7f';
+  axisColor = '#a1acb8';
+  borderColor = '#eceef1';
 
-  // Total Revenue Report Chart - Bar Chart
-  // --------------------------------------------------------------------
-  const totalRevenueChartEl = document.querySelector('#totalRevenueChart'),
-    totalRevenueChartOptions = {
-      series: [
-        {
-          name: '2021',
-          data: [18, 7, 15, 29, 18, 12, 9]
-        },
-        {
-          name: '2020',
-          data: [-13, -18, -9, -14, -5, -17, -15]
-        }
-      ],
-      chart: {
-        height: 300,
-        stacked: true,
-        type: 'bar',
-        toolbar: { show: false }
-      },
-      plotOptions: {
-        bar: {
-          horizontal: false,
-          columnWidth: '33%',
-          borderRadius: 12,
-          startingShape: 'rounded',
-          endingShape: 'rounded'
-        }
-      },
-      colors: [config.colors.primary, config.colors.info],
-      dataLabels: {
-        enabled: false
-      },
-      stroke: {
-        curve: 'smooth',
-        width: 6,
-        lineCap: 'round',
-        colors: [cardColor]
-      },
-      legend: {
-        show: true,
-        horizontalAlign: 'left',
-        position: 'top',
-        markers: {
-          height: 8,
-          width: 8,
-          radius: 12,
-          offsetX: -3
-        },
-        labels: {
-          colors: axisColor
-        },
-        itemMargin: {
-          horizontal: 10
-        }
-      },
-      grid: {
-        borderColor: borderColor,
-        padding: {
-          top: 0,
-          bottom: -8,
-          left: 20,
-          right: 20
-        }
-      },
-      xaxis: {
-        categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
-        labels: {
-          style: {
-            fontSize: '13px',
-            colors: axisColor
-          }
-        },
-        axisTicks: {
-          show: false
-        },
-        axisBorder: {
-          show: false
-        }
-      },
-      yaxis: {
-        labels: {
-          style: {
-            fontSize: '13px',
-            colors: axisColor
-          }
-        }
-      },
-      responsive: [
-        {
-          breakpoint: 1700,
-          options: {
-            plotOptions: {
-              bar: {
-                borderRadius: 10,
-                columnWidth: '32%'
-              }
-            }
-          }
-        },
-        {
-          breakpoint: 1580,
-          options: {
-            plotOptions: {
-              bar: {
-                borderRadius: 10,
-                columnWidth: '35%'
-              }
-            }
-          }
-        },
-        {
-          breakpoint: 1440,
-          options: {
-            plotOptions: {
-              bar: {
-                borderRadius: 10,
-                columnWidth: '42%'
-              }
-            }
-          }
-        },
-        {
-          breakpoint: 1300,
-          options: {
-            plotOptions: {
-              bar: {
-                borderRadius: 10,
-                columnWidth: '48%'
-              }
-            }
-          }
-        },
-        {
-          breakpoint: 1200,
-          options: {
-            plotOptions: {
-              bar: {
-                borderRadius: 10,
-                columnWidth: '40%'
-              }
-            }
-          }
-        },
-        {
-          breakpoint: 1040,
-          options: {
-            plotOptions: {
-              bar: {
-                borderRadius: 11,
-                columnWidth: '48%'
-              }
-            }
-          }
-        },
-        {
-          breakpoint: 991,
-          options: {
-            plotOptions: {
-              bar: {
-                borderRadius: 10,
-                columnWidth: '30%'
-              }
-            }
-          }
-        },
-        {
-          breakpoint: 840,
-          options: {
-            plotOptions: {
-              bar: {
-                borderRadius: 10,
-                columnWidth: '35%'
-              }
-            }
-          }
-        },
-        {
-          breakpoint: 768,
-          options: {
-            plotOptions: {
-              bar: {
-                borderRadius: 10,
-                columnWidth: '28%'
-              }
-            }
-          }
-        },
-        {
-          breakpoint: 640,
-          options: {
-            plotOptions: {
-              bar: {
-                borderRadius: 10,
-                columnWidth: '32%'
-              }
-            }
-          }
-        },
-        {
-          breakpoint: 576,
-          options: {
-            plotOptions: {
-              bar: {
-                borderRadius: 10,
-                columnWidth: '37%'
-              }
-            }
-          }
-        },
-        {
-          breakpoint: 480,
-          options: {
-            plotOptions: {
-              bar: {
-                borderRadius: 10,
-                columnWidth: '45%'
-              }
-            }
-          }
-        },
-        {
-          breakpoint: 420,
-          options: {
-            plotOptions: {
-              bar: {
-                borderRadius: 10,
-                columnWidth: '52%'
-              }
-            }
-          }
-        },
-        {
-          breakpoint: 380,
-          options: {
-            plotOptions: {
-              bar: {
-                borderRadius: 10,
-                columnWidth: '60%'
-              }
-            }
-          }
-        }
-      ],
-      states: {
-        hover: {
-          filter: {
-            type: 'none'
-          }
-        },
-        active: {
-          filter: {
-            type: 'none'
-          }
-        }
-      }
-    };
-  if (typeof totalRevenueChartEl !== undefined && totalRevenueChartEl !== null) {
-    const totalRevenueChart = new ApexCharts(totalRevenueChartEl, totalRevenueChartOptions);
-    totalRevenueChart.render();
-  }
+  // Couleurs personnalisées Lebayo
+  const lebayoColors = {
+    primary: '#003049',
+    secondary: '#D62828',
+    accent: '#F77F00',
+    warning: '#FCBF49',
+    light: '#EAE2B7',
+    success: '#28a745',
+    info: '#17a2b8',
+    danger: '#dc3545'
+  };
 
-  // Growth Chart - Radial Bar Chart
-  // --------------------------------------------------------------------
-  const growthChartEl = document.querySelector('#growthChart'),
-    growthChartOptions = {
-      series: [78],
-      labels: ['Growth'],
-      chart: {
-        height: 240,
-        type: 'radialBar'
-      },
-      plotOptions: {
-        radialBar: {
-          size: 150,
-          offsetY: 10,
-          startAngle: -150,
-          endAngle: 150,
-          hollow: {
-            size: '55%'
-          },
-          track: {
-            background: cardColor,
-            strokeWidth: '100%'
-          },
-          dataLabels: {
-            name: {
-              offsetY: 15,
-              color: headingColor,
-              fontSize: '15px',
-              fontWeight: '600',
-              fontFamily: 'Public Sans'
-            },
-            value: {
-              offsetY: -25,
-              color: headingColor,
-              fontSize: '22px',
-              fontWeight: '500',
-              fontFamily: 'Public Sans'
-            }
-          }
-        }
-      },
-      colors: [config.colors.primary],
-      fill: {
-        type: 'gradient',
-        gradient: {
-          shade: 'dark',
-          shadeIntensity: 0.5,
-          gradientToColors: [config.colors.primary],
-          inverseColors: true,
-          opacityFrom: 1,
-          opacityTo: 0.6,
-          stops: [30, 70, 100]
-        }
-      },
-      stroke: {
-        dashArray: 5
-      },
-      grid: {
-        padding: {
-          top: -35,
-          bottom: -10
-        }
-      },
-      states: {
-        hover: {
-          filter: {
-            type: 'none'
-          }
-        },
-        active: {
-          filter: {
-            type: 'none'
-          }
-        }
-      }
-    };
-  if (typeof growthChartEl !== undefined && growthChartEl !== null) {
-    const growthChart = new ApexCharts(growthChartEl, growthChartOptions);
-    growthChart.render();
-  }
-
-  // Profit Report Line Chart
-  // --------------------------------------------------------------------
-  const profileReportChartEl = document.querySelector('#profileReportChart'),
-    profileReportChartConfig = {
-      chart: {
-        height: 80,
-        // width: 175,
-        type: 'line',
-        toolbar: {
-          show: false
-        },
-        dropShadow: {
+  // Configuration générale des graphiques
+  const chartConfig = {
+    chart: {
+      fontFamily: 'Public Sans, sans-serif',
+      toolbar: { show: false },
+      animations: {
+        enabled: true,
+        easing: 'easeinout',
+        speed: 800,
+        animateGradually: {
           enabled: true,
-          top: 10,
-          left: 5,
-          blur: 3,
-          color: config.colors.warning,
-          opacity: 0.15
-        },
+          delay: 150
+        }
+      }
+    },
+    colors: [lebayoColors.primary, lebayoColors.accent, lebayoColors.secondary, lebayoColors.warning],
+    grid: {
+      borderColor: borderColor,
+      padding: {
+        top: 0,
+        bottom: -8,
+        left: 20,
+        right: 20
+      }
+    },
+    legend: {
+      labels: {
+        colors: axisColor
+      }
+    },
+    stroke: {
+      curve: 'smooth'
+    },
+    dataLabels: {
+      enabled: false
+    }
+  };
+
+  // Graphique des commerces (donut chart)
+  const commerceChartEl = document.querySelector('#commerceChart');
+  if (commerceChartEl) {
+    const commerceChart = new ApexCharts(commerceChartEl, {
+      series: window.commerceData || [10, 1], // Données par défaut
+      chart: {
+        type: 'donut',
+        height: 65,
         sparkline: {
           enabled: true
         }
       },
-      grid: {
-        show: false,
-        padding: {
-          right: 8
-        }
-      },
-      colors: [config.colors.warning],
-      dataLabels: {
-        enabled: false
-      },
-      stroke: {
-        width: 5,
-        curve: 'smooth'
-      },
-      series: [
-        {
-          data: [110, 270, 145, 245, 205, 285]
-        }
-      ],
-      xaxis: {
-        show: false,
-        lines: {
-          show: false
-        },
-        labels: {
-          show: false
-        },
-        axisBorder: {
-          show: false
-        }
-      },
-      yaxis: {
-        show: false
-      }
-    };
-  if (typeof profileReportChartEl !== undefined && profileReportChartEl !== null) {
-    const profileReportChart = new ApexCharts(profileReportChartEl, profileReportChartConfig);
-    profileReportChart.render();
-  }
-
-  // Order Statistics Chart
-  // --------------------------------------------------------------------
-  const chartOrderStatistics = document.querySelector('#orderStatisticsChart'),
-    orderChartConfig = {
-      chart: {
-        height: 165,
-        width: 130,
-        type: 'donut'
-      },
-      labels: ['Electronic', 'Sports', 'Decor', 'Fashion'],
-      series: [85, 15, 50, 50],
-      colors: [config.colors.primary, config.colors.secondary, config.colors.info, config.colors.success],
-      stroke: {
-        width: 5,
-        colors: cardColor
-      },
-      dataLabels: {
-        enabled: false,
-        formatter: function (val, opt) {
-          return parseInt(val) + '%';
-        }
-      },
+      colors: [lebayoColors.primary, '#e3f2fd'],
       legend: {
         show: false
       },
-      grid: {
-        padding: {
-          top: 0,
-          bottom: 0,
-          right: 15
-        }
+      dataLabels: {
+        enabled: false
       },
       plotOptions: {
         pie: {
           donut: {
-            size: '75%',
-            labels: {
-              show: true,
-              value: {
-                fontSize: '1.5rem',
-                fontFamily: 'Public Sans',
-                color: headingColor,
-                offsetY: -15,
-                formatter: function (val) {
-                  return parseInt(val) + '%';
-                }
-              },
-              name: {
-                offsetY: 20,
-                fontFamily: 'Public Sans'
-              },
-              total: {
-                show: true,
-                fontSize: '0.8125rem',
-                color: axisColor,
-                label: 'Weekly',
-                formatter: function (w) {
-                  return '38%';
-                }
-              }
-            }
+            size: '70%'
           }
         }
       }
-    };
-  if (typeof chartOrderStatistics !== undefined && chartOrderStatistics !== null) {
-    const statisticsChart = new ApexCharts(chartOrderStatistics, orderChartConfig);
-    statisticsChart.render();
+    });
+    commerceChart.render();
   }
 
-  // Income Chart - Area chart
-  // --------------------------------------------------------------------
-  const incomeChartEl = document.querySelector('#incomeChart'),
-    incomeChartConfig = {
-      series: [
-        {
-          data: [24, 21, 30, 22, 42, 26, 35, 29]
-        }
-      ],
+  // Graphique des produits (donut chart)
+  const productChartEl = document.querySelector('#productChart');
+  if (productChartEl) {
+    const productChart = new ApexCharts(productChartEl, {
+      series: window.productData || [3, 8], // Données par défaut
       chart: {
-        height: 215,
-        parentHeightOffset: 0,
-        parentWidthOffset: 0,
-        toolbar: {
-          show: false
-        },
-        type: 'area'
+        type: 'donut',
+        height: 65,
+        sparkline: {
+          enabled: true
+        }
+      },
+      colors: [lebayoColors.accent, '#e3f2fd'],
+      legend: {
+        show: false
       },
       dataLabels: {
         enabled: false
       },
-      stroke: {
-        width: 2,
-        curve: 'smooth'
-      },
-      legend: {
-        show: false
-      },
-      markers: {
-        size: 6,
-        colors: 'transparent',
-        strokeColors: 'transparent',
-        strokeWidth: 4,
-        discrete: [
-          {
-            fillColor: config.colors.white,
-            seriesIndex: 0,
-            dataPointIndex: 7,
-            strokeColor: config.colors.primary,
-            strokeWidth: 2,
-            size: 6,
-            radius: 8
+      plotOptions: {
+        pie: {
+          donut: {
+            size: '70%'
           }
-        ],
-        hover: {
-          size: 7
+        }
+      }
+    });
+    productChart.render();
+  }
+
+  // Graphique des statistiques (bar chart)
+  const statsChartEl = document.querySelector('#statsChart');
+  if (statsChartEl) {
+    const statsChart = new ApexCharts(statsChartEl, {
+      series: [{
+        name: 'Statistiques',
+        data: window.statsData || [11, 11, 25, 23] // Données par défaut
+      }],
+      chart: {
+        type: 'bar',
+        height: 200,
+        toolbar: {
+          show: false
         }
       },
-      colors: [config.colors.primary],
-      fill: {
-        type: 'gradient',
-        gradient: {
-          shade: shadeColor,
-          shadeIntensity: 0.6,
-          opacityFrom: 0.5,
-          opacityTo: 0.25,
-          stops: [0, 95, 100]
+      plotOptions: {
+        bar: {
+          borderRadius: 4,
+          columnWidth: '60%',
+          distributed: true
         }
       },
-      grid: {
-        borderColor: borderColor,
-        strokeDashArray: 3,
-        padding: {
-          top: -20,
-          bottom: -8,
-          left: -10,
-          right: 8
-        }
-      },
+      colors: [lebayoColors.primary, lebayoColors.accent, lebayoColors.warning, lebayoColors.secondary],
       xaxis: {
-        categories: ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+        categories: ['Commerces', 'Produits', 'Catégories', 'Utilisateurs'],
+        labels: {
+          style: {
+            fontSize: '12px',
+            colors: axisColor
+          }
+        },
         axisBorder: {
           show: false
         },
         axisTicks: {
           show: false
-        },
-        labels: {
-          show: true,
-          style: {
-            fontSize: '13px',
-            colors: axisColor
-          }
         }
       },
       yaxis: {
         labels: {
-          show: false
-        },
-        min: 10,
-        max: 50,
-        tickAmount: 4
+          style: {
+            fontSize: '12px',
+            colors: axisColor
+          }
+        }
+      },
+      grid: {
+        borderColor: borderColor,
+        yaxis: {
+          lines: {
+            show: false
+          }
+        }
+      },
+      legend: {
+        show: false
+      },
+      dataLabels: {
+        enabled: false
       }
-    };
-  if (typeof incomeChartEl !== undefined && incomeChartEl !== null) {
-    const incomeChart = new ApexCharts(incomeChartEl, incomeChartConfig);
-    incomeChart.render();
+    });
+    statsChart.render();
   }
 
-  // Expenses Mini Chart - Radial Chart
-  // --------------------------------------------------------------------
-  const weeklyExpensesEl = document.querySelector('#expensesOfWeek'),
-    weeklyExpensesConfig = {
-      series: [65],
+  // Graphique d'évolution temporelle (line chart)
+  const evolutionChartEl = document.querySelector('#evolutionChart');
+  if (evolutionChartEl) {
+    const evolutionChart = new ApexCharts(evolutionChartEl, {
+      series: [{
+        name: 'Commerces',
+        data: [5, 7, 8, 10, 11]
+      }, {
+        name: 'Produits',
+        data: [3, 5, 6, 8, 11]
+      }],
       chart: {
-        width: 60,
-        height: 60,
-        type: 'radialBar'
+        type: 'line',
+        height: 250,
+        toolbar: {
+          show: false
+        }
+      },
+      colors: [lebayoColors.primary, lebayoColors.accent],
+      stroke: {
+        curve: 'smooth',
+        width: 3
+      },
+      xaxis: {
+        categories: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai'],
+        labels: {
+          style: {
+            fontSize: '12px',
+            colors: axisColor
+          }
+        },
+        axisBorder: {
+          show: false
+        },
+        axisTicks: {
+          show: false
+        }
+      },
+      yaxis: {
+        labels: {
+          style: {
+            fontSize: '12px',
+            colors: axisColor
+          }
+        }
+      },
+      grid: {
+        borderColor: borderColor,
+        strokeDashArray: 5
+      },
+      legend: {
+        show: true,
+        position: 'top',
+        horizontalAlign: 'left',
+        labels: {
+          colors: axisColor
+        }
+      },
+      markers: {
+        size: 5,
+        colors: [lebayoColors.primary, lebayoColors.accent],
+        strokeColors: cardColor,
+        strokeWidth: 2,
+        hover: {
+          size: 7
+        }
+      }
+    });
+    evolutionChart.render();
+  }
+
+  // Graphique en secteurs pour les types de commerce
+  const commerceTypesChartEl = document.querySelector('#commerceTypesChart');
+  if (commerceTypesChartEl) {
+    const commerceTypesChart = new ApexCharts(commerceTypesChartEl, {
+      series: window.commerceTypesData || [40, 30, 20, 10], // Données par défaut
+      chart: {
+        type: 'pie',
+        height: 300
+      },
+      labels: window.commerceTypesLabels || ['Restaurants', 'Pharmacies', 'Supermarchés', 'Autres'],
+      colors: [lebayoColors.primary, lebayoColors.accent, lebayoColors.secondary, lebayoColors.warning],
+      legend: {
+        show: true,
+        position: 'bottom',
+        labels: {
+          colors: axisColor
+        }
+      },
+      responsive: [{
+        breakpoint: 480,
+        options: {
+          chart: {
+            width: 200
+          },
+          legend: {
+            position: 'bottom'
+          }
+        }
+      }],
+      plotOptions: {
+        pie: {
+          donut: {
+            labels: {
+              show: true,
+              name: {
+                show: true,
+                fontSize: '16px',
+                fontWeight: 600,
+                color: headingColor
+              },
+              value: {
+                show: true,
+                fontSize: '14px',
+                fontWeight: 400,
+                color: axisColor
+              }
+            }
+          }
+        }
+      }
+    });
+    commerceTypesChart.render();
+  }
+
+  // Graphique radial pour les performances
+  const performanceChartEl = document.querySelector('#performanceChart');
+  if (performanceChartEl) {
+    const performanceChart = new ApexCharts(performanceChartEl, {
+      series: [75, 60, 85, 90],
+      chart: {
+        height: 300,
+        type: 'radialBar',
       },
       plotOptions: {
         radialBar: {
-          startAngle: 0,
-          endAngle: 360,
-          strokeWidth: '8',
-          hollow: {
-            margin: 2,
-            size: '45%'
-          },
-          track: {
-            strokeWidth: '50%',
-            background: borderColor
-          },
           dataLabels: {
-            show: true,
             name: {
-              show: false
+              fontSize: '22px',
             },
             value: {
-              formatter: function (val) {
-                return '$' + parseInt(val);
-              },
-              offsetY: 5,
-              color: '#697a8d',
-              fontSize: '13px',
-              show: true
+              fontSize: '16px',
+            },
+            total: {
+              show: true,
+              label: 'Performance',
+              formatter: function (w) {
+                return '77%'
+              }
             }
           }
         }
       },
-      fill: {
-        type: 'solid',
-        colors: config.colors.primary
-      },
-      stroke: {
-        lineCap: 'round'
-      },
-      grid: {
-        padding: {
-          top: -10,
-          bottom: -15,
-          left: -10,
-          right: -10
-        }
-      },
-      states: {
-        hover: {
-          filter: {
-            type: 'none'
-          }
-        },
-        active: {
-          filter: {
-            type: 'none'
-          }
-        }
-      }
-    };
-  if (typeof weeklyExpensesEl !== undefined && weeklyExpensesEl !== null) {
-    const weeklyExpenses = new ApexCharts(weeklyExpensesEl, weeklyExpensesConfig);
-    weeklyExpenses.render();
+      labels: ['Commerces', 'Produits', 'Satisfaction', 'Livraisons'],
+      colors: [lebayoColors.primary, lebayoColors.accent, lebayoColors.success, lebayoColors.info]
+    });
+    performanceChart.render();
   }
+
+  // Animation des cartes de statistiques
+  const statCards = document.querySelectorAll('.stat-card');
+  statCards.forEach((card, index) => {
+    card.style.animationDelay = `${index * 0.1}s`;
+    card.classList.add('animate-fade-in');
+  });
+
+  // Animation des éléments de la liste d'activités
+  const activityItems = document.querySelectorAll('.activity-item');
+  activityItems.forEach((item, index) => {
+    item.style.animationDelay = `${index * 0.05}s`;
+    item.classList.add('animate-slide-in-right');
+  });
+
+  // Mise à jour des graphiques avec les données réelles (si disponibles)
+  if (window.dashboardData) {
+    // Mettre à jour les graphiques avec les données du serveur
+    console.log('Données du dashboard chargées:', window.dashboardData);
+  }
+
+  // Gestion du redimensionnement des graphiques
+  window.addEventListener('resize', function() {
+    // Redimensionner les graphiques si nécessaire
+    if (typeof ApexCharts !== 'undefined') {
+      setTimeout(() => {
+        window.dispatchEvent(new Event('resize'));
+      }, 100);
+    }
+  });
 })();
+
+// Fonction utilitaire pour formater les nombres
+function formatNumber(num) {
+  if (num >= 1000000) {
+    return (num / 1000000).toFixed(1) + 'M';
+  } else if (num >= 1000) {
+    return (num / 1000).toFixed(1) + 'K';
+  }
+  return num.toString();
+}
+
+// Fonction utilitaire pour animer les compteurs
+function animateCounter(element, target, duration = 1000) {
+  const start = parseInt(element.textContent) || 0;
+  const increment = (target - start) / (duration / 16);
+  let current = start;
+  
+  const timer = setInterval(() => {
+    current += increment;
+    if (current >= target) {
+      element.textContent = target;
+      clearInterval(timer);
+    } else {
+      element.textContent = Math.floor(current);
+    }
+  }, 16);
+}
+
+// Initialisation des compteurs animés
+document.addEventListener('DOMContentLoaded', function() {
+  const counters = document.querySelectorAll('.stat-card-value');
+  counters.forEach(counter => {
+    const target = parseInt(counter.textContent);
+    if (target > 0) {
+      counter.textContent = '0';
+      setTimeout(() => {
+        animateCounter(counter, target, 1500);
+      }, 500);
+    }
+  });
+});

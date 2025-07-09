@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\CommerceController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\LivreurController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\OrderController;
 
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
@@ -55,6 +56,11 @@ Route::prefix('admin')->name('admin.')->middleware(['admin'])->group(function ()
     // Livreurs
     Route::resource('livreurs', LivreurController::class);
     Route::post('livreurs/{livreur}/toggle-status', [LivreurController::class, 'toggleStatus'])->name('livreurs.toggle-status');
+    
+    // Commandes
+    Route::resource('orders', OrderController::class)->only(['index', 'show']);
+    Route::post('orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('orders.update-status');
+    Route::post('orders/{order}/update-payment-status', [OrderController::class, 'updatePaymentStatus'])->name('orders.update-payment-status');
     
     // Page vide pour tests
     Route::get('/blank', function () {

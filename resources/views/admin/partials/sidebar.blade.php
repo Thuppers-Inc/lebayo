@@ -47,37 +47,10 @@
 
     <!-- Commandes -->
     <li class="menu-item">
-      <a href="javascript:void(0);" class="menu-link menu-toggle">
+      <a href="{{ route('admin.orders.index') }}" class="menu-link">
         <i class="menu-icon tf-icons bx bx-shopping-bag"></i>
         <div data-i18n="Orders">Commandes</div>
       </a>
-      <ul class="menu-sub">
-        <li class="menu-item">
-          <a href="#" class="menu-link">
-            <div data-i18n="All Orders">Toutes les commandes</div>
-          </a>
-        </li>
-        <li class="menu-item">
-          <a href="#" class="menu-link">
-            <div data-i18n="Pending Orders">En attente</div>
-          </a>
-        </li>
-        <li class="menu-item">
-          <a href="#" class="menu-link">
-            <div data-i18n="In Progress">En cours</div>
-          </a>
-        </li>
-        <li class="menu-item">
-          <a href="#" class="menu-link">
-            <div data-i18n="Delivered">Livrées</div>
-          </a>
-        </li>
-        <li class="menu-item">
-          <a href="#" class="menu-link">
-            <div data-i18n="Cancelled">Annulées</div>
-          </a>
-        </li>
-      </ul>
     </li>
 
     <!-- Clients -->
