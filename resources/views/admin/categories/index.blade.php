@@ -125,98 +125,357 @@
 
 @push('scripts')
 <script>
+// Script de débogage
+console.log('=== SCRIPT CATÉGORIES ===');
+console.log('AdminComponents disponible:', typeof AdminComponents);
+console.log('window.AdminComponents disponible:', typeof window.AdminComponents);
+
 // Configuration des URLs
 const CATEGORY_BASE_URL = '{{ route("admin.categories.index") }}';
 
-// Fonctions d'action
-function openCreateCategoryModal() {
-    AdminComponents.initCreateModal('categoryModal', {
-        title: 'Nouvelle Catégorie',
-        submitText: 'Créer'
-    });
-}
-
-function editCategory(id) {
-    AdminComponents.loadForEdit(id, CATEGORY_BASE_URL, {
-        successCallback: (data) => {
-            const category = data.category;
-            document.getElementById('modalTitle').textContent = 'Modifier la Catégorie';
-            document.querySelector('[data-submit-text]').textContent = 'Modifier';
-            document.getElementById('categoryId').value = category.id;
-            document.getElementById('methodField').value = 'PUT';
-            document.getElementById('commerce_type_id').value = category.commerce_type_id;
-            document.getElementById('name').value = category.name;
-            document.getElementById('emoji').value = category.emoji;
-            document.getElementById('description').value = category.description || '';
-            document.getElementById('is_active').checked = category.is_active;
+// Fonction pour attendre que l'instance AdminComponents soit prête
+function waitForAdminComponentsInstance() {
+    return new Promise((resolve) => {
+        let attempts = 0;
+        const maxAttempts = 50; // 5 secondes max
+        
+        function checkAdminComponents() {
+            attempts++;
+            console.log(`Tentative ${attempts}: Vérification AdminComponents...`);
             
-            new bootstrap.Modal(document.getElementById('categoryModal')).show();
+            if (window.AdminComponents && 
+                typeof window.AdminComponents.loadForEdit === 'function' && 
+                typeof window.AdminComponents.toggleStatus === 'function' && 
+                typeof window.AdminComponents.deleteItem === 'function') {
+                console.log('✅ Instance AdminComponents est prête avec toutes ses méthodes');
+                resolve(true);
+            } else if (attempts >= maxAttempts) {
+                console.warn('⚠️ Timeout: AdminComponents non disponible après 5 secondes');
+                resolve(false);
+            } else {
+                console.log('⏳ AdminComponents pas encore prêt, attente... (tentative ' + attempts + ')');
+                setTimeout(checkAdminComponents, 100);
+            }
         }
+        checkAdminComponents();
     });
 }
 
-function toggleCategoryStatus(id) {
-    AdminComponents.toggleStatus(id, CATEGORY_BASE_URL, {
-        confirmMessage: 'Changer le statut de cette catégorie ?'
-    });
+// Fonctions de fallback (simples mais fonctionnelles)
+function createFallbackFunctions() {
+    console.log('🔧 Création des fonctions de fallback pour les catégories...');
+    
+    window.openCreateCategoryModal = function() {
+        console.log('📝 openCreateCategoryModal (fallback) appelée');
+        const modal = new bootstrap.Modal(document.getElementById('categoryModal'));
+        
+        // Réinitialiser le formulaire
+        const form = document.getElementById('categoryForm');
+        if (form) form.reset();
+        
+        // Réinitialiser les champs cachés
+        document.getElementById('categoryId').value = '';
+        document.getElementById('methodField').value = 'POST';
+        document.getElementById('modalTitle').textContent = 'Nouvelle Catégorie';
+        document.querySelector('[data-submit-text]').textContent = 'Créer';
+        
+        modal.show();
+    };
+
+    window.editCategory = function(id) {
+        console.log('✏️ editCategory (fallback) appelée avec ID:', id);
+        
+        fetch(`${CATEGORY_BASE_URL}/${id}/edit`, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const category = data.category;
+                
+                // Remplir le formulaire
+                document.getElementById('modalTitle').textContent = 'Modifier la Catégorie';
+                document.querySelector('[data-submit-text]').textContent = 'Modifier';
+                document.getElementById('categoryId').value = category.id;
+                document.getElementById('methodField').value = 'PUT';
+                document.getElementById('commerce_type_id').value = category.commerce_type_id;
+                document.getElementById('name').value = category.name;
+                document.getElementById('emoji').value = category.emoji;
+                document.getElementById('description').value = category.description || '';
+                document.getElementById('is_active').checked = category.is_active;
+                
+                // Ouvrir le modal
+                const modal = new bootstrap.Modal(document.getElementById('categoryModal'));
+                modal.show();
+            } else {
+                alert('Erreur lors du chargement des données de la catégorie');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur lors du chargement: ' + error.message);
+        });
+    };
+
+    window.toggleCategoryStatus = function(id) {
+        console.log('🔄 toggleCategoryStatus (fallback) appelée avec ID:', id);
+        
+        if (!confirm('Êtes-vous sûr de vouloir changer le statut de cette catégorie ?')) {
+            return;
+        }
+        
+        fetch(`${CATEGORY_BASE_URL}/${id}/toggle-status`, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Mettre à jour le badge de statut
+                const statusBadge = document.getElementById(`status-${id}`);
+                if (statusBadge) {
+                    statusBadge.className = `admin-badge ${data.is_active ? 'admin-badge-success' : 'admin-badge-inactive'}`;
+                    statusBadge.textContent = data.is_active ? 'Actif' : 'Inactif';
+                }
+                
+                // Mettre à jour le bouton toggle
+                const toggleBtn = document.querySelector(`[onclick="toggleCategoryStatus(${id})"]`);
+                if (toggleBtn) {
+                    toggleBtn.className = `btn btn-sm admin-action-btn ${data.is_active ? 'admin-btn-toggle-active' : 'admin-btn-toggle-inactive'}`;
+                    toggleBtn.title = data.is_active ? 'Désactiver' : 'Activer';
+                    toggleBtn.innerHTML = `<i class="bx ${data.is_active ? 'bx-toggle-right' : 'bx-toggle-left'}"></i>`;
+                }
+                
+                alert(data.message);
+            } else {
+                alert('Erreur lors du changement de statut');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur lors du changement de statut: ' + error.message);
+        });
+    };
+
+    window.deleteCategory = function(id) {
+        console.log('🗑️ deleteCategory (fallback) appelée avec ID:', id);
+        
+        if (!confirm('Êtes-vous sûr de vouloir supprimer définitivement cette catégorie ? Cette action est irréversible.')) {
+            return;
+        }
+        
+        fetch(`${CATEGORY_BASE_URL}/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Supprimer la ligne du tableau
+                const row = document.getElementById(`row-${id}`);
+                if (row) {
+                    row.remove();
+                }
+                
+                alert(data.message);
+            } else {
+                alert('Erreur lors de la suppression');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur lors de la suppression: ' + error.message);
+        });
+    };
+    
+    console.log('✅ Fonctions de fallback créées pour les catégories');
 }
 
-function deleteCategory(id) {
-    AdminComponents.deleteItem(id, CATEGORY_BASE_URL, {
-        confirmMessage: 'Supprimer définitivement cette catégorie ? Cette action est irréversible.'
-    });
+// Fonctions optimisées avec AdminComponents
+function createOptimizedFunctions() {
+    console.log('⚡ Création des fonctions optimisées avec AdminComponents...');
+    
+    window.openCreateCategoryModal = function() {
+        console.log('📝 openCreateCategoryModal (optimisée) appelée');
+        try {
+            window.AdminComponents.initCreateModal('categoryModal', {
+                title: 'Nouvelle Catégorie',
+                submitText: 'Créer'
+            });
+        } catch (error) {
+            console.error('Erreur avec AdminComponents, fallback...', error);
+            // Fallback
+            const modal = new bootstrap.Modal(document.getElementById('categoryModal'));
+            modal.show();
+        }
+    };
+
+    window.editCategory = function(id) {
+        console.log('✏️ editCategory (optimisée) appelée avec ID:', id);
+        try {
+            window.AdminComponents.loadForEdit(id, CATEGORY_BASE_URL, {
+                successCallback: (data) => {
+                    const category = data.category;
+                    document.getElementById('modalTitle').textContent = 'Modifier la Catégorie';
+                    document.querySelector('[data-submit-text]').textContent = 'Modifier';
+                    document.getElementById('categoryId').value = category.id;
+                    document.getElementById('methodField').value = 'PUT';
+                    document.getElementById('commerce_type_id').value = category.commerce_type_id;
+                    document.getElementById('name').value = category.name;
+                    document.getElementById('emoji').value = category.emoji;
+                    document.getElementById('description').value = category.description || '';
+                    document.getElementById('is_active').checked = category.is_active;
+                    
+                    new bootstrap.Modal(document.getElementById('categoryModal')).show();
+                },
+                errorCallback: (data) => {
+                    window.AdminComponents.showAlert('Erreur lors du chargement des données', 'danger');
+                }
+            });
+        } catch (error) {
+            console.error('Erreur avec AdminComponents, fallback...', error);
+            createFallbackFunctions();
+            window.editCategory(id);
+        }
+    };
+
+    window.toggleCategoryStatus = function(id) {
+        try {
+            window.AdminComponents.toggleStatus(id, CATEGORY_BASE_URL, {
+                confirmMessage: 'Êtes-vous sûr de vouloir changer le statut de cette catégorie ?',
+                successCallback: (data) => {
+                    const statusBadge = document.getElementById(`status-${id}`);
+                    if (statusBadge) {
+                        statusBadge.className = `admin-badge ${data.is_active ? 'admin-badge-success' : 'admin-badge-inactive'}`;
+                        statusBadge.textContent = data.is_active ? 'Actif' : 'Inactif';
+                    }
+                    
+                    const toggleBtn = document.querySelector(`[onclick="toggleCategoryStatus(${id})"]`);
+                    if (toggleBtn) {
+                        toggleBtn.className = `btn btn-sm admin-action-btn ${data.is_active ? 'admin-btn-toggle-active' : 'admin-btn-toggle-inactive'}`;
+                        toggleBtn.title = data.is_active ? 'Désactiver' : 'Activer';
+                        toggleBtn.innerHTML = `<i class="bx ${data.is_active ? 'bx-toggle-right' : 'bx-toggle-left'}"></i>`;
+                    }
+                    
+                    window.AdminComponents.showAlert(data.message, 'success');
+                }
+            });
+        } catch (error) {
+            console.error('Erreur avec AdminComponents, fallback...', error);
+            createFallbackFunctions();
+            window.toggleCategoryStatus(id);
+        }
+    };
+
+    window.deleteCategory = function(id) {
+        try {
+            window.AdminComponents.deleteItem(id, CATEGORY_BASE_URL, {
+                confirmMessage: 'Êtes-vous sûr de vouloir supprimer définitivement cette catégorie ?',
+                successCallback: (data) => {
+                    const row = document.getElementById(`row-${id}`);
+                    if (row) row.remove();
+                    window.AdminComponents.showAlert(data.message, 'success');
+                }
+            });
+        } catch (error) {
+            console.error('Erreur avec AdminComponents, fallback...', error);
+            createFallbackFunctions();
+            window.deleteCategory(id);
+        }
+    };
 }
 
-// Gestion du formulaire avec URL dynamique
-document.getElementById('categoryForm').addEventListener('submit', function(e) {
-    e.preventDefault();
+// Initialisation principale
+document.addEventListener('DOMContentLoaded', async function() {
+    console.log('🚀 DOM chargé, initialisation des catégories...');
     
-    const submitBtn = this.querySelector('[type="submit"]');
-    const submitText = submitBtn.querySelector('[data-submit-text]');
-    const submitSpinner = submitBtn.querySelector('.spinner-border');
+    // Créer immédiatement les fonctions de fallback pour éviter les erreurs
+    createFallbackFunctions();
     
-    // Désactiver le bouton
-    submitBtn.disabled = true;
-    submitSpinner.classList.remove('d-none');
+    // Essayer d'utiliser AdminComponents en arrière-plan
+    const adminComponentsReady = await waitForAdminComponentsInstance();
     
-    const formData = new FormData(this);
-    const id = document.getElementById('categoryId').value;
-    const method = document.getElementById('methodField').value;
-    
-    let url = '{{ route("admin.categories.store") }}';
-    if (id) {
-        url = `${CATEGORY_BASE_URL}/${id}`;
+    if (adminComponentsReady) {
+        console.log('🎉 AdminComponents disponible, création des fonctions optimisées');
+        createOptimizedFunctions();
+    } else {
+        console.log('⚠️ AdminComponents non disponible, utilisation des fonctions de fallback');
     }
-    
-    fetch(url, {
-        method: 'POST',
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-            'Accept': 'application/json',
-        },
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            const modal = bootstrap.Modal.getInstance(document.getElementById('categoryModal'));
-            modal.hide();
-            AdminComponents.showAlert(data.message, 'success');
-            setTimeout(() => window.location.reload(), 1000);
-        } else {
-            AdminComponents.showErrors(data.errors);
-        }
-    })
-    .catch(error => {
-        console.error('Erreur:', error);
-        AdminComponents.showAlert('Une erreur est survenue', 'danger');
-    })
-    .finally(() => {
-        // Réactiver le bouton
-        submitBtn.disabled = false;
-        submitSpinner.classList.add('d-none');
-    });
+
+    // Gestion du formulaire
+    const categoryForm = document.getElementById('categoryForm');
+    if (categoryForm) {
+        categoryForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const submitBtn = this.querySelector('[type="submit"]');
+            const submitSpinner = submitBtn.querySelector('.spinner-border');
+            
+            submitBtn.disabled = true;
+            if (submitSpinner) submitSpinner.classList.remove('d-none');
+            
+            const formData = new FormData(this);
+            const id = document.getElementById('categoryId').value;
+            
+            let url = '{{ route("admin.categories.store") }}';
+            if (id) {
+                url = `${CATEGORY_BASE_URL}/${id}`;
+            }
+            
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json',
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('categoryModal'));
+                    modal.hide();
+                    alert(data.message);
+                    setTimeout(() => window.location.reload(), 1000);
+                } else {
+                    alert('Erreurs de validation: ' + JSON.stringify(data.errors));
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                alert('Une erreur est survenue: ' + error.message);
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                if (submitSpinner) submitSpinner.classList.add('d-none');
+            });
+        });
+    }
+
+    console.log('✅ Initialisation des catégories terminée');
 });
+
+// Test des fonctions
+setTimeout(() => {
+    console.log('=== TEST FINAL DES FONCTIONS CATÉGORIES ===');
+    console.log('openCreateCategoryModal:', typeof window.openCreateCategoryModal);
+    console.log('editCategory:', typeof window.editCategory);
+    console.log('toggleCategoryStatus:', typeof window.toggleCategoryStatus);
+    console.log('deleteCategory:', typeof window.deleteCategory);
+}, 1000);
 </script>
 @endpush 

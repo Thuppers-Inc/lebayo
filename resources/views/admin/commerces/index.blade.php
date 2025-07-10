@@ -398,330 +398,452 @@
 
 @push('scripts')
 <script>
+// Script de débogage
+console.log('=== DÉBUT DU SCRIPT DE DÉBOGAGE ===');
+console.log('AdminComponents disponible:', typeof AdminComponents);
+console.log('window.AdminComponents disponible:', typeof window.AdminComponents);
+console.log('Bootstrap disponible:', typeof bootstrap);
+console.log('jQuery disponible:', typeof $);
+
 // Configuration des URLs
 const COMMERCE_BASE_URL = '{{ route("admin.commerces.index") }}';
 
-// Fonctions d'action
-function openCreateCommerceModal() {
-    AdminComponents.initCreateModal('commerceModal', {
-        title: 'Nouveau Commerce',
-        submitText: 'Créer'
-    });
-    
-    // Réinitialiser l'image
-    document.getElementById('currentLogo').classList.add('d-none');
-}
-
-function editCommerce(id) {
-    AdminComponents.loadForEdit(id, COMMERCE_BASE_URL, {
-        successCallback: (data) => {
-            const commerce = data.commerce;
-            document.getElementById('modalTitle').textContent = 'Modifier le Commerce';
-            document.querySelector('[data-submit-text]').textContent = 'Modifier';
-            document.getElementById('commerceId').value = commerce.id;
-            document.getElementById('methodField').value = 'PUT';
-            document.getElementById('name').value = commerce.name;
-            document.getElementById('commerce_type_id').value = commerce.commerce_type_id;
-            document.getElementById('city').value = commerce.city;
-            document.getElementById('address').value = commerce.address;
-            document.getElementById('contact').value = commerce.contact;
-            document.getElementById('phone').value = commerce.phone || '';
-            document.getElementById('email').value = commerce.email || '';
-            document.getElementById('description').value = commerce.description || '';
-            document.getElementById('is_active').checked = commerce.is_active;
-            
-            // Afficher le logo actuel
-            if (commerce.logo_url) {
-                document.getElementById('logoPreview').src = commerce.logo_url;
-                document.getElementById('currentLogo').classList.remove('d-none');
-            }
-            
-            new bootstrap.Modal(document.getElementById('commerceModal')).show();
-        }
-    });
-}
-
-function toggleCommerceStatus(id) {
-    AdminComponents.toggleStatus(id, COMMERCE_BASE_URL, {
-        confirmMessage: 'Changer le statut de ce commerce ?',
-        successCallback: (data) => {
-            // Mettre à jour le badge de statut
-            const statusBadge = document.getElementById(`status-${id}`);
-            if (statusBadge) {
-                statusBadge.className = `admin-badge ${data.is_active ? 'admin-badge-success' : 'admin-badge-inactive'}`;
-                statusBadge.textContent = data.is_active ? 'Actif' : 'Inactif';
-            }
-            
-            // Mettre à jour le bouton toggle
-            const toggleBtn = document.querySelector(`[onclick="toggleCommerceStatus(${id})"]`);
-            if (toggleBtn) {
-                toggleBtn.className = `btn btn-sm admin-action-btn ${data.is_active ? 'admin-btn-toggle-active' : 'admin-btn-toggle-inactive'}`;
-                toggleBtn.title = data.is_active ? 'Désactiver' : 'Activer';
-                toggleBtn.innerHTML = `<i class="bx ${data.is_active ? 'bx-toggle-right' : 'bx-toggle-left'}"></i>`;
-            }
-        }
-    });
-}
-
-function deleteCommerce(id) {
-    AdminComponents.deleteItem(id, COMMERCE_BASE_URL, {
-        confirmMessage: 'Supprimer définitivement ce commerce ? Cette action est irréversible.',
-        successCallback: () => {
-            // Supprimer la carte du DOM
-            const card = document.getElementById(`commerce-card-${id}`);
-            if (card) {
-                card.remove();
-            }
-        }
-    });
-}
-
-function viewCommerceProducts(id) {
-    window.location.href = `{{ route('admin.commerce.products.index', ['commerce' => '__ID__']) }}`.replace('__ID__', id);
-}
-
-// Gestion du formulaire avec upload d'image
-document.getElementById('commerceForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const submitBtn = this.querySelector('[type="submit"]');
-    const submitText = submitBtn.querySelector('[data-submit-text]');
-    const submitSpinner = submitBtn.querySelector('.spinner-border');
-    
-    // Désactiver le bouton
-    submitBtn.disabled = true;
-    submitSpinner.classList.remove('d-none');
-    
-    const formData = new FormData(this);
-    const id = document.getElementById('commerceId').value;
-    
-    let url = '{{ route("admin.commerces.store") }}';
-    if (id) {
-        url = `${COMMERCE_BASE_URL}/${id}`;
-    }
-    
-    fetch(url, {
-        method: 'POST',
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-            'Accept': 'application/json',
-        },
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            const modal = bootstrap.Modal.getInstance(document.getElementById('commerceModal'));
-            modal.hide();
-            AdminComponents.showAlert(data.message, 'success');
-            setTimeout(() => window.location.reload(), 1000);
-        } else {
-            AdminComponents.showErrors(data.errors);
-        }
-    })
-    .catch(error => {
-        console.error('Erreur:', error);
-        AdminComponents.showAlert('Une erreur est survenue', 'danger');
-    })
-    .finally(() => {
-        // Réactiver le bouton
-        submitBtn.disabled = false;
-        submitSpinner.classList.add('d-none');
-    });
-});
-
-// Prévisualisation du logo
-document.getElementById('logo').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            document.getElementById('logoPreview').src = e.target.result;
-            document.getElementById('currentLogo').classList.remove('d-none');
-        };
-        reader.readAsDataURL(file);
-    }
-});
-
-// ===== SYSTÈME DE RECHERCHE ET FILTRAGE =====
-
-// Variables globales
-const searchInput = document.getElementById('searchInput');
-const typeFilter = document.getElementById('typeFilter');
-const cityFilter = document.getElementById('cityFilter');
-const statusFilter = document.getElementById('statusFilter');
-const sortBy = document.getElementById('sortBy');
-const clearSearchBtn = document.getElementById('clearSearch');
-const resetFiltersBtn = document.getElementById('resetFilters');
-const resultsCount = document.getElementById('resultsCount');
-const filteredText = document.getElementById('filteredText');
-const commercesGrid = document.getElementById('commercesGrid');
-const noResults = document.getElementById('noResults');
-
-const totalCommerces = {{ $commerces->count() }};
-let commerceItems = Array.from(document.querySelectorAll('.commerce-item'));
-
-// Fonction de filtrage principal
-function filterCommerces() {
-    const searchTerm = searchInput.value.toLowerCase().trim();
-    const selectedType = typeFilter.value.toLowerCase();
-    const selectedCity = cityFilter.value.toLowerCase();
-    const selectedStatus = statusFilter.value;
-    
-    let visibleCount = 0;
-    
-    commerceItems.forEach(item => {
-        const name = item.dataset.name;
-        const contact = item.dataset.contact;
-        const type = item.dataset.type;
-        const city = item.dataset.city;
-        const status = item.dataset.status;
+// Fonction pour attendre que l'instance AdminComponents soit prête
+function waitForAdminComponentsInstance() {
+    return new Promise((resolve) => {
+        let attempts = 0;
+        const maxAttempts = 50; // 5 secondes max
         
-        // Critères de recherche
-        const matchesSearch = !searchTerm || 
-            name.includes(searchTerm) || 
-            contact.includes(searchTerm);
+        function checkAdminComponents() {
+            attempts++;
+            console.log(`Tentative ${attempts}: Vérification AdminComponents...`);
+            
+            if (window.AdminComponents && 
+                typeof window.AdminComponents.loadForEdit === 'function' && 
+                typeof window.AdminComponents.toggleStatus === 'function' && 
+                typeof window.AdminComponents.deleteItem === 'function') {
+                console.log('✅ Instance AdminComponents est prête avec toutes ses méthodes');
+                resolve(true);
+            } else if (attempts >= maxAttempts) {
+                console.warn('⚠️ Timeout: AdminComponents non disponible après 5 secondes');
+                resolve(false);
+            } else {
+                console.log('⏳ AdminComponents pas encore prêt, attente... (tentative ' + attempts + ')');
+                setTimeout(checkAdminComponents, 100);
+            }
+        }
+        checkAdminComponents();
+    });
+}
+
+// Fonctions de fallback (simples mais fonctionnelles)
+function createFallbackFunctions() {
+    console.log('🔧 Création des fonctions de fallback...');
+    
+    window.openCreateCommerceModal = function() {
+        console.log('📝 openCreateCommerceModal (fallback) appelée');
+        const modal = new bootstrap.Modal(document.getElementById('commerceModal'));
         
-        const matchesType = !selectedType || type === selectedType;
-        const matchesCity = !selectedCity || city === selectedCity;
-        const matchesStatus = !selectedStatus || status === selectedStatus;
+        // Réinitialiser le formulaire
+        const form = document.getElementById('commerceForm');
+        if (form) form.reset();
         
-        // Afficher/masquer la carte
-        if (matchesSearch && matchesType && matchesCity && matchesStatus) {
-            item.style.display = 'block';
-            item.style.animation = 'fadeInUp 0.3s ease';
-            visibleCount++;
-        } else {
-            item.style.display = 'none';
+        // Réinitialiser les champs cachés
+        document.getElementById('commerceId').value = '';
+        document.getElementById('methodField').value = 'POST';
+        document.getElementById('modalTitle').textContent = 'Nouveau Commerce';
+        document.querySelector('[data-submit-text]').textContent = 'Créer';
+        
+        // Masquer le logo actuel
+        const currentLogo = document.getElementById('currentLogo');
+        if (currentLogo) currentLogo.classList.add('d-none');
+        
+        modal.show();
+    };
+
+    window.editCommerce = function(id) {
+        console.log('✏️ editCommerce (fallback) appelée avec ID:', id);
+        
+        fetch(`${COMMERCE_BASE_URL}/${id}/edit`, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const commerce = data.commerce;
+                
+                // Remplir le formulaire
+                document.getElementById('modalTitle').textContent = 'Modifier le Commerce';
+                document.querySelector('[data-submit-text]').textContent = 'Modifier';
+                document.getElementById('commerceId').value = commerce.id;
+                document.getElementById('methodField').value = 'PUT';
+                document.getElementById('name').value = commerce.name;
+                document.getElementById('commerce_type_id').value = commerce.commerce_type_id;
+                document.getElementById('city').value = commerce.city;
+                document.getElementById('address').value = commerce.address;
+                document.getElementById('contact').value = commerce.contact;
+                document.getElementById('phone').value = commerce.phone || '';
+                document.getElementById('email').value = commerce.email || '';
+                document.getElementById('description').value = commerce.description || '';
+                document.getElementById('is_active').checked = commerce.is_active;
+                
+                // Afficher le logo actuel
+                if (commerce.logo_url) {
+                    document.getElementById('logoPreview').src = commerce.logo_url;
+                    document.getElementById('currentLogo').classList.remove('d-none');
+                }
+                
+                // Ouvrir le modal
+                const modal = new bootstrap.Modal(document.getElementById('commerceModal'));
+                modal.show();
+            } else {
+                alert('Erreur lors du chargement des données du commerce');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur lors du chargement: ' + error.message);
+        });
+    };
+
+    window.toggleCommerceStatus = function(id) {
+        console.log('🔄 toggleCommerceStatus (fallback) appelée avec ID:', id);
+        
+        if (!confirm('Êtes-vous sûr de vouloir changer le statut de ce commerce ?')) {
+            return;
         }
-    });
-    
-    // Trier les commerces visibles
-    sortCommerces();
-    
-    // Mettre à jour le compteur
-    updateResultsCount(visibleCount);
-    
-    // Afficher/masquer le message "aucun résultat"
-    if (visibleCount === 0) {
-        commercesGrid.classList.add('d-none');
-        noResults.classList.remove('d-none');
-    } else {
-        commercesGrid.classList.remove('d-none');
-        noResults.classList.add('d-none');
-    }
-    
-    // Gérer les boutons de reset
-    const hasFilters = searchTerm || selectedType || selectedCity || selectedStatus;
-    toggleResetButtons(hasFilters);
-}
+        
+        fetch(`${COMMERCE_BASE_URL}/${id}/toggle-status`, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Mettre à jour le badge de statut
+                const statusBadge = document.getElementById(`status-${id}`);
+                if (statusBadge) {
+                    statusBadge.className = `admin-badge ${data.is_active ? 'admin-badge-success' : 'admin-badge-inactive'}`;
+                    statusBadge.textContent = data.is_active ? 'Actif' : 'Inactif';
+                }
+                
+                // Mettre à jour le bouton toggle
+                const toggleBtn = document.querySelector(`[onclick="toggleCommerceStatus(${id})"]`);
+                if (toggleBtn) {
+                    toggleBtn.className = `btn btn-sm admin-action-btn ${data.is_active ? 'admin-btn-toggle-active' : 'admin-btn-toggle-inactive'}`;
+                    toggleBtn.title = data.is_active ? 'Désactiver' : 'Activer';
+                    toggleBtn.innerHTML = `<i class="bx ${data.is_active ? 'bx-toggle-right' : 'bx-toggle-left'}"></i>`;
+                }
+                
+                alert(data.message);
+            } else {
+                alert('Erreur lors du changement de statut');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur lors du changement de statut: ' + error.message);
+        });
+    };
 
-// Fonction de tri
-function sortCommerces() {
-    const sortValue = sortBy.value;
-    const visibleItems = commerceItems.filter(item => item.style.display !== 'none');
-    
-    visibleItems.sort((a, b) => {
-        switch (sortValue) {
-            case 'name-asc':
-                return a.dataset.name.localeCompare(b.dataset.name);
-            case 'name-desc':
-                return b.dataset.name.localeCompare(a.dataset.name);
-            case 'date-desc':
-                return parseInt(b.dataset.date) - parseInt(a.dataset.date);
-            case 'date-asc':
-                return parseInt(a.dataset.date) - parseInt(b.dataset.date);
-            case 'city-asc':
-                return a.dataset.city.localeCompare(b.dataset.city);
-            default:
-                return 0;
+    window.deleteCommerce = function(id) {
+        console.log('🗑️ deleteCommerce (fallback) appelée avec ID:', id);
+        
+        if (!confirm('Êtes-vous sûr de vouloir supprimer définitivement ce commerce ? Cette action est irréversible.')) {
+            return;
         }
-    });
+        
+        fetch(`${COMMERCE_BASE_URL}/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Supprimer la carte du DOM
+                const card = document.getElementById(`commerce-card-${id}`);
+                if (card) {
+                    card.remove();
+                }
+                
+                alert(data.message);
+                
+                // Mettre à jour le compteur
+                setTimeout(() => {
+                    const remainingCards = document.querySelectorAll('.commerce-item').length;
+                    const resultsCount = document.getElementById('resultsCount');
+                    if (resultsCount) {
+                        resultsCount.textContent = remainingCards;
+                    }
+                    
+                    // Afficher le message d'état vide si plus de commerces
+                    if (remainingCards === 0) {
+                        const commercesGrid = document.getElementById('commercesGrid');
+                        if (commercesGrid) {
+                            commercesGrid.innerHTML = `
+                                <div class="col-12">
+                                    <div class="admin-card card">
+                                        <div class="card-body">
+                                            <div class="admin-empty-state">
+                                                <div class="mb-4">
+                                                    <i class="bx bx-store display-2 text-muted"></i>
+                                                </div>
+                                                <h5 class="text-dark mb-2">Aucun commerce trouvé</h5>
+                                                <p class="text-muted mb-4">Ajoutez votre premier commerce partenaire pour commencer</p>
+                                                <button type="button" 
+                                                        class="btn btn-admin-primary btn-lg rounded-pill px-4" 
+                                                        data-bs-toggle="modal" data-bs-target="#commerceModal"
+                                                        onclick="openCreateCommerceModal()">
+                                                    <i class="bx bx-plus"></i> Créer un commerce
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    }
+                }, 500);
+            } else {
+                alert('Erreur lors de la suppression');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur lors de la suppression: ' + error.message);
+        });
+    };
+
+    window.viewCommerceProducts = function(id) {
+        console.log('📦 viewCommerceProducts appelée avec ID:', id);
+        window.location.href = `{{ route('admin.commerce.products.index', ['commerce' => '__ID__']) }}`.replace('__ID__', id);
+    };
     
-    // Réorganiser les éléments dans le DOM
-    visibleItems.forEach(item => {
-        commercesGrid.appendChild(item);
-    });
+    console.log('✅ Fonctions de fallback créées');
 }
 
-// Mettre à jour le compteur de résultats
-function updateResultsCount(count) {
-    resultsCount.textContent = count;
+// Fonctions optimisées avec AdminComponents
+function createOptimizedFunctions() {
+    console.log('⚡ Création des fonctions optimisées avec AdminComponents...');
     
-    if (count < totalCommerces) {
-        filteredText.classList.remove('d-none');
-    } else {
-        filteredText.classList.add('d-none');
-    }
-}
-
-// Gérer les boutons de reset
-function toggleResetButtons(show) {
-    if (show) {
-        resetFiltersBtn.classList.remove('d-none');
-        if (searchInput.value) {
-            clearSearchBtn.classList.remove('d-none');
+    window.openCreateCommerceModal = function() {
+        console.log('📝 openCreateCommerceModal (optimisée) appelée');
+        try {
+            window.AdminComponents.initCreateModal('commerceModal', {
+                title: 'Nouveau Commerce',
+                submitText: 'Créer'
+            });
+            
+            const currentLogo = document.getElementById('currentLogo');
+            if (currentLogo) currentLogo.classList.add('d-none');
+        } catch (error) {
+            console.error('Erreur avec AdminComponents, fallback...', error);
+            // Fallback
+            const modal = new bootstrap.Modal(document.getElementById('commerceModal'));
+            modal.show();
         }
-    } else {
-        resetFiltersBtn.classList.add('d-none');
-        clearSearchBtn.classList.add('d-none');
-    }
+    };
+
+    window.editCommerce = function(id) {
+        console.log('✏️ editCommerce (optimisée) appelée avec ID:', id);
+        try {
+            window.AdminComponents.loadForEdit(id, COMMERCE_BASE_URL, {
+                successCallback: (data) => {
+                    const commerce = data.commerce;
+                    document.getElementById('modalTitle').textContent = 'Modifier le Commerce';
+                    document.querySelector('[data-submit-text]').textContent = 'Modifier';
+                    document.getElementById('commerceId').value = commerce.id;
+                    document.getElementById('methodField').value = 'PUT';
+                    document.getElementById('name').value = commerce.name;
+                    document.getElementById('commerce_type_id').value = commerce.commerce_type_id;
+                    document.getElementById('city').value = commerce.city;
+                    document.getElementById('address').value = commerce.address;
+                    document.getElementById('contact').value = commerce.contact;
+                    document.getElementById('phone').value = commerce.phone || '';
+                    document.getElementById('email').value = commerce.email || '';
+                    document.getElementById('description').value = commerce.description || '';
+                    document.getElementById('is_active').checked = commerce.is_active;
+                    
+                    if (commerce.logo_url) {
+                        document.getElementById('logoPreview').src = commerce.logo_url;
+                        document.getElementById('currentLogo').classList.remove('d-none');
+                    }
+                    
+                    new bootstrap.Modal(document.getElementById('commerceModal')).show();
+                },
+                errorCallback: (data) => {
+                    window.AdminComponents.showAlert('Erreur lors du chargement des données', 'danger');
+                }
+            });
+        } catch (error) {
+            console.error('Erreur avec AdminComponents, fallback...', error);
+            // Appeler la version fallback
+            createFallbackFunctions();
+            window.editCommerce(id);
+        }
+    };
+
+    // Similar pattern for other functions...
+    window.toggleCommerceStatus = function(id) {
+        try {
+            window.AdminComponents.toggleStatus(id, COMMERCE_BASE_URL, {
+                confirmMessage: 'Êtes-vous sûr de vouloir changer le statut de ce commerce ?',
+                successCallback: (data) => {
+                    const statusBadge = document.getElementById(`status-${id}`);
+                    if (statusBadge) {
+                        statusBadge.className = `admin-badge ${data.is_active ? 'admin-badge-success' : 'admin-badge-inactive'}`;
+                        statusBadge.textContent = data.is_active ? 'Actif' : 'Inactif';
+                    }
+                    
+                    const toggleBtn = document.querySelector(`[onclick="toggleCommerceStatus(${id})"]`);
+                    if (toggleBtn) {
+                        toggleBtn.className = `btn btn-sm admin-action-btn ${data.is_active ? 'admin-btn-toggle-active' : 'admin-btn-toggle-inactive'}`;
+                        toggleBtn.title = data.is_active ? 'Désactiver' : 'Activer';
+                        toggleBtn.innerHTML = `<i class="bx ${data.is_active ? 'bx-toggle-right' : 'bx-toggle-left'}"></i>`;
+                    }
+                    
+                    window.AdminComponents.showAlert(data.message, 'success');
+                }
+            });
+        } catch (error) {
+            console.error('Erreur avec AdminComponents, fallback...', error);
+            createFallbackFunctions();
+            window.toggleCommerceStatus(id);
+        }
+    };
+
+    window.deleteCommerce = function(id) {
+        try {
+            window.AdminComponents.deleteItem(id, COMMERCE_BASE_URL, {
+                confirmMessage: 'Êtes-vous sûr de vouloir supprimer définitivement ce commerce ?',
+                successCallback: (data) => {
+                    const card = document.getElementById(`commerce-card-${id}`);
+                    if (card) card.remove();
+                    window.AdminComponents.showAlert(data.message, 'success');
+                }
+            });
+        } catch (error) {
+            console.error('Erreur avec AdminComponents, fallback...', error);
+            createFallbackFunctions();
+            window.deleteCommerce(id);
+        }
+    };
+
+    window.viewCommerceProducts = function(id) {
+        window.location.href = `{{ route('admin.commerce.products.index', ['commerce' => '__ID__']) }}`.replace('__ID__', id);
+    };
 }
 
-// Réinitialiser tous les filtres
-function resetAllFilters() {
-    searchInput.value = '';
-    typeFilter.value = '';
-    cityFilter.value = '';
-    statusFilter.value = '';
-    sortBy.value = 'name-asc';
-    filterCommerces();
-}
-
-// Event listeners
-searchInput.addEventListener('input', function() {
-    filterCommerces();
+// Initialisation principale
+document.addEventListener('DOMContentLoaded', async function() {
+    console.log('🚀 DOM chargé, initialisation...');
     
-    if (this.value) {
-        clearSearchBtn.classList.remove('d-none');
+    // Créer immédiatement les fonctions de fallback pour éviter les erreurs
+    createFallbackFunctions();
+    
+    // Essayer d'utiliser AdminComponents en arrière-plan
+    const adminComponentsReady = await waitForAdminComponentsInstance();
+    
+    if (adminComponentsReady) {
+        console.log('🎉 AdminComponents disponible, création des fonctions optimisées');
+        createOptimizedFunctions();
     } else {
-        clearSearchBtn.classList.add('d-none');
+        console.log('⚠️ AdminComponents non disponible, utilisation des fonctions de fallback');
     }
-});
 
-clearSearchBtn.addEventListener('click', function() {
-    searchInput.value = '';
-    this.classList.add('d-none');
-    filterCommerces();
-    searchInput.focus();
-});
-
-typeFilter.addEventListener('change', filterCommerces);
-cityFilter.addEventListener('change', filterCommerces);
-statusFilter.addEventListener('change', filterCommerces);
-sortBy.addEventListener('change', filterCommerces);
-resetFiltersBtn.addEventListener('click', resetAllFilters);
-
-// Recherche par raccourci clavier (Ctrl+F ou Cmd+F)
-document.addEventListener('keydown', function(e) {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
-        e.preventDefault();
-        searchInput.focus();
-        searchInput.select();
-    }
+    // Reste du code (formulaire, recherche, etc.)
     
-    // Escape pour vider la recherche
-    if (e.key === 'Escape' && searchInput === document.activeElement) {
-        resetAllFilters();
-        searchInput.blur();
+    // Gestion du formulaire
+    const commerceForm = document.getElementById('commerceForm');
+    if (commerceForm) {
+        commerceForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const submitBtn = this.querySelector('[type="submit"]');
+            const submitSpinner = submitBtn.querySelector('.spinner-border');
+            
+            submitBtn.disabled = true;
+            if (submitSpinner) submitSpinner.classList.remove('d-none');
+            
+            const formData = new FormData(this);
+            const id = document.getElementById('commerceId').value;
+            
+            let url = '{{ route("admin.commerces.store") }}';
+            if (id) {
+                url = `${COMMERCE_BASE_URL}/${id}`;
+            }
+            
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json',
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('commerceModal'));
+                    modal.hide();
+                    alert(data.message);
+                    setTimeout(() => window.location.reload(), 1000);
+                } else {
+                    alert('Erreurs de validation: ' + JSON.stringify(data.errors));
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                alert('Une erreur est survenue: ' + error.message);
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                if (submitSpinner) submitSpinner.classList.add('d-none');
+            });
+        });
     }
+
+    // Prévisualisation du logo
+    const logoInput = document.getElementById('logo');
+    if (logoInput) {
+        logoInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('logoPreview').src = e.target.result;
+                    document.getElementById('currentLogo').classList.remove('d-none');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    console.log('✅ Initialisation terminée');
 });
 
-// Initialisation
-document.addEventListener('DOMContentLoaded', function() {
-    // Tri initial
-    sortCommerces();
-});
+// Test des fonctions
+setTimeout(() => {
+    console.log('=== TEST FINAL DES FONCTIONS ===');
+    console.log('openCreateCommerceModal:', typeof window.openCreateCommerceModal);
+    console.log('editCommerce:', typeof window.editCommerce);
+    console.log('toggleCommerceStatus:', typeof window.toggleCommerceStatus);
+    console.log('deleteCommerce:', typeof window.deleteCommerce);
+    console.log('viewCommerceProducts:', typeof window.viewCommerceProducts);
+}, 1000);
 </script>
 @endpush 

@@ -177,7 +177,7 @@
 </section> --}}
 
 <!-- Faire une Course Section -->
-<section class="grocery-section">
+{{-- <section class="grocery-section">
     <div class="container">
         <div class="section-header">
             <h2>Faire une Course</h2>
@@ -289,7 +289,7 @@
             </a>
         </div>
     </div>
-</section>
+</section> --}}
 
 
 <script>
