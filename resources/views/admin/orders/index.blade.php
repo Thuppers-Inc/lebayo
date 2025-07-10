@@ -96,6 +96,7 @@
                 <tr>
                   <th class="border-0 text-white fw-semibold">Commande</th>
                   <th class="border-0 text-white fw-semibold">Client</th>
+                  <th class="border-0 text-white fw-semibold">Commerce</th>
                   <th class="border-0 text-white fw-semibold">Total</th>
                   <th class="border-0 text-white fw-semibold">Statut</th>
                   <th class="border-0 text-white fw-semibold">Paiement</th>
@@ -119,6 +120,28 @@
                         <br>
                         <small class="text-muted">{{ $order->user->email }}</small>
                       </div>
+                    </td>
+                    <td class="py-3">
+                      @if($order->commerce)
+                      <div class="d-flex align-items-center gap-2">
+                        <img src="{{ $order->commerce->logo_url }}" 
+                             alt="{{ $order->commerce->name }}" 
+                             class="rounded"
+                             width="32" 
+                             height="32"
+                             style="object-fit: cover;">
+                        <div>
+                          <strong class="text-dark">{{ $order->commerce->name }}</strong>
+                          <br>
+                          <small class="text-muted">{{ $order->commerce->commerce_type_name }}</small>
+                        </div>
+                      </div>
+                      @else
+                      <div class="text-muted">
+                        <i class="bx bx-store me-1"></i>
+                        <small>Commerce non défini</small>
+                      </div>
+                      @endif
                     </td>
                     <td class="py-3">
                       <strong class="text-dark">{{ $order->formatted_total }}</strong>

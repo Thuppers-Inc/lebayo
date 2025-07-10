@@ -12,142 +12,205 @@
                     <i class="fas fa-check"></i>
                 </div>
                 <div class="success-message">
-                    <h1>Commande confirmée !</h1>
-                    <p>Votre commande a été passée avec succès</p>
+                    @if(isset($isMultipleOrders) && $isMultipleOrders)
+                        <h1>Commandes confirmées !</h1>
+                        <p>Vos {{ count($allOrders) }} commandes ont été passées avec succès</p>
+                        <div class="multiple-orders-note">
+                            <i class="fas fa-info-circle"></i>
+                            <span>Vos produits proviennent de différents commerces, nous avons donc créé une commande séparée pour chaque commerce.</span>
+                        </div>
+                    @else
+                        <h1>Commande confirmée !</h1>
+                        <p>Votre commande a été passée avec succès</p>
+                    @endif
                 </div>
             </div>
 
             <!-- Détails de la commande -->
             <div class="order-details">
-                <div class="order-header">
-                    <h2>Détails de votre commande</h2>
-                    <div class="order-number">
-                        <span>Numéro de commande</span>
-                        <strong>#{{ $order->order_number }}</strong>
-                    </div>
-                </div>
-
-                <div class="order-info-grid">
-                    <!-- Informations générales -->
-                    <div class="info-card">
-                        <div class="info-header">
-                            <i class="fas fa-info-circle"></i>
-                            <h3>Informations générales</h3>
-                        </div>
-                        <div class="info-content">
-                            <div class="info-item">
-                                <span class="info-label">Date de commande</span>
-                                <span class="info-value">{{ $order->created_at->format('d/m/Y à H:i') }}</span>
+                @if(isset($isMultipleOrders) && $isMultipleOrders)
+                    <!-- Affichage pour plusieurs commandes -->
+                    <div class="order-header">
+                        <h2>Détails de vos commandes</h2>
+                        <div class="multiple-orders-summary">
+                            <div class="summary-item">
+                                <span>{{ count($allOrders) }} commandes</span>
                             </div>
-                            <div class="info-item">
-                                <span class="info-label">Statut</span>
-                                <span class="info-value status-{{ $order->status }}">
-                                    {{ $order->status_label }}
-                                </span>
+                            <div class="summary-item">
+                                <span>{{ $totalItems }} articles au total</span>
                             </div>
-                            <div class="info-item">
-                                <span class="info-label">Mode de paiement</span>
-                                <span class="info-value">{{ $order->payment_method_label }}</span>
+                            <div class="summary-item">
+                                <strong>Total général : {{ number_format($totalAmount, 0, ',', ' ') }} F</strong>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Adresse de livraison -->
-                    <div class="info-card">
-                        <div class="info-header">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <h3>Adresse de livraison</h3>
-                        </div>
-                        <div class="info-content">
-                            <div class="delivery-address">
-                                <div class="address-name">{{ $order->deliveryAddress->name }}</div>
-                                <div class="address-details">{{ $order->deliveryAddress->full_address }}</div>
-                                <div class="address-phone">{{ $order->deliveryAddress->phone }}</div>
-                                @if($order->deliveryAddress->additional_info)
-                                    <div class="address-additional">{{ $order->deliveryAddress->additional_info }}</div>
-                                @endif
+                    @foreach($allOrders as $orderItem)
+                    <div class="single-order-card">
+                        <div class="order-card-header">
+                            <div class="order-info">
+                                <h3>Commande #{{ $orderItem->order_number }}</h3>
+                                <p class="commerce-name">
+                                    <i class="fas fa-store"></i>
+                                    {{ $orderItem->commerce->name }} ({{ $orderItem->commerce->commerce_type_name }})
+                                </p>
                             </div>
-                        </div>
-                    </div>
-
-                    <!-- Temps de livraison -->
-                    <div class="info-card">
-                        <div class="info-header">
-                            <i class="fas fa-clock"></i>
-                            <h3>Temps de livraison</h3>
-                        </div>
-                        <div class="info-content">
-                            <div class="delivery-time">
-                                <div class="time-estimate">
-                                    <span class="time-range">25-35 minutes</span>
-                                    <span class="time-description">estimé</span>
-                                </div>
-                                <div class="delivery-note">
-                                    <i class="fas fa-truck"></i>
-                                    <span>Votre commande sera livrée dès que possible</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Total de la commande -->
-                    <div class="info-card">
-                        <div class="info-header">
-                            <i class="fas fa-receipt"></i>
-                            <h3>Total de la commande</h3>
-                        </div>
-                        <div class="info-content">
                             <div class="order-total">
-                                <div class="total-breakdown">
-                                    <div class="total-line">
-                                        <span>Sous-total</span>
-                                        <span>{{ number_format($order->subtotal, 0, ',', ' ') }} F</span>
-                                    </div>
-                                    <div class="total-line">
-                                        <span>Frais de livraison</span>
-                                        <span class="free-delivery">Gratuit</span>
-                                    </div>
-                                    @if($order->discount > 0)
-                                        <div class="total-line discount">
-                                            <span>Remise</span>
-                                            <span>-{{ number_format($order->discount, 0, ',', ' ') }} F</span>
-                                        </div>
-                                    @endif
-                                    <div class="total-line total">
-                                        <span>Total</span>
-                                        <span>{{ number_format($order->total, 0, ',', ' ') }} F</span>
-                                    </div>
-                                </div>
+                                <span class="total-amount">{{ number_format($orderItem->total, 0, ',', ' ') }} F</span>
                             </div>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Articles commandés -->
-                <div class="order-items-section">
-                    <h3>Articles commandés</h3>
-                    <div class="order-items-list">
-                        @foreach($order->items as $item)
-                            <div class="order-item">
-                                <div class="item-image">
+                        
+                        <div class="order-items-mini">
+                            @foreach($orderItem->items as $item)
+                                <div class="mini-item">
                                     <img src="{{ $item->product_image ?: asset('images/product-placeholder.png') }}" 
                                          alt="{{ $item->product_name }}">
+                                    <div class="mini-item-details">
+                                        <span class="item-name">{{ $item->product_name }}</span>
+                                        <span class="item-qty">x{{ $item->quantity }}</span>
+                                    </div>
+                                    <span class="item-price">{{ number_format($item->subtotal, 0, ',', ' ') }} F</span>
                                 </div>
-                                <div class="item-details">
-                                    <h4 class="item-name">{{ $item->product_name }}</h4>
-                                    <p class="item-commerce">{{ $item->product->commerce->name }}</p>
-                                    <div class="item-quantity-price">
-                                        <span class="quantity">Quantité: {{ $item->quantity }}</span>
-                                        <span class="price">{{ number_format($item->price, 0, ',', ' ') }} F</span>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endforeach
+
+                @else
+                    <!-- Affichage pour une seule commande (logique existante) -->
+                    <div class="order-header">
+                        <h2>Détails de votre commande</h2>
+                        <div class="order-number">
+                            <span>Numéro de commande</span>
+                            <strong>#{{ $order->order_number }}</strong>
+                        </div>
+                    </div>
+
+                    @if(!isset($isMultipleOrders) || !$isMultipleOrders)
+                        <!-- Sections pour une seule commande -->
+                        <div class="order-info-grid">
+                            <!-- Informations générales -->
+                            <div class="info-card">
+                                <div class="info-header">
+                                    <i class="fas fa-info-circle"></i>
+                                    <h3>Informations générales</h3>
+                                </div>
+                                <div class="info-content">
+                                    <div class="info-item">
+                                        <span class="info-label">Date de commande</span>
+                                        <span class="info-value">{{ $order->created_at->format('d/m/Y à H:i') }}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Statut</span>
+                                        <span class="info-value status-{{ $order->status }}">
+                                            {{ $order->status_label }}
+                                        </span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Mode de paiement</span>
+                                        <span class="info-value">{{ $order->payment_method_label }}</span>
                                     </div>
                                 </div>
-                                <div class="item-total">
-                                    <span class="total-price">{{ number_format($item->subtotal, 0, ',', ' ') }} F</span>
+                            </div>
+
+                            <!-- Adresse de livraison -->
+                            <div class="info-card">
+                                <div class="info-header">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <h3>Adresse de livraison</h3>
+                                </div>
+                                <div class="info-content">
+                                    <div class="delivery-address">
+                                        <div class="address-name">{{ $order->deliveryAddress->name }}</div>
+                                        <div class="address-details">{{ $order->deliveryAddress->full_address }}</div>
+                                        <div class="address-phone">{{ $order->deliveryAddress->phone }}</div>
+                                        @if($order->deliveryAddress->additional_info)
+                                            <div class="address-additional">{{ $order->deliveryAddress->additional_info }}</div>
+                                        @endif
+                                    </div>
                                 </div>
                             </div>
-                        @endforeach
-                    </div>
-                </div>
+
+                            <!-- Temps de livraison -->
+                            <div class="info-card">
+                                <div class="info-header">
+                                    <i class="fas fa-clock"></i>
+                                    <h3>Temps de livraison</h3>
+                                </div>
+                                <div class="info-content">
+                                    <div class="delivery-time">
+                                        <div class="time-estimate">
+                                            <span class="time-range">25-35 minutes</span>
+                                            <span class="time-description">estimé</span>
+                                        </div>
+                                        <div class="delivery-note">
+                                            <i class="fas fa-truck"></i>
+                                            <span>Votre commande sera livrée dès que possible</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Total de la commande -->
+                            <div class="info-card">
+                                <div class="info-header">
+                                    <i class="fas fa-receipt"></i>
+                                    <h3>Total de la commande</h3>
+                                </div>
+                                <div class="info-content">
+                                    <div class="order-total">
+                                        <div class="total-breakdown">
+                                            <div class="total-line">
+                                                <span>Sous-total</span>
+                                                <span>{{ number_format($order->subtotal, 0, ',', ' ') }} F</span>
+                                            </div>
+                                            <div class="total-line">
+                                                <span>Frais de livraison</span>
+                                                <span class="free-delivery">Gratuit</span>
+                                            </div>
+                                            @if($order->discount > 0)
+                                                <div class="total-line discount">
+                                                    <span>Remise</span>
+                                                    <span>-{{ number_format($order->discount, 0, ',', ' ') }} F</span>
+                                                </div>
+                                            @endif
+                                            <div class="total-line total">
+                                                <span>Total</span>
+                                                <span>{{ number_format($order->total, 0, ',', ' ') }} F</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Articles commandés -->
+                        <div class="order-items-section">
+                            <h3>Articles commandés</h3>
+                            <div class="order-items-list">
+                                @foreach($order->items as $item)
+                                    <div class="order-item">
+                                        <div class="item-image">
+                                            <img src="{{ $item->product_image ?: asset('images/product-placeholder.png') }}" 
+                                                 alt="{{ $item->product_name }}">
+                                        </div>
+                                        <div class="item-details">
+                                            <h4 class="item-name">{{ $item->product_name }}</h4>
+                                            <p class="item-commerce">{{ $item->product->commerce->name }}</p>
+                                            <div class="item-quantity-price">
+                                                <span class="quantity">Quantité: {{ $item->quantity }}</span>
+                                                <span class="price">{{ number_format($item->price, 0, ',', ' ') }} F</span>
+                                            </div>
+                                        </div>
+                                        <div class="item-total">
+                                            <span class="total-price">{{ number_format($item->subtotal, 0, ',', ' ') }} F</span>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+                @endif
             </div>
 
             <!-- Actions -->
@@ -213,140 +276,281 @@
     margin: 0 auto;
 }
 
-/* Animation et message de succès */
 .success-animation {
     text-align: center;
     margin-bottom: 3rem;
+    animation: slideInUp 0.8s ease-out;
 }
 
 .success-icon {
     width: 120px;
     height: 120px;
-    background: linear-gradient(135deg, var(--success-color), #20c997);
+    background: linear-gradient(135deg, #28a745, #20c997);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 0 auto 2rem;
-    font-size: 3rem;
-    color: white;
-    box-shadow: 0 10px 30px rgba(40, 167, 69, 0.3);
-    animation: successPulse 2s ease-in-out infinite;
+    box-shadow: 0 20px 40px rgba(40, 167, 69, 0.3);
+    animation: bounceIn 1s ease-out 0.3s both;
 }
 
-@keyframes successPulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
+.success-icon i {
+    font-size: 3rem;
+    color: white;
 }
 
 .success-message h1 {
     font-size: 2.5rem;
     font-weight: 800;
-    color: var(--text-dark);
+    color: #2d3748;
     margin-bottom: 0.5rem;
 }
 
 .success-message p {
+    font-size: 1.2rem;
+    color: #718096;
+    margin-bottom: 1rem;
+}
+
+.multiple-orders-note {
+    background: linear-gradient(135deg, #e3f2fd, #f3e5f5);
+    border-left: 4px solid #2196f3;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    margin-top: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.95rem;
+    color: #37474f;
+}
+
+.multiple-orders-note i {
+    color: #2196f3;
+    font-size: 1.1rem;
+}
+
+.multiple-orders-summary {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.summary-item {
+    background: white;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.single-order-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e2e8f0;
+    transition: transform 0.3s ease;
+}
+
+.single-order-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+}
+
+.order-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.order-info h3 {
     font-size: 1.25rem;
-    color: var(--text-light);
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 0.5rem;
+}
+
+.commerce-name {
+    color: #718096;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     margin: 0;
 }
 
-/* Détails de la commande */
+.commerce-name i {
+    color: #ff6b35;
+}
+
+.order-total .total-amount {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #ff6b35;
+}
+
+.order-items-mini {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.mini-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.mini-item img {
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.mini-item-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.mini-item-details .item-name {
+    font-weight: 600;
+    color: #2d3748;
+    font-size: 0.9rem;
+}
+
+.mini-item-details .item-qty {
+    font-size: 0.8rem;
+    color: #718096;
+}
+
+.mini-item .item-price {
+    font-weight: 600;
+    color: #ff6b35;
+    font-size: 0.9rem;
+}
+
 .order-details {
     background: white;
-    border-radius: 16px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    padding: 2rem;
-    margin-bottom: 3rem;
+    border-radius: 20px;
+    padding: 2.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    animation: slideInUp 0.8s ease-out 0.2s both;
 }
 
 .order-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    text-align: center;
     margin-bottom: 2rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid #f1f5f9;
 }
 
 .order-header h2 {
-    font-size: 1.5rem;
+    font-size: 2rem;
     font-weight: 700;
-    color: var(--text-dark);
-    margin: 0;
+    color: #2d3748;
+    margin-bottom: 1rem;
 }
 
 .order-number {
-    text-align: right;
+    display: inline-flex;
+    flex-direction: column;
+    background: linear-gradient(135deg, #ff6b35, #f093fb);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(255, 107, 53, 0.3);
 }
 
 .order-number span {
-    display: block;
     font-size: 0.875rem;
-    color: var(--text-light);
+    opacity: 0.9;
     margin-bottom: 0.25rem;
 }
 
 .order-number strong {
     font-size: 1.25rem;
-    color: var(--primary-color);
+    font-weight: 700;
 }
 
-/* Grille d'informations */
 .order-info-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 1.5rem;
     margin-bottom: 2rem;
 }
 
 .info-card {
     background: #f8f9fa;
-    border-radius: 12px;
+    border-radius: 15px;
     padding: 1.5rem;
-    border: 1px solid #e5e7eb;
+    border: 1px solid #e9ecef;
+    transition: transform 0.3s ease;
+}
+
+.info-card:hover {
+    transform: translateY(-3px);
 }
 
 .info-header {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.75rem;
     margin-bottom: 1rem;
 }
 
 .info-header i {
-    color: var(--primary-color);
-    font-size: 1.25rem;
+    font-size: 1.5rem;
+    color: #ff6b35;
+    width: 30px;
 }
 
 .info-header h3 {
-    font-size: 1.125rem;
+    font-size: 1.1rem;
     font-weight: 700;
-    color: var(--text-dark);
+    color: #2d3748;
     margin: 0;
 }
 
 .info-content {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
+    padding-left: 2.25rem;
 }
 
 .info-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.info-item:last-child {
+    margin-bottom: 0;
 }
 
 .info-label {
-    color: var(--text-light);
-    font-size: 0.875rem;
+    color: #718096;
+    font-weight: 500;
 }
 
 .info-value {
     font-weight: 600;
-    color: var(--text-dark);
+    color: #2d3748;
 }
 
 .status-pending {
@@ -354,123 +558,99 @@
 }
 
 .status-confirmed {
-    color: var(--success-color);
+    color: #10b981;
 }
 
-.status-delivered {
-    color: var(--success-color);
-}
-
-/* Adresse de livraison */
 .delivery-address {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+    line-height: 1.6;
 }
 
 .address-name {
     font-weight: 700;
-    color: var(--text-dark);
+    color: #2d3748;
+    margin-bottom: 0.5rem;
 }
 
-.address-details {
-    color: var(--text-dark);
-}
-
+.address-details,
 .address-phone {
-    color: var(--text-light);
-    font-size: 0.875rem;
+    color: #718096;
+    margin-bottom: 0.25rem;
 }
 
 .address-additional {
-    color: var(--text-light);
-    font-size: 0.875rem;
+    color: #9ca3af;
     font-style: italic;
+    font-size: 0.9rem;
 }
 
-/* Temps de livraison */
 .delivery-time {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+    text-align: center;
 }
 
 .time-estimate {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
+    margin-bottom: 1rem;
 }
 
 .time-range {
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--success-color);
+    color: #ff6b35;
+    display: block;
 }
 
 .time-description {
-    font-size: 0.875rem;
-    color: var(--text-light);
+    color: #718096;
+    font-size: 0.9rem;
 }
 
 .delivery-note {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 0.5rem;
-    color: var(--text-light);
-    font-size: 0.875rem;
-}
-
-.delivery-note i {
-    color: var(--primary-color);
-}
-
-/* Total de la commande */
-.order-total {
-    display: flex;
-    flex-direction: column;
+    color: #10b981;
+    font-weight: 500;
 }
 
 .total-breakdown {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+    space-y: 0.5rem;
 }
 
 .total-line {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    color: var(--text-dark);
+    margin-bottom: 0.5rem;
+    color: #4a5568;
 }
 
 .total-line.discount {
-    color: var(--success-color);
+    color: #10b981;
 }
 
 .total-line.total {
+    border-top: 2px solid #e2e8f0;
+    padding-top: 0.75rem;
+    margin-top: 0.75rem;
     font-weight: 700;
-    font-size: 1.125rem;
-    padding-top: 0.5rem;
-    border-top: 1px solid #e5e7eb;
-    margin-top: 0.5rem;
+    font-size: 1.1rem;
+    color: #2d3748;
 }
 
 .free-delivery {
-    color: var(--success-color);
+    color: #10b981;
     font-weight: 600;
 }
 
-/* Articles commandés */
 .order-items-section {
-    margin-bottom: 2rem;
+    margin-top: 2rem;
 }
 
 .order-items-section h3 {
-    font-size: 1.25rem;
+    font-size: 1.5rem;
     font-weight: 700;
-    color: var(--text-dark);
-    margin-bottom: 1rem;
+    color: #2d3748;
+    margin-bottom: 1.5rem;
+    text-align: center;
 }
 
 .order-items-list {
@@ -483,211 +663,255 @@
     display: flex;
     align-items: center;
     gap: 1rem;
+    padding: 1.5rem;
     background: #f8f9fa;
-    border-radius: 12px;
-    padding: 1rem;
-    border: 1px solid #e5e7eb;
+    border-radius: 15px;
+    border: 1px solid #e9ecef;
+    transition: transform 0.2s ease;
 }
 
-.order-item .item-image {
+.order-item:hover {
+    transform: translateX(5px);
+}
+
+.item-image {
     width: 80px;
     height: 80px;
-    border-radius: 8px;
+    border-radius: 12px;
     overflow: hidden;
     flex-shrink: 0;
 }
 
-.order-item .item-image img {
+.item-image img {
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
 
-.order-item .item-details {
+.item-details {
     flex: 1;
 }
 
-.order-item .item-name {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: var(--text-dark);
-    margin-bottom: 0.25rem;
-}
-
-.order-item .item-commerce {
-    color: var(--primary-color);
-    font-size: 0.875rem;
+.item-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #2d3748;
     margin-bottom: 0.5rem;
 }
 
-.order-item .item-quantity-price {
+.item-commerce {
+    color: #718096;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.item-quantity-price {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    gap: 1rem;
+    font-size: 0.9rem;
 }
 
-.order-item .quantity {
-    color: var(--text-light);
-    font-size: 0.875rem;
+.quantity {
+    color: #718096;
 }
 
-.order-item .price {
-    color: var(--text-dark);
+.price {
+    color: #ff6b35;
     font-weight: 600;
 }
 
-.order-item .item-total {
+.item-total {
     text-align: right;
 }
 
-.order-item .total-price {
-    font-size: 1.25rem;
+.total-price {
+    font-size: 1.2rem;
     font-weight: 700;
-    color: var(--text-dark);
+    color: #2d3748;
 }
 
-/* Actions */
 .success-actions {
     display: flex;
     gap: 1rem;
     justify-content: center;
     margin-bottom: 3rem;
+    animation: slideInUp 0.8s ease-out 0.4s both;
 }
 
 .btn {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.875rem 1.5rem;
+    padding: 1rem 2rem;
     border-radius: 12px;
     font-weight: 600;
     text-decoration: none;
     transition: all 0.3s ease;
     border: none;
     cursor: pointer;
+    font-size: 1rem;
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    background: linear-gradient(135deg, #ff6b35, #f093fb);
     color: white;
+    box-shadow: 0 8px 25px rgba(255, 107, 53, 0.3);
 }
 
 .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(255, 107, 53, 0.3);
+    box-shadow: 0 12px 35px rgba(255, 107, 53, 0.4);
     color: white;
 }
 
 .btn-secondary {
     background: white;
-    color: var(--text-dark);
-    border: 1px solid #e5e7eb;
+    color: #4a5568;
+    border: 2px solid #e2e8f0;
 }
 
 .btn-secondary:hover {
-    background: #f8f9fa;
-    color: var(--text-dark);
+    background: #f7fafc;
+    border-color: #cbd5e0;
+    transform: translateY(-2px);
+    color: #4a5568;
 }
 
-/* Prochaines étapes */
 .next-steps {
     background: white;
-    border-radius: 16px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    padding: 2rem;
-    text-align: center;
+    border-radius: 20px;
+    padding: 2.5rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    animation: slideInUp 0.8s ease-out 0.6s both;
 }
 
 .next-steps h3 {
-    font-size: 1.5rem;
+    font-size: 1.8rem;
     font-weight: 700;
-    color: var(--text-dark);
+    color: #2d3748;
+    text-align: center;
     margin-bottom: 2rem;
 }
 
 .steps-list {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 2rem;
 }
 
 .step-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
     text-align: center;
+    padding: 1.5rem;
+    border-radius: 15px;
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    transition: transform 0.3s ease;
 }
 
-.step-item .step-icon {
-    width: 60px;
-    height: 60px;
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+.step-item:hover {
+    transform: translateY(-5px);
+}
+
+.step-icon {
+    width: 70px;
+    height: 70px;
+    background: linear-gradient(135deg, #ff6b35, #f093fb);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.5rem;
+    margin: 0 auto 1rem;
     color: white;
-    margin-bottom: 1rem;
-    box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+    font-size: 1.5rem;
+    box-shadow: 0 8px 25px rgba(255, 107, 53, 0.3);
 }
 
-.step-item .step-content h4 {
-    font-size: 1.125rem;
+.step-content h4 {
+    font-size: 1.2rem;
     font-weight: 700;
-    color: var(--text-dark);
+    color: #2d3748;
     margin-bottom: 0.5rem;
 }
 
-.step-item .step-content p {
-    color: var(--text-light);
-    font-size: 0.875rem;
-    margin: 0;
+.step-content p {
+    color: #718096;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+/* Animations */
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes bounceIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.3);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.05);
+    }
+    70% {
+        transform: scale(0.9);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
 /* Responsive */
 @media (max-width: 768px) {
+    .success-page {
+        padding: 1rem 0;
+    }
+    
+    .order-details,
+    .next-steps {
+        padding: 1.5rem;
+        margin: 0 1rem 1.5rem;
+    }
+    
     .success-icon {
-        width: 80px;
-        height: 80px;
-        font-size: 2rem;
+        width: 100px;
+        height: 100px;
+    }
+    
+    .success-icon i {
+        font-size: 2.5rem;
     }
     
     .success-message h1 {
-        font-size: 1.75rem;
-    }
-    
-    .order-header {
-        flex-direction: column;
-        gap: 1rem;
-        text-align: center;
-    }
-    
-    .order-number {
-        text-align: center;
+        font-size: 2rem;
     }
     
     .order-info-grid {
         grid-template-columns: 1fr;
+        gap: 1rem;
     }
     
     .order-item {
         flex-direction: column;
         text-align: center;
+        gap: 1rem;
     }
     
-    .order-item .item-details {
-        text-align: center;
-    }
-    
-    .order-item .item-quantity-price {
+    .item-quantity-price {
         justify-content: center;
-        gap: 2rem;
     }
     
     .success-actions {
         flex-direction: column;
         align-items: center;
+        margin: 0 1rem 2rem;
     }
     
     .btn {
@@ -698,6 +922,24 @@
     
     .steps-list {
         grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .multiple-orders-summary {
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .order-card-header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 1rem;
+    }
+    
+    .mini-item {
+        padding: 1rem;
     }
 }
 </style>

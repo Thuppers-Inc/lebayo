@@ -14,7 +14,7 @@ class OrderController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Order::with(['user', 'deliveryAddress', 'items'])
+        $query = Order::with(['user', 'commerce', 'deliveryAddress', 'items'])
             ->recentFirst();
 
         // Filtres
@@ -33,6 +33,9 @@ class OrderController extends Controller
                   ->orWhereHas('user', function($userQuery) use ($search) {
                       $userQuery->where('name', 'like', "%{$search}%")
                                ->orWhere('email', 'like', "%{$search}%");
+                  })
+                  ->orWhereHas('commerce', function($commerceQuery) use ($search) {
+                      $commerceQuery->where('name', 'like', "%{$search}%");
                   });
             });
         }
@@ -56,7 +59,7 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
-        $order->load(['user', 'deliveryAddress', 'items.product']);
+        $order->load(['user', 'commerce', 'deliveryAddress', 'items.product']);
         
         return view('admin.orders.show', compact('order'));
     }

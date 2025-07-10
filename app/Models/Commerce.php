@@ -58,6 +58,14 @@ class Commerce extends Model
     }
 
     /**
+     * Relation avec les commandes (one-to-many)
+     */
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    /**
      * Relation avec les produits disponibles
      */
     public function availableProducts()

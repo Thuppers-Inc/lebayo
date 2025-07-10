@@ -155,6 +155,7 @@ Route::post('admin/products/{product}/toggle-featured', [App\Http\Controllers\Ad
 Route::prefix('cart')->name('cart.')->group(function () {
     Route::get('/', [App\Http\Controllers\CartController::class, 'index'])->name('index');
     Route::post('/add/{product}', [App\Http\Controllers\CartController::class, 'add'])->name('add');
+    Route::post('/replace/{product}', [App\Http\Controllers\CartController::class, 'replace'])->name('replace');
     Route::patch('/update/{product}', [App\Http\Controllers\CartController::class, 'update'])->name('update');
     Route::delete('/remove/{product}', [App\Http\Controllers\CartController::class, 'remove'])->name('remove');
     Route::delete('/clear', [App\Http\Controllers\CartController::class, 'clear'])->name('clear');

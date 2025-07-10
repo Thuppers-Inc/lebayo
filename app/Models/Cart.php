@@ -95,10 +95,52 @@ class Cart extends Model
     }
 
     /**
+     * Vérifier si un produit peut être ajouté au panier
+     * (doit être du même commerce que les produits existants)
+     */
+    public function canAddProduct($product)
+    {
+        // Recharger les items pour avoir l'état actuel de la base de données
+        $currentItems = $this->items()->with('product')->get();
+        
+        // Si le panier est vide, on peut ajouter n'importe quel produit
+        if ($currentItems->isEmpty()) {
+            return true;
+        }
+
+        // Vérifier si le produit est du même commerce que les produits existants
+        $existingCommerceIds = $currentItems->pluck('product.commerce_id')->unique();
+        return $existingCommerceIds->contains($product->commerce_id);
+    }
+
+    /**
+     * Obtenir l'ID du commerce du panier (si il y a des produits)
+     */
+    public function getCommerceId()
+    {
+        $currentItems = $this->items()->with('product')->get();
+        return $currentItems->first()?->product?->commerce_id;
+    }
+
+    /**
+     * Obtenir le nom du commerce du panier (si il y a des produits)
+     */
+    public function getCommerceName()
+    {
+        $currentItems = $this->items()->with('product.commerce')->get();
+        return $currentItems->first()?->product?->commerce?->name;
+    }
+
+    /**
      * Ajouter un produit au panier
      */
     public function addProduct($product, $quantity = 1)
     {
+        // Vérifier si le produit peut être ajouté (même commerce)
+        if (!$this->canAddProduct($product)) {
+            throw new \Exception("Impossible d'ajouter ce produit : il provient d'un commerce différent de ceux déjà dans votre panier. Veuillez vider votre panier ou choisir un produit du même commerce.");
+        }
+
         $cartItem = $this->items()->where('product_id', $product->id)->first();
 
         if ($cartItem) {

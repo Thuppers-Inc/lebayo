@@ -12,6 +12,7 @@ class Order extends Model
 
     protected $fillable = [
         'user_id',
+        'commerce_id',
         'order_number',
         'delivery_address_id',
         'payment_method',
@@ -60,6 +61,12 @@ class Order extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    // Relation avec le commerce
+    public function commerce()
+    {
+        return $this->belongsTo(Commerce::class);
     }
 
     // Relation avec l'adresse de livraison

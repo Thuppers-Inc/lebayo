@@ -40,6 +40,62 @@ class CartController extends Controller
     }
 
     /**
+     * Remplacer le panier par un nouveau produit (vider et ajouter)
+     */
+    public function replace(Request $request, Product $product)
+    {
+        $request->validate([
+            'quantity' => 'required|integer|min:1|max:99'
+        ]);
+
+        // Vérifier que le produit est disponible
+        if (!$product->is_available) {
+            if ($this->isAjaxRequest($request)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Ce produit n\'est pas disponible.'
+                ], 400);
+            }
+            return redirect()->back()->with('error', 'Ce produit n\'est pas disponible.');
+        }
+
+        $cart = $this->getOrCreateCart();
+
+        try {
+            // Vider le panier
+            $cart->clear();
+            
+            // Ajouter le nouveau produit
+            $cart->addProduct($product, $request->quantity);
+
+            if ($this->isAjaxRequest($request)) {
+                $cart->load(['items.product.commerce']);
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Panier remplacé ! Produit ajouté avec succès.',
+                    'cart' => [
+                        'total_items' => $cart->total_items,
+                        'total_price' => $cart->total_price,
+                        'formatted_total' => $cart->formatted_total,
+                        'commerce_name' => $cart->getCommerceName()
+                    ]
+                ]);
+            }
+
+            return redirect()->back()->with('success', 'Panier remplacé ! Produit ajouté avec succès.');
+
+        } catch (\Exception $e) {
+            if ($this->isAjaxRequest($request)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erreur lors du remplacement du panier : ' . $e->getMessage()
+                ], 500);
+            }
+            return redirect()->back()->with('error', 'Erreur lors du remplacement du panier.');
+        }
+    }
+
+    /**
      * Ajouter un produit au panier
      */
     public function add(Request $request, Product $product)
@@ -70,7 +126,37 @@ class CartController extends Controller
         }
 
         $cart = $this->getOrCreateCart();
-        $cart->addProduct($product, $request->quantity);
+
+        try {
+            $cart->addProduct($product, $request->quantity);
+        } catch (\Exception $e) {
+            // Gérer l'exception pour commerce différent
+            if ($this->isAjaxRequest($request)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage(),
+                    'different_commerce' => true,
+                    'current_commerce' => $cart->getCommerceName(),
+                    'new_commerce' => $product->commerce->name,
+                    'actions' => [
+                        'replace' => [
+                            'url' => route('cart.replace', $product->id),
+                            'label' => 'Vider le panier et ajouter ce produit',
+                            'method' => 'POST'
+                        ],
+                        'cancel' => [
+                            'label' => 'Annuler'
+                        ]
+                    ],
+                    'cart_info' => [
+                        'total_items' => $cart->total_items,
+                        'total_price' => $cart->total_price,
+                        'formatted_total' => $cart->formatted_total
+                    ]
+                ], 400);
+            }
+            return redirect()->back()->with('error', $e->getMessage());
+        }
 
         if ($this->isAjaxRequest($request)) {
             $cart->load(['items.product']);

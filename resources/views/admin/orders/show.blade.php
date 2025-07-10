@@ -67,6 +67,55 @@
           </div>
         </div>
 
+        @if($order->commerce)
+        <!-- Informations du commerce -->
+        <div class="card rounded-3 shadow-sm mb-4">
+          <div class="card-body">
+            <h5 class="card-title mb-3">
+              <i class="bx bx-store me-2"></i>{{ $order->commerce->commerce_type_name }}
+            </h5>
+            <div class="d-flex align-items-center gap-3 mb-3">
+              <img src="{{ $order->commerce->logo_url }}" 
+                   alt="{{ $order->commerce->name }}" 
+                   class="rounded"
+                   width="60" 
+                   height="60"
+                   style="object-fit: cover;">
+              <div>
+                <h6 class="mb-1">{{ $order->commerce->name }}</h6>
+                <p class="text-muted mb-0">{{ $order->commerce->commerce_type_name }}</p>
+              </div>
+            </div>
+            <div class="mb-2">
+              <i class="bx bx-map-pin me-2"></i>{{ $order->commerce->full_address }}
+            </div>
+            @if($order->commerce->phone)
+            <div class="mb-2">
+              <i class="bx bx-phone me-2"></i>{{ $order->commerce->phone }}
+            </div>
+            @endif
+            @if($order->commerce->email)
+            <div class="mb-2">
+              <i class="bx bx-envelope me-2"></i>{{ $order->commerce->email }}
+            </div>
+            @endif
+          </div>
+        </div>
+        @else
+        <!-- Commerce non trouvé -->
+        <div class="card rounded-3 shadow-sm mb-4">
+          <div class="card-body">
+            <h5 class="card-title mb-3">
+              <i class="bx bx-store me-2"></i>Commerce
+            </h5>
+            <div class="alert alert-warning">
+              <i class="bx bx-exclamation-triangle me-2"></i>
+              Les informations du commerce ne sont pas disponibles pour cette commande.
+            </div>
+          </div>
+        </div>
+        @endif
+
         <!-- Adresse de livraison -->
         <div class="card rounded-3 shadow-sm mb-4">
           <div class="card-body">
