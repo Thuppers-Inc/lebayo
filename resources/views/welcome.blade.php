@@ -25,13 +25,100 @@
                     </form>
                 </div>
             </div>
-            <div class="hero-image">
-                <div class="delivery-illustration">
-                    <div class="delivery-person">🏍️</div>
-                    <div class="floating-food pizza">🍕</div>
-                    <div class="floating-food burger">🍔</div>
-                    <div class="floating-food">🍟</div>
-                    <div class="delivery-bag">🛍️</div>
+            <div class="hero-delivery-animation">
+                <div class="delivery-map">
+                    <!-- Point de départ (Restaurant) -->
+                    <div class="delivery-point restaurant-point">
+                        <div class="point-icon">🏪</div>
+                        <div class="point-label">Restaurant</div>
+                        <div class="point-pulse"></div>
+                    </div>
+                    
+                    <!-- Tracé de livraison -->
+                    <div class="delivery-path">
+                        <svg class="path-svg" viewBox="0 0 300 200">
+                            <path id="deliveryRoute" d="M 50 100 Q 150 50 250 100" 
+                                  stroke="url(#pathGradient)" 
+                                  stroke-width="4" 
+                                  fill="none" 
+                                  stroke-dasharray="8,4"/>
+                            <defs>
+                                <linearGradient id="pathGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" style="stop-color:#FF6B35;stop-opacity:0.8" />
+                                    <stop offset="50%" style="stop-color:#FFB830;stop-opacity:0.9" />
+                                    <stop offset="100%" style="stop-color:#FF6B35;stop-opacity:0.8" />
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                        
+                        <!-- Véhicule de livraison animé -->
+                        <div class="delivery-vehicle">
+                            <div class="vehicle-icon">🛵</div>
+                            <div class="vehicle-trail"></div>
+                        </div>
+                        
+                        <!-- Plats en transit -->
+                        <div class="food-item food-1">🍕</div>
+                        <div class="food-item food-2">🍔</div>
+                        <div class="food-item food-3">🍟</div>
+                        <div class="food-item food-4">🥗</div>
+                    </div>
+                    
+                    <!-- Point d'arrivée (Client) -->
+                    <div class="delivery-point client-point">
+                        <div class="point-icon">🏠</div>
+                        <div class="point-label">Chez vous</div>
+                        <div class="point-pulse"></div>
+                    </div>
+                    
+                    <!-- Indicateurs de sécurité -->
+                    <div class="security-indicators">
+                        <div class="security-badge">
+                            <div class="badge-icon">🔒</div>
+                            <div class="badge-text">Sécurisé</div>
+                            <div class="badge-glow"></div>
+                        </div>
+                        <div class="security-badge">
+                            <div class="badge-icon">⚡</div>
+                            <div class="badge-text">Rapide</div>
+                            <div class="badge-glow"></div>
+                        </div>
+                        <div class="security-badge">
+                            <div class="badge-icon">📍</div>
+                            <div class="badge-text">Tracking</div>
+                            <div class="badge-glow"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Statut de livraison -->
+                    <div class="delivery-status">
+                        <div class="status-item" data-status="0">
+                            <div class="status-dot"></div>
+                            <div class="status-text">Commande confirmée</div>
+                        </div>
+                        <div class="status-item" data-status="1">
+                            <div class="status-dot"></div>
+                            <div class="status-text">En préparation</div>
+                        </div>
+                        <div class="status-item" data-status="2">
+                            <div class="status-dot"></div>
+                            <div class="status-text">En livraison</div>
+                        </div>
+                        <div class="status-item" data-status="3">
+                            <div class="status-dot"></div>
+                            <div class="status-text">Livré</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Particules de confiance -->
+                    <div class="trust-particles">
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -365,4 +452,199 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animation du statut de livraison
+    const statusItems = document.querySelectorAll('.status-item');
+    let currentStatusIndex = 0;
+    
+    // Fonction pour mettre à jour le statut
+    function updateDeliveryStatus() {
+        // Retirer la classe active de tous les éléments
+        statusItems.forEach(item => item.classList.remove('active'));
+        
+        // Ajouter la classe active jusqu'à l'index actuel
+        for (let i = 0; i <= currentStatusIndex; i++) {
+            if (statusItems[i]) {
+                statusItems[i].classList.add('active');
+            }
+        }
+        
+        // Passer au statut suivant
+        currentStatusIndex++;
+        
+        // Réinitialiser après le dernier statut
+        if (currentStatusIndex >= statusItems.length) {
+            setTimeout(() => {
+                statusItems.forEach(item => item.classList.remove('active'));
+                currentStatusIndex = 0;
+            }, 2000); // Pause de 2 secondes avant de recommencer
+        }
+    }
+    
+    // Initialiser avec le premier statut
+    if (statusItems.length > 0) {
+        statusItems[0].classList.add('active');
+        
+        // Mettre à jour le statut toutes les 3 secondes
+        setInterval(updateDeliveryStatus, 3000);
+    }
+    
+    // Animation des badges de sécurité avec des délais différents
+    const securityBadges = document.querySelectorAll('.security-badge');
+    securityBadges.forEach((badge, index) => {
+        badge.style.animationDelay = `${index * 0.5}s`;
+    });
+    
+    // Effet de vibration subtile sur hover des points de livraison
+    const deliveryPoints = document.querySelectorAll('.delivery-point');
+    deliveryPoints.forEach(point => {
+        point.addEventListener('mouseenter', function() {
+            const icon = this.querySelector('.point-icon');
+            icon.style.animation = 'pointBounce 0.6s ease-in-out 3';
+        });
+        
+        point.addEventListener('mouseleave', function() {
+            const icon = this.querySelector('.point-icon');
+            icon.style.animation = 'pointBounce 2s ease-in-out infinite';
+        });
+    });
+    
+    // Animation progressive des particules de confiance
+    const particles = document.querySelectorAll('.particle');
+    particles.forEach((particle, index) => {
+        particle.style.animationDelay = `${index}s`;
+        particle.style.left = `${Math.random() * 80 + 10}%`;
+        particle.style.top = `${Math.random() * 80 + 10}%`;
+    });
+    
+    // Effet de parallax léger sur le mouvement de la souris
+    const deliveryMap = document.querySelector('.delivery-map');
+    if (deliveryMap) {
+        document.addEventListener('mousemove', function(e) {
+            const rect = deliveryMap.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            if (x > 0 && x < rect.width && y > 0 && y < rect.height) {
+                const moveX = (x / rect.width - 0.5) * 10;
+                const moveY = (y / rect.height - 0.5) * 10;
+                
+                const vehicle = deliveryMap.querySelector('.delivery-vehicle');
+                if (vehicle) {
+                    vehicle.style.transform = `translate(${moveX}px, ${moveY}px)`;
+                }
+                
+                const foodItems = deliveryMap.querySelectorAll('.food-item');
+                foodItems.forEach((item, index) => {
+                    const delay = index * 0.1;
+                    setTimeout(() => {
+                        item.style.transform = `translate(${moveX * 0.5}px, ${moveY * 0.5}px)`;
+                    }, delay * 100);
+                });
+            }
+        });
+        
+        document.addEventListener('mouseleave', function() {
+            const vehicle = deliveryMap.querySelector('.delivery-vehicle');
+            if (vehicle) {
+                vehicle.style.transform = '';
+            }
+            
+            const foodItems = deliveryMap.querySelectorAll('.food-item');
+            foodItems.forEach(item => {
+                item.style.transform = '';
+            });
+        });
+    }
+    
+    // Effet sonore visuel lors du passage d'étapes (simulation)
+    function triggerVisualFeedback() {
+        const currentActiveStatus = document.querySelector('.status-item.active:last-of-type');
+        if (currentActiveStatus) {
+            // Effet de flash sur le statut actuel
+            currentActiveStatus.style.background = 'rgba(255, 107, 53, 0.1)';
+            setTimeout(() => {
+                currentActiveStatus.style.background = '';
+            }, 300);
+            
+            // Effet de pulsation sur les badges de sécurité
+            securityBadges.forEach(badge => {
+                badge.style.transform = 'scale(1.1)';
+                setTimeout(() => {
+                    badge.style.transform = '';
+                }, 200);
+            });
+        }
+    }
+    
+    // Déclencher l'effet visuel à chaque mise à jour de statut
+    const originalUpdateStatus = updateDeliveryStatus;
+    updateDeliveryStatus = function() {
+        originalUpdateStatus();
+        triggerVisualFeedback();
+    };
+    
+    // Fonction pour redémarrer les animations si elles se figent
+    function restartAnimations() {
+        const foodItems = document.querySelectorAll('.food-item');
+        const vehicle = document.querySelector('.delivery-vehicle');
+        
+        foodItems.forEach((item, index) => {
+            // Forcer la position initiale
+            item.style.left = '10%';
+            item.style.top = '30%';
+            item.style.opacity = '0';
+            item.style.transform = 'scale(0.8) translateZ(0)';
+            
+            // Redémarrer l'animation
+            item.style.animation = 'none';
+            setTimeout(() => {
+                item.style.animation = `foodTravel 12s ease-in-out infinite`;
+                item.style.animationDelay = `${index * 3}s`;
+            }, 50);
+        });
+        
+        if (vehicle) {
+            vehicle.style.left = '10%';
+            vehicle.style.top = '30%';
+            vehicle.style.animation = 'none';
+            setTimeout(() => {
+                vehicle.style.animation = 'vehicleMove 8s ease-in-out infinite';
+            }, 50);
+        }
+    }
+    
+    // Vérifier et redémarrer les animations toutes les 15 secondes
+    setInterval(() => {
+        const foodItems = document.querySelectorAll('.food-item');
+        let hasStuckItem = false;
+        
+        foodItems.forEach(item => {
+            const rect = item.getBoundingClientRect();
+            const parentRect = item.parentElement.getBoundingClientRect();
+            
+            // Si un élément est resté dans le coin supérieur gauche trop longtemps
+            if (rect.left < parentRect.left + 50 && rect.top < parentRect.top + 50) {
+                hasStuckItem = true;
+            }
+        });
+        
+        if (hasStuckItem) {
+            console.log('Animation figée détectée, redémarrage...');
+            restartAnimations();
+        }
+    }, 15000);
+    
+    // Redémarrer les animations lors du focus/retour sur la page
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) {
+            setTimeout(restartAnimations, 500);
+        }
+    });
+});
+</script>
+@endpush
 

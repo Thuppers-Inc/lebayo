@@ -447,7 +447,7 @@ function createFallbackFunctions() {
         // Réinitialiser le formulaire
         const form = document.getElementById('commerceForm');
         if (form) form.reset();
-        
+    
         // Réinitialiser les champs cachés
         document.getElementById('commerceId').value = '';
         document.getElementById('methodField').value = 'POST';
@@ -475,35 +475,35 @@ function createFallbackFunctions() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                const commerce = data.commerce;
+            const commerce = data.commerce;
                 
                 // Remplir le formulaire
-                document.getElementById('modalTitle').textContent = 'Modifier le Commerce';
-                document.querySelector('[data-submit-text]').textContent = 'Modifier';
-                document.getElementById('commerceId').value = commerce.id;
-                document.getElementById('methodField').value = 'PUT';
-                document.getElementById('name').value = commerce.name;
-                document.getElementById('commerce_type_id').value = commerce.commerce_type_id;
-                document.getElementById('city').value = commerce.city;
-                document.getElementById('address').value = commerce.address;
-                document.getElementById('contact').value = commerce.contact;
-                document.getElementById('phone').value = commerce.phone || '';
-                document.getElementById('email').value = commerce.email || '';
-                document.getElementById('description').value = commerce.description || '';
-                document.getElementById('is_active').checked = commerce.is_active;
-                
-                // Afficher le logo actuel
-                if (commerce.logo_url) {
-                    document.getElementById('logoPreview').src = commerce.logo_url;
-                    document.getElementById('currentLogo').classList.remove('d-none');
-                }
-                
+            document.getElementById('modalTitle').textContent = 'Modifier le Commerce';
+            document.querySelector('[data-submit-text]').textContent = 'Modifier';
+            document.getElementById('commerceId').value = commerce.id;
+            document.getElementById('methodField').value = 'PUT';
+            document.getElementById('name').value = commerce.name;
+            document.getElementById('commerce_type_id').value = commerce.commerce_type_id;
+            document.getElementById('city').value = commerce.city;
+            document.getElementById('address').value = commerce.address;
+            document.getElementById('contact').value = commerce.contact;
+            document.getElementById('phone').value = commerce.phone || '';
+            document.getElementById('email').value = commerce.email || '';
+            document.getElementById('description').value = commerce.description || '';
+            document.getElementById('is_active').checked = commerce.is_active;
+            
+            // Afficher le logo actuel
+            if (commerce.logo_url) {
+                document.getElementById('logoPreview').src = commerce.logo_url;
+                document.getElementById('currentLogo').classList.remove('d-none');
+            }
+            
                 // Ouvrir le modal
                 const modal = new bootstrap.Modal(document.getElementById('commerceModal'));
                 modal.show();
             } else {
                 alert('Erreur lors du chargement des données du commerce');
-            }
+}
         })
         .catch(error => {
             console.error('Erreur:', error);
@@ -529,20 +529,20 @@ function createFallbackFunctions() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Mettre à jour le badge de statut
-                const statusBadge = document.getElementById(`status-${id}`);
-                if (statusBadge) {
-                    statusBadge.className = `admin-badge ${data.is_active ? 'admin-badge-success' : 'admin-badge-inactive'}`;
-                    statusBadge.textContent = data.is_active ? 'Actif' : 'Inactif';
-                }
-                
-                // Mettre à jour le bouton toggle
-                const toggleBtn = document.querySelector(`[onclick="toggleCommerceStatus(${id})"]`);
-                if (toggleBtn) {
-                    toggleBtn.className = `btn btn-sm admin-action-btn ${data.is_active ? 'admin-btn-toggle-active' : 'admin-btn-toggle-inactive'}`;
-                    toggleBtn.title = data.is_active ? 'Désactiver' : 'Activer';
-                    toggleBtn.innerHTML = `<i class="bx ${data.is_active ? 'bx-toggle-right' : 'bx-toggle-left'}"></i>`;
-                }
+            // Mettre à jour le badge de statut
+            const statusBadge = document.getElementById(`status-${id}`);
+            if (statusBadge) {
+                statusBadge.className = `admin-badge ${data.is_active ? 'admin-badge-success' : 'admin-badge-inactive'}`;
+                statusBadge.textContent = data.is_active ? 'Actif' : 'Inactif';
+            }
+            
+            // Mettre à jour le bouton toggle
+            const toggleBtn = document.querySelector(`[onclick="toggleCommerceStatus(${id})"]`);
+            if (toggleBtn) {
+                toggleBtn.className = `btn btn-sm admin-action-btn ${data.is_active ? 'admin-btn-toggle-active' : 'admin-btn-toggle-inactive'}`;
+                toggleBtn.title = data.is_active ? 'Désactiver' : 'Activer';
+                toggleBtn.innerHTML = `<i class="bx ${data.is_active ? 'bx-toggle-right' : 'bx-toggle-left'}"></i>`;
+            }
                 
                 alert(data.message);
             } else {
@@ -573,11 +573,11 @@ function createFallbackFunctions() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Supprimer la carte du DOM
-                const card = document.getElementById(`commerce-card-${id}`);
-                if (card) {
-                    card.remove();
-                }
+            // Supprimer la carte du DOM
+            const card = document.getElementById(`commerce-card-${id}`);
+            if (card) {
+                card.remove();
+            }
                 
                 alert(data.message);
                 
@@ -743,7 +743,7 @@ function createOptimizedFunctions() {
     };
 
     window.viewCommerceProducts = function(id) {
-        window.location.href = `{{ route('admin.commerce.products.index', ['commerce' => '__ID__']) }}`.replace('__ID__', id);
+    window.location.href = `{{ route('admin.commerce.products.index', ['commerce' => '__ID__']) }}`.replace('__ID__', id);
     };
 }
 
@@ -770,67 +770,67 @@ document.addEventListener('DOMContentLoaded', async function() {
     const commerceForm = document.getElementById('commerceForm');
     if (commerceForm) {
         commerceForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const submitBtn = this.querySelector('[type="submit"]');
-            const submitSpinner = submitBtn.querySelector('.spinner-border');
-            
-            submitBtn.disabled = true;
+    e.preventDefault();
+    
+    const submitBtn = this.querySelector('[type="submit"]');
+    const submitSpinner = submitBtn.querySelector('.spinner-border');
+    
+    submitBtn.disabled = true;
             if (submitSpinner) submitSpinner.classList.remove('d-none');
-            
-            const formData = new FormData(this);
-            const id = document.getElementById('commerceId').value;
-            
-            let url = '{{ route("admin.commerces.store") }}';
-            if (id) {
-                url = `${COMMERCE_BASE_URL}/${id}`;
-            }
-            
-            fetch(url, {
-                method: 'POST',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    'Accept': 'application/json',
-                },
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('commerceModal'));
-                    modal.hide();
+    
+    const formData = new FormData(this);
+    const id = document.getElementById('commerceId').value;
+    
+    let url = '{{ route("admin.commerces.store") }}';
+    if (id) {
+        url = `${COMMERCE_BASE_URL}/${id}`;
+    }
+    
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'Accept': 'application/json',
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('commerceModal'));
+            modal.hide();
                     alert(data.message);
-                    setTimeout(() => window.location.reload(), 1000);
-                } else {
+            setTimeout(() => window.location.reload(), 1000);
+        } else {
                     alert('Erreurs de validation: ' + JSON.stringify(data.errors));
-                }
-            })
-            .catch(error => {
-                console.error('Erreur:', error);
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
                 alert('Une erreur est survenue: ' + error.message);
-            })
-            .finally(() => {
-                submitBtn.disabled = false;
+    })
+    .finally(() => {
+        submitBtn.disabled = false;
                 if (submitSpinner) submitSpinner.classList.add('d-none');
-            });
-        });
+    });
+});
     }
 
-    // Prévisualisation du logo
+// Prévisualisation du logo
     const logoInput = document.getElementById('logo');
     if (logoInput) {
         logoInput.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('logoPreview').src = e.target.result;
-                    document.getElementById('currentLogo').classList.remove('d-none');
-                };
-                reader.readAsDataURL(file);
-            }
-        });
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('logoPreview').src = e.target.result;
+            document.getElementById('currentLogo').classList.remove('d-none');
+        };
+        reader.readAsDataURL(file);
+    }
+});
     }
 
     console.log('✅ Initialisation terminée');

@@ -744,9 +744,9 @@ function createOptimizedFunctions() {
         try {
             if (adminComponentsInstance && adminComponentsInstance.initCreateModal) {
                 adminComponentsInstance.initCreateModal('productModal', {
-                    title: 'Nouveau Produit',
-                    submitText: 'Créer'
-                });
+        title: 'Nouveau Produit',
+        submitText: 'Créer'
+    });
             } else {
                 // Fallback vers la version de base
                 createFallbackFunctions();
@@ -759,9 +759,9 @@ function createOptimizedFunctions() {
             window.openCreateProductModal();
             return;
         }
-        
-        // Réinitialiser l'image
-        document.getElementById('currentImage').classList.add('d-none');
+    
+    // Réinitialiser l'image
+    document.getElementById('currentImage').classList.add('d-none');
     };
     
     window.editProduct = function(id) {
@@ -770,39 +770,39 @@ function createOptimizedFunctions() {
         try {
             if (adminComponentsInstance && adminComponentsInstance.loadForEdit) {
                 adminComponentsInstance.loadForEdit(id, PRODUCT_BASE_URL, {
-                    successCallback: (data) => {
-                        const product = data.product;
-                        document.getElementById('modalTitle').textContent = 'Modifier le Produit';
-                        document.querySelector('[data-submit-text]').textContent = 'Modifier';
-                        document.getElementById('productId').value = product.id;
-                        document.getElementById('methodField').value = 'PUT';
-                        document.getElementById('name').value = product.name;
-                        document.getElementById('price').value = product.price;
-                        document.getElementById('old_price').value = product.old_price || '';
-                        document.getElementById('stock').value = product.stock || '';
-                        document.getElementById('unit').value = product.unit || '';
-                        document.getElementById('sku').value = product.sku || '';
-                        document.getElementById('preparation_time').value = product.preparation_time || '';
-                        document.getElementById('description').value = product.description || '';
-                        document.getElementById('is_available').checked = product.is_available;
-                        document.getElementById('is_featured').checked = product.is_featured;
-                        
-                        if (document.getElementById('commerce_id')) {
-                            document.getElementById('commerce_id').value = product.commerce_id;
-                        }
-                        if (document.getElementById('category_id')) {
-                            document.getElementById('category_id').value = product.category_id || '';
-                        }
-                        
-                        // Afficher l'image actuelle
-                        if (product.image_url) {
-                            document.getElementById('imagePreview').src = product.image_url;
-                            document.getElementById('currentImage').classList.remove('d-none');
-                        }
-                        
-                        new bootstrap.Modal(document.getElementById('productModal')).show();
-                    }
-                });
+        successCallback: (data) => {
+            const product = data.product;
+            document.getElementById('modalTitle').textContent = 'Modifier le Produit';
+            document.querySelector('[data-submit-text]').textContent = 'Modifier';
+            document.getElementById('productId').value = product.id;
+            document.getElementById('methodField').value = 'PUT';
+            document.getElementById('name').value = product.name;
+            document.getElementById('price').value = product.price;
+            document.getElementById('old_price').value = product.old_price || '';
+            document.getElementById('stock').value = product.stock || '';
+            document.getElementById('unit').value = product.unit || '';
+            document.getElementById('sku').value = product.sku || '';
+            document.getElementById('preparation_time').value = product.preparation_time || '';
+            document.getElementById('description').value = product.description || '';
+            document.getElementById('is_available').checked = product.is_available;
+            document.getElementById('is_featured').checked = product.is_featured;
+            
+            if (document.getElementById('commerce_id')) {
+                document.getElementById('commerce_id').value = product.commerce_id;
+            }
+            if (document.getElementById('category_id')) {
+                document.getElementById('category_id').value = product.category_id || '';
+            }
+            
+            // Afficher l'image actuelle
+            if (product.image_url) {
+                document.getElementById('imagePreview').src = product.image_url;
+                document.getElementById('currentImage').classList.remove('d-none');
+            }
+            
+            new bootstrap.Modal(document.getElementById('productModal')).show();
+        }
+    });
             } else {
                 throw new Error('AdminComponents.loadForEdit non disponible');
             }
@@ -819,23 +819,23 @@ function createOptimizedFunctions() {
         try {
             if (adminComponentsInstance && adminComponentsInstance.toggleStatus) {
                 adminComponentsInstance.toggleStatus(id, PRODUCT_BASE_URL + '/' + id + '/toggle-availability', {
-                    confirmMessage: 'Changer la disponibilité de ce produit ?',
-                    successCallback: (data) => {
-                        // Mettre à jour l'affichage
-                        const card = document.getElementById(`product-card-${id}`);
-                        if (card) {
-                            card.dataset.available = data.is_available ? 'available' : 'unavailable';
-                            
-                            // Mettre à jour le bouton
-                            const toggleBtn = document.querySelector(`[onclick="toggleProductAvailability(${id})"]`);
-                            if (toggleBtn) {
-                                toggleBtn.className = `btn btn-sm admin-action-btn ${data.is_available ? 'admin-btn-toggle-active' : 'admin-btn-toggle-inactive'}`;
-                                toggleBtn.title = data.is_available ? 'Rendre indisponible' : 'Rendre disponible';
-                                toggleBtn.innerHTML = `<i class="bx ${data.is_available ? 'bx-check-circle' : 'bx-x-circle'}"></i>`;
-                            }
-                        }
-                    }
-                });
+        confirmMessage: 'Changer la disponibilité de ce produit ?',
+        successCallback: (data) => {
+            // Mettre à jour l'affichage
+            const card = document.getElementById(`product-card-${id}`);
+            if (card) {
+                card.dataset.available = data.is_available ? 'available' : 'unavailable';
+                
+                // Mettre à jour le bouton
+                const toggleBtn = document.querySelector(`[onclick="toggleProductAvailability(${id})"]`);
+                if (toggleBtn) {
+                    toggleBtn.className = `btn btn-sm admin-action-btn ${data.is_available ? 'admin-btn-toggle-active' : 'admin-btn-toggle-inactive'}`;
+                    toggleBtn.title = data.is_available ? 'Rendre indisponible' : 'Rendre disponible';
+                    toggleBtn.innerHTML = `<i class="bx ${data.is_available ? 'bx-check-circle' : 'bx-x-circle'}"></i>`;
+                }
+            }
+        }
+    });
             } else {
                 throw new Error('AdminComponents.toggleStatus non disponible');
             }
@@ -852,22 +852,22 @@ function createOptimizedFunctions() {
         try {
             if (adminComponentsInstance && adminComponentsInstance.toggleStatus) {
                 adminComponentsInstance.toggleStatus(id, PRODUCT_BASE_URL + '/' + id + '/toggle-featured', {
-                    confirmMessage: 'Changer le statut vedette de ce produit ?',
-                    successCallback: (data) => {
-                        // Mettre à jour l'affichage
-                        const card = document.getElementById(`product-card-${id}`);
-                        if (card) {
-                            card.dataset.featured = data.is_featured ? 'featured' : 'not-featured';
-                            
-                            // Mettre à jour le bouton
-                            const toggleBtn = document.querySelector(`[onclick="toggleProductFeatured(${id})"]`);
-                            if (toggleBtn) {
-                                toggleBtn.className = `btn btn-sm admin-action-btn ${data.is_featured ? 'admin-btn-warning' : 'admin-btn-secondary'}`;
-                                toggleBtn.title = data.is_featured ? 'Retirer des vedettes' : 'Mettre en vedette';
-                            }
-                        }
-                    }
-                });
+        confirmMessage: 'Changer le statut vedette de ce produit ?',
+        successCallback: (data) => {
+            // Mettre à jour l'affichage
+            const card = document.getElementById(`product-card-${id}`);
+            if (card) {
+                card.dataset.featured = data.is_featured ? 'featured' : 'not-featured';
+                
+                // Mettre à jour le bouton
+                const toggleBtn = document.querySelector(`[onclick="toggleProductFeatured(${id})"]`);
+                if (toggleBtn) {
+                    toggleBtn.className = `btn btn-sm admin-action-btn ${data.is_featured ? 'admin-btn-warning' : 'admin-btn-secondary'}`;
+                    toggleBtn.title = data.is_featured ? 'Retirer des vedettes' : 'Mettre en vedette';
+                }
+            }
+        }
+    });
             } else {
                 throw new Error('AdminComponents.toggleStatus non disponible');
             }
@@ -884,12 +884,12 @@ function createOptimizedFunctions() {
         try {
             if (adminComponentsInstance && adminComponentsInstance.deleteItem) {
                 adminComponentsInstance.deleteItem(id, PRODUCT_BASE_URL, {
-                    confirmMessage: 'Supprimer définitivement ce produit ? Cette action est irréversible.',
-                    successCallback: () => {
-                        // Supprimer la carte du DOM
-                        const card = document.getElementById(`product-card-${id}`);
-                        if (card) {
-                            card.remove();
+        confirmMessage: 'Supprimer définitivement ce produit ? Cette action est irréversible.',
+        successCallback: () => {
+            // Supprimer la carte du DOM
+            const card = document.getElementById(`product-card-${id}`);
+            if (card) {
+                card.remove();
                             
                             // Mettre à jour le compteur
                             const countElement = document.getElementById('resultsCount');
@@ -897,9 +897,9 @@ function createOptimizedFunctions() {
                                 const currentCount = parseInt(countElement.textContent) || 0;
                                 countElement.textContent = Math.max(0, currentCount - 1);
                             }
-                        }
-                    }
-                });
+            }
+        }
+    });
             } else {
                 throw new Error('AdminComponents.deleteItem non disponible');
             }
