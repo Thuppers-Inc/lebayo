@@ -453,107 +453,486 @@
 // Configuration des URLs
 const PRODUCT_BASE_URL = '{{ route("admin.products.index") }}';
 
-// Fonctions d'action
-function openCreateProductModal() {
-    AdminComponents.initCreateModal('productModal', {
-        title: 'Nouveau Produit',
-        submitText: 'Créer'
+// ===== SYSTÈME DE GESTION D'ADMINCOMPONENTS =====
+
+// Variable pour stocker l'instance AdminComponents
+let adminComponentsInstance = null;
+
+// Fonction pour attendre que AdminComponents soit disponible
+function waitForAdminComponentsInstance(timeout = 3000) {
+    return new Promise((resolve) => {
+        console.log('🔍 Recherche de AdminComponents...');
+        
+        const checkAdminComponents = () => {
+            if (window.AdminComponents && typeof window.AdminComponents.loadForEdit === 'function') {
+                console.log('✅ AdminComponents trouvé et fonctionnel');
+                adminComponentsInstance = window.AdminComponents;
+                resolve(true);
+            } else if (window.AdminComponents && window.AdminComponents.instance) {
+                console.log('✅ AdminComponents instance trouvée');
+                adminComponentsInstance = window.AdminComponents.instance;
+                resolve(true);
+            } else {
+                console.log('❌ AdminComponents non disponible, utilisation du fallback');
+                resolve(false);
+            }
+        };
+        
+        // Vérification immédiate
+        checkAdminComponents();
+        
+        // Si pas trouvé, attendre un peu
+        setTimeout(() => {
+            if (!adminComponentsInstance) {
+                checkAdminComponents();
+            }
+        }, timeout);
     });
+}
+
+// ===== FONCTIONS DE FALLBACK =====
+
+// Fonctions de base utilisant fetch directement
+function createFallbackFunctions() {
+    console.log('🔧 Création des fonctions de fallback pour les produits');
     
-    // Réinitialiser l'image
-    document.getElementById('currentImage').classList.add('d-none');
-}
-
-function editProduct(id) {
-    AdminComponents.loadForEdit(id, PRODUCT_BASE_URL, {
-        successCallback: (data) => {
-            const product = data.product;
-            document.getElementById('modalTitle').textContent = 'Modifier le Produit';
-            document.querySelector('[data-submit-text]').textContent = 'Modifier';
-            document.getElementById('productId').value = product.id;
-            document.getElementById('methodField').value = 'PUT';
-            document.getElementById('name').value = product.name;
-            document.getElementById('price').value = product.price;
-            document.getElementById('old_price').value = product.old_price || '';
-            document.getElementById('stock').value = product.stock || '';
-            document.getElementById('unit').value = product.unit || '';
-            document.getElementById('sku').value = product.sku || '';
-            document.getElementById('preparation_time').value = product.preparation_time || '';
-            document.getElementById('description').value = product.description || '';
-            document.getElementById('is_available').checked = product.is_available;
-            document.getElementById('is_featured').checked = product.is_featured;
-            
-            if (document.getElementById('commerce_id')) {
-                document.getElementById('commerce_id').value = product.commerce_id;
+    // Fallback pour openCreateProductModal
+    window.openCreateProductModal = function() {
+        console.log('📝 Ouverture du modal de création (fallback)');
+        
+        // Réinitialiser le formulaire
+        document.getElementById('productForm').reset();
+        document.getElementById('productId').value = '';
+        document.getElementById('methodField').value = 'POST';
+        document.getElementById('modalTitle').textContent = 'Nouveau Produit';
+        document.querySelector('[data-submit-text]').textContent = 'Créer';
+        
+        // Réinitialiser l'image
+        document.getElementById('currentImage').classList.add('d-none');
+        
+        // Ouvrir le modal
+        new bootstrap.Modal(document.getElementById('productModal')).show();
+    };
+    
+    // Fallback pour editProduct
+    window.editProduct = function(id) {
+        console.log('✏️ Édition du produit (fallback):', id);
+        
+        fetch(`${PRODUCT_BASE_URL}/${id}/edit`, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
             }
-            if (document.getElementById('category_id')) {
-                document.getElementById('category_id').value = product.category_id || '';
-            }
-            
-            // Afficher l'image actuelle
-            if (product.image_url) {
-                document.getElementById('imagePreview').src = product.image_url;
-                document.getElementById('currentImage').classList.remove('d-none');
-            }
-            
-            new bootstrap.Modal(document.getElementById('productModal')).show();
-        }
-    });
-}
-
-function toggleProductAvailability(id) {
-    AdminComponents.toggleStatus(id, PRODUCT_BASE_URL + '/' + id + '/toggle-availability', {
-        confirmMessage: 'Changer la disponibilité de ce produit ?',
-        successCallback: (data) => {
-            // Mettre à jour l'affichage
-            const card = document.getElementById(`product-card-${id}`);
-            if (card) {
-                card.dataset.available = data.is_available ? 'available' : 'unavailable';
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const product = data.product;
+                document.getElementById('modalTitle').textContent = 'Modifier le Produit';
+                document.querySelector('[data-submit-text]').textContent = 'Modifier';
+                document.getElementById('productId').value = product.id;
+                document.getElementById('methodField').value = 'PUT';
+                document.getElementById('name').value = product.name;
+                document.getElementById('price').value = product.price;
+                document.getElementById('old_price').value = product.old_price || '';
+                document.getElementById('stock').value = product.stock || '';
+                document.getElementById('unit').value = product.unit || '';
+                document.getElementById('sku').value = product.sku || '';
+                document.getElementById('preparation_time').value = product.preparation_time || '';
+                document.getElementById('description').value = product.description || '';
+                document.getElementById('is_available').checked = product.is_available;
+                document.getElementById('is_featured').checked = product.is_featured;
                 
-                // Mettre à jour le bouton
-                const toggleBtn = document.querySelector(`[onclick="toggleProductAvailability(${id})"]`);
-                if (toggleBtn) {
-                    toggleBtn.className = `btn btn-sm admin-action-btn ${data.is_available ? 'admin-btn-toggle-active' : 'admin-btn-toggle-inactive'}`;
-                    toggleBtn.title = data.is_available ? 'Rendre indisponible' : 'Rendre disponible';
-                    toggleBtn.innerHTML = `<i class="bx ${data.is_available ? 'bx-check-circle' : 'bx-x-circle'}"></i>`;
+                if (document.getElementById('commerce_id')) {
+                    document.getElementById('commerce_id').value = product.commerce_id;
                 }
-            }
-        }
-    });
-}
-
-function toggleProductFeatured(id) {
-    AdminComponents.toggleStatus(id, PRODUCT_BASE_URL + '/' + id + '/toggle-featured', {
-        confirmMessage: 'Changer le statut vedette de ce produit ?',
-        successCallback: (data) => {
-            // Mettre à jour l'affichage
-            const card = document.getElementById(`product-card-${id}`);
-            if (card) {
-                card.dataset.featured = data.is_featured ? 'featured' : 'not-featured';
+                if (document.getElementById('category_id')) {
+                    document.getElementById('category_id').value = product.category_id || '';
+                }
                 
-                // Mettre à jour le bouton
-                const toggleBtn = document.querySelector(`[onclick="toggleProductFeatured(${id})"]`);
-                if (toggleBtn) {
-                    toggleBtn.className = `btn btn-sm admin-action-btn ${data.is_featured ? 'admin-btn-warning' : 'admin-btn-secondary'}`;
-                    toggleBtn.title = data.is_featured ? 'Retirer des vedettes' : 'Mettre en vedette';
+                // Afficher l'image actuelle
+                if (product.image_url) {
+                    document.getElementById('imagePreview').src = product.image_url;
+                    document.getElementById('currentImage').classList.remove('d-none');
                 }
+                
+                new bootstrap.Modal(document.getElementById('productModal')).show();
+            } else {
+                alert('Erreur lors de la récupération des données du produit');
             }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur lors de la récupération des données du produit');
+        });
+    };
+    
+    // Fallback pour toggleProductAvailability
+    window.toggleProductAvailability = function(id) {
+        console.log('🔄 Toggle disponibilité (fallback):', id);
+        
+        if (confirm('Changer la disponibilité de ce produit ?')) {
+            fetch(`${PRODUCT_BASE_URL}/${id}/toggle-availability`, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Mettre à jour l'affichage
+                    const card = document.getElementById(`product-card-${id}`);
+                    if (card) {
+                        card.dataset.available = data.is_available ? 'available' : 'unavailable';
+                        
+                        // Mettre à jour le bouton
+                        const toggleBtn = document.querySelector(`[onclick="toggleProductAvailability(${id})"]`);
+                        if (toggleBtn) {
+                            toggleBtn.className = `btn btn-sm admin-action-btn ${data.is_available ? 'admin-btn-toggle-active' : 'admin-btn-toggle-inactive'}`;
+                            toggleBtn.title = data.is_available ? 'Rendre indisponible' : 'Rendre disponible';
+                            toggleBtn.innerHTML = `<i class="bx ${data.is_available ? 'bx-check-circle' : 'bx-x-circle'}"></i>`;
+                        }
+                    }
+                    
+                    // Afficher message de succès
+                    const alertHtml = `
+                        <div class="admin-alert alert alert-success alert-dismissible" role="alert">
+                            ${data.message}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    `;
+                    const alertContainer = document.querySelector('.col-12');
+                    if (alertContainer) {
+                        alertContainer.insertAdjacentHTML('afterbegin', alertHtml);
+                        setTimeout(() => {
+                            const alert = document.querySelector('.admin-alert');
+                            if (alert) alert.remove();
+                        }, 3000);
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                alert('Erreur lors de la modification de la disponibilité');
+            });
         }
-    });
+    };
+    
+    // Fallback pour toggleProductFeatured
+    window.toggleProductFeatured = function(id) {
+        console.log('⭐ Toggle vedette (fallback):', id);
+        
+        if (confirm('Changer le statut vedette de ce produit ?')) {
+            fetch(`${PRODUCT_BASE_URL}/${id}/toggle-featured`, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Mettre à jour l'affichage
+                    const card = document.getElementById(`product-card-${id}`);
+                    if (card) {
+                        card.dataset.featured = data.is_featured ? 'featured' : 'not-featured';
+                        
+                        // Mettre à jour le bouton
+                        const toggleBtn = document.querySelector(`[onclick="toggleProductFeatured(${id})"]`);
+                        if (toggleBtn) {
+                            toggleBtn.className = `btn btn-sm admin-action-btn ${data.is_featured ? 'admin-btn-warning' : 'admin-btn-secondary'}`;
+                            toggleBtn.title = data.is_featured ? 'Retirer des vedettes' : 'Mettre en vedette';
+                        }
+                    }
+                    
+                    // Afficher message de succès
+                    const alertHtml = `
+                        <div class="admin-alert alert alert-success alert-dismissible" role="alert">
+                            ${data.message}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    `;
+                    const alertContainer = document.querySelector('.col-12');
+                    if (alertContainer) {
+                        alertContainer.insertAdjacentHTML('afterbegin', alertHtml);
+                        setTimeout(() => {
+                            const alert = document.querySelector('.admin-alert');
+                            if (alert) alert.remove();
+                        }, 3000);
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                alert('Erreur lors de la modification du statut vedette');
+            });
+        }
+    };
+    
+    // Fallback pour deleteProduct
+    window.deleteProduct = function(id) {
+        console.log('🗑️ Suppression (fallback):', id);
+        
+        if (confirm('Supprimer définitivement ce produit ? Cette action est irréversible.')) {
+            fetch(`${PRODUCT_BASE_URL}/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Supprimer la carte du DOM
+                    const card = document.getElementById(`product-card-${id}`);
+                    if (card) {
+                        card.remove();
+                        
+                        // Mettre à jour le compteur
+                        const countElement = document.getElementById('resultsCount');
+                        if (countElement) {
+                            const currentCount = parseInt(countElement.textContent) || 0;
+                            countElement.textContent = Math.max(0, currentCount - 1);
+                        }
+                    }
+                    
+                    // Afficher message de succès
+                    const alertHtml = `
+                        <div class="admin-alert alert alert-success alert-dismissible" role="alert">
+                            ${data.message}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    `;
+                    const alertContainer = document.querySelector('.col-12');
+                    if (alertContainer) {
+                        alertContainer.insertAdjacentHTML('afterbegin', alertHtml);
+                        setTimeout(() => {
+                            const alert = document.querySelector('.admin-alert');
+                            if (alert) alert.remove();
+                        }, 3000);
+                    }
+                } else {
+                    alert('Erreur lors de la suppression du produit');
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                alert('Erreur lors de la suppression du produit');
+            });
+        }
+    };
 }
 
-function deleteProduct(id) {
-    AdminComponents.deleteItem(id, PRODUCT_BASE_URL, {
-        confirmMessage: 'Supprimer définitivement ce produit ? Cette action est irréversible.',
-        successCallback: () => {
-            // Supprimer la carte du DOM
-            const card = document.getElementById(`product-card-${id}`);
-            if (card) {
-                card.remove();
+// ===== FONCTIONS OPTIMISÉES AVEC ADMINCOMPONENTS =====
+
+function createOptimizedFunctions() {
+    console.log('🚀 Création des fonctions optimisées pour les produits');
+    
+    // Version optimisée avec AdminComponents
+    window.openCreateProductModal = function() {
+        console.log('📝 Ouverture du modal de création (optimisé)');
+        
+        try {
+            if (adminComponentsInstance && adminComponentsInstance.initCreateModal) {
+                adminComponentsInstance.initCreateModal('productModal', {
+                    title: 'Nouveau Produit',
+                    submitText: 'Créer'
+                });
+            } else {
+                // Fallback vers la version de base
+                createFallbackFunctions();
+                window.openCreateProductModal();
+                return;
             }
+        } catch (error) {
+            console.error('Erreur AdminComponents:', error);
+            createFallbackFunctions();
+            window.openCreateProductModal();
+            return;
         }
-    });
+        
+        // Réinitialiser l'image
+        document.getElementById('currentImage').classList.add('d-none');
+    };
+    
+    window.editProduct = function(id) {
+        console.log('✏️ Édition du produit (optimisé):', id);
+        
+        try {
+            if (adminComponentsInstance && adminComponentsInstance.loadForEdit) {
+                adminComponentsInstance.loadForEdit(id, PRODUCT_BASE_URL, {
+                    successCallback: (data) => {
+                        const product = data.product;
+                        document.getElementById('modalTitle').textContent = 'Modifier le Produit';
+                        document.querySelector('[data-submit-text]').textContent = 'Modifier';
+                        document.getElementById('productId').value = product.id;
+                        document.getElementById('methodField').value = 'PUT';
+                        document.getElementById('name').value = product.name;
+                        document.getElementById('price').value = product.price;
+                        document.getElementById('old_price').value = product.old_price || '';
+                        document.getElementById('stock').value = product.stock || '';
+                        document.getElementById('unit').value = product.unit || '';
+                        document.getElementById('sku').value = product.sku || '';
+                        document.getElementById('preparation_time').value = product.preparation_time || '';
+                        document.getElementById('description').value = product.description || '';
+                        document.getElementById('is_available').checked = product.is_available;
+                        document.getElementById('is_featured').checked = product.is_featured;
+                        
+                        if (document.getElementById('commerce_id')) {
+                            document.getElementById('commerce_id').value = product.commerce_id;
+                        }
+                        if (document.getElementById('category_id')) {
+                            document.getElementById('category_id').value = product.category_id || '';
+                        }
+                        
+                        // Afficher l'image actuelle
+                        if (product.image_url) {
+                            document.getElementById('imagePreview').src = product.image_url;
+                            document.getElementById('currentImage').classList.remove('d-none');
+                        }
+                        
+                        new bootstrap.Modal(document.getElementById('productModal')).show();
+                    }
+                });
+            } else {
+                throw new Error('AdminComponents.loadForEdit non disponible');
+            }
+        } catch (error) {
+            console.error('Erreur AdminComponents:', error);
+            createFallbackFunctions();
+            window.editProduct(id);
+        }
+    };
+    
+    window.toggleProductAvailability = function(id) {
+        console.log('🔄 Toggle disponibilité (optimisé):', id);
+        
+        try {
+            if (adminComponentsInstance && adminComponentsInstance.toggleStatus) {
+                adminComponentsInstance.toggleStatus(id, PRODUCT_BASE_URL + '/' + id + '/toggle-availability', {
+                    confirmMessage: 'Changer la disponibilité de ce produit ?',
+                    successCallback: (data) => {
+                        // Mettre à jour l'affichage
+                        const card = document.getElementById(`product-card-${id}`);
+                        if (card) {
+                            card.dataset.available = data.is_available ? 'available' : 'unavailable';
+                            
+                            // Mettre à jour le bouton
+                            const toggleBtn = document.querySelector(`[onclick="toggleProductAvailability(${id})"]`);
+                            if (toggleBtn) {
+                                toggleBtn.className = `btn btn-sm admin-action-btn ${data.is_available ? 'admin-btn-toggle-active' : 'admin-btn-toggle-inactive'}`;
+                                toggleBtn.title = data.is_available ? 'Rendre indisponible' : 'Rendre disponible';
+                                toggleBtn.innerHTML = `<i class="bx ${data.is_available ? 'bx-check-circle' : 'bx-x-circle'}"></i>`;
+                            }
+                        }
+                    }
+                });
+            } else {
+                throw new Error('AdminComponents.toggleStatus non disponible');
+            }
+        } catch (error) {
+            console.error('Erreur AdminComponents:', error);
+            createFallbackFunctions();
+            window.toggleProductAvailability(id);
+        }
+    };
+    
+    window.toggleProductFeatured = function(id) {
+        console.log('⭐ Toggle vedette (optimisé):', id);
+        
+        try {
+            if (adminComponentsInstance && adminComponentsInstance.toggleStatus) {
+                adminComponentsInstance.toggleStatus(id, PRODUCT_BASE_URL + '/' + id + '/toggle-featured', {
+                    confirmMessage: 'Changer le statut vedette de ce produit ?',
+                    successCallback: (data) => {
+                        // Mettre à jour l'affichage
+                        const card = document.getElementById(`product-card-${id}`);
+                        if (card) {
+                            card.dataset.featured = data.is_featured ? 'featured' : 'not-featured';
+                            
+                            // Mettre à jour le bouton
+                            const toggleBtn = document.querySelector(`[onclick="toggleProductFeatured(${id})"]`);
+                            if (toggleBtn) {
+                                toggleBtn.className = `btn btn-sm admin-action-btn ${data.is_featured ? 'admin-btn-warning' : 'admin-btn-secondary'}`;
+                                toggleBtn.title = data.is_featured ? 'Retirer des vedettes' : 'Mettre en vedette';
+                            }
+                        }
+                    }
+                });
+            } else {
+                throw new Error('AdminComponents.toggleStatus non disponible');
+            }
+        } catch (error) {
+            console.error('Erreur AdminComponents:', error);
+            createFallbackFunctions();
+            window.toggleProductFeatured(id);
+        }
+    };
+    
+    window.deleteProduct = function(id) {
+        console.log('🗑️ Suppression (optimisé):', id);
+        
+        try {
+            if (adminComponentsInstance && adminComponentsInstance.deleteItem) {
+                adminComponentsInstance.deleteItem(id, PRODUCT_BASE_URL, {
+                    confirmMessage: 'Supprimer définitivement ce produit ? Cette action est irréversible.',
+                    successCallback: () => {
+                        // Supprimer la carte du DOM
+                        const card = document.getElementById(`product-card-${id}`);
+                        if (card) {
+                            card.remove();
+                            
+                            // Mettre à jour le compteur
+                            const countElement = document.getElementById('resultsCount');
+                            if (countElement) {
+                                const currentCount = parseInt(countElement.textContent) || 0;
+                                countElement.textContent = Math.max(0, currentCount - 1);
+                            }
+                        }
+                    }
+                });
+            } else {
+                throw new Error('AdminComponents.deleteItem non disponible');
+            }
+        } catch (error) {
+            console.error('Erreur AdminComponents:', error);
+            createFallbackFunctions();
+            window.deleteProduct(id);
+        }
+    };
 }
+
+// ===== INITIALISATION =====
+
+// Initialiser les fonctions au chargement du DOM
+document.addEventListener('DOMContentLoaded', async function() {
+    console.log('🚀 Initialisation de la page des produits');
+    
+    // Créer immédiatement les fonctions de fallback
+    createFallbackFunctions();
+    
+    // Essayer d'obtenir AdminComponents
+    const hasAdminComponents = await waitForAdminComponentsInstance();
+    
+    if (hasAdminComponents) {
+        console.log('✅ AdminComponents disponible, création des fonctions optimisées');
+        createOptimizedFunctions();
+    } else {
+        console.log('ℹ️ AdminComponents non disponible, utilisation des fonctions de fallback');
+    }
+    
+    // Tri initial
+    sortProducts();
+});
 
 // Gestion du formulaire avec upload d'image
 document.getElementById('productForm').addEventListener('submit', function(e) {
@@ -589,21 +968,75 @@ document.getElementById('productForm').addEventListener('submit', function(e) {
         if (data.success) {
             const modal = bootstrap.Modal.getInstance(document.getElementById('productModal'));
             modal.hide();
-            AdminComponents.showAlert(data.message, 'success');
+            
+            // Afficher message de succès
+            const alertHtml = `
+                <div class="admin-alert alert alert-success alert-dismissible" role="alert">
+                    ${data.message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            const alertContainer = document.querySelector('.col-12');
+            if (alertContainer) {
+                alertContainer.insertAdjacentHTML('afterbegin', alertHtml);
+                setTimeout(() => {
+                    const alert = document.querySelector('.admin-alert');
+                    if (alert) alert.remove();
+                }, 3000);
+            }
+            
             setTimeout(() => window.location.reload(), 1000);
         } else {
-            AdminComponents.showErrors(data.errors);
+            // Afficher les erreurs de validation
+            if (data.errors) {
+                Object.keys(data.errors).forEach(field => {
+                    const errorElement = document.getElementById(`${field}-error`);
+                    const inputElement = document.getElementById(field);
+                    
+                    if (errorElement && inputElement) {
+                        errorElement.textContent = data.errors[field][0];
+                        inputElement.classList.add('is-invalid');
+                    }
+                });
+            }
         }
     })
     .catch(error => {
         console.error('Erreur:', error);
-        AdminComponents.showAlert('Une erreur est survenue', 'danger');
+        
+        // Afficher message d'erreur
+        const alertHtml = `
+            <div class="admin-alert alert alert-danger alert-dismissible" role="alert">
+                Une erreur est survenue lors de la sauvegarde
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `;
+        const alertContainer = document.querySelector('.col-12');
+        if (alertContainer) {
+            alertContainer.insertAdjacentHTML('afterbegin', alertHtml);
+            setTimeout(() => {
+                const alert = document.querySelector('.admin-alert');
+                if (alert) alert.remove();
+            }, 3000);
+        }
     })
     .finally(() => {
         // Réactiver le bouton
         submitBtn.disabled = false;
         submitSpinner.classList.add('d-none');
     });
+});
+
+// Réinitialiser les erreurs de validation lors de la saisie
+document.getElementById('productForm').addEventListener('input', function(e) {
+    const field = e.target;
+    if (field.classList.contains('is-invalid')) {
+        field.classList.remove('is-invalid');
+        const errorElement = document.getElementById(`${field.id}-error`);
+        if (errorElement) {
+            errorElement.textContent = '';
+        }
+    }
 });
 
 // Prévisualisation de l'image
@@ -717,10 +1150,6 @@ if (commerceFilter) {
     commerceFilter.addEventListener('change', filterProducts);
 }
 
-// Initialisation
-document.addEventListener('DOMContentLoaded', function() {
-    // Tri initial
-    sortProducts();
-});
+
 </script>
 @endpush 
