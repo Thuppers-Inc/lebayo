@@ -32,124 +32,92 @@ Route::post('/register', [App\Http\Controllers\AuthController::class, 'register'
 Route::post('/logout', [App\Http\Controllers\AuthController::class, 'logout'])->name('logout');
 
 // Routes d'administration (protégées par authentification admin)
-Route::prefix('admin')->name('admin.')->middleware(['admin'])->group(function () {
+Route::prefix('admin')->name('admin.')->group(function () {
+    // Point d'entrée commun pour modérateurs et admins
     Route::get('/', function () {
         return redirect()->route('admin.dashboard');
+    })->middleware(['moderator']);
+    
+    // Dashboard accessible aux modérateurs (vue limitée) et admins (vue complète)
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard')->middleware(['moderator']);
+    
+    // ===== ROUTES POUR MODÉRATEURS (accès limité) =====
+    Route::middleware(['moderator'])->group(function () {
+        // Gestion des commandes (modération)
+        Route::resource('orders', OrderController::class)->only(['index', 'show']);
+        Route::post('orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('orders.update-status');
+        Route::post('orders/{order}/update-payment-status', [OrderController::class, 'updatePaymentStatus'])->name('orders.update-payment-status');
+        
+        // Consultation des clients (lecture seule pour modérateurs)
+        Route::get('clients', [ClientController::class, 'index'])->name('clients.index');
+        Route::get('clients/{client}', [ClientController::class, 'show'])->name('clients.show');
+        Route::get('clients/{client}/orders', [ClientController::class, 'orders'])->name('clients.orders');
+        Route::get('clients/{client}/addresses', [ClientController::class, 'addresses'])->name('clients.addresses');
+        
+        // Gestion limitée des produits (toggle disponibilité seulement)
+        Route::get('products', [ProductController::class, 'index'])->name('products.index');
+        Route::get('commerces/{commerce}/products', [ProductController::class, 'index'])->name('commerces.products.index');
+        Route::post('products/{product}/toggle-availability', [ProductController::class, 'toggleAvailability'])->name('products.toggle-availability');
     });
     
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    // ===== ROUTES POUR ADMINISTRATEURS COMPLETS SEULEMENT =====
+    Route::middleware(['admin'])->group(function () {
+        // Gestion des types de commerce (admin seulement)
+        Route::resource('commerce-types', CommerceTypeController::class);
+        Route::post('commerce-types/{commerceType}/toggle-status', [CommerceTypeController::class, 'toggleStatus'])
+            ->name('commerce-types.toggle-status');
+        
+        // Gestion des catégories (admin seulement)
+        Route::resource('categories', CategoryController::class);
+        Route::post('categories/{category}/toggle-status', [CategoryController::class, 'toggleStatus'])
+            ->name('categories.toggle-status');
+        
+        // Gestion complète des commerces (admin seulement)
+        Route::resource('commerces', CommerceController::class);
+        Route::post('commerces/{commerce}/toggle-status', [CommerceController::class, 'toggleStatus'])
+            ->name('commerces.toggle-status');
+        
+        // Gestion complète des produits (admin seulement)
+        Route::resource('products', ProductController::class)->except(['index']); // index déjà défini pour modérateurs
+        Route::post('products/{product}/toggle-featured', [ProductController::class, 'toggleFeatured'])->name('products.toggle-featured');
+        
+        // Routes spécifiques pour les produits d'un commerce
+        Route::get('commerces/{commerce}/products/create', [ProductController::class, 'create'])
+            ->name('commerce.products.create');
+        
+        // Gestion des livreurs (admin seulement)
+        Route::resource('livreurs', LivreurController::class);
+        Route::post('livreurs/{livreur}/toggle-status', [LivreurController::class, 'toggleStatus'])->name('livreurs.toggle-status');
+        
+        // Gestion complète des clients (admin seulement)
+        Route::post('clients', [ClientController::class, 'store'])->name('clients.store');
+        Route::get('clients/create', [ClientController::class, 'create'])->name('clients.create');
+        Route::get('clients/{client}/edit', [ClientController::class, 'edit'])->name('clients.edit');
+        Route::put('clients/{client}', [ClientController::class, 'update'])->name('clients.update');
+        Route::delete('clients/{client}', [ClientController::class, 'destroy'])->name('clients.destroy');
+    });
     
-    // Types de commerce
-    Route::resource('commerce-types', CommerceTypeController::class);
+    // ===== ROUTES POUR SUPER ADMINS SEULEMENT =====
+    Route::middleware(['admin:super_admin'])->group(function () {
+        // Fonctionnalités sensibles réservées aux super admins
+        // (à ajouter selon les besoins)
+    });
     
-    // Catégories
-    Route::resource('categories', CategoryController::class);
-    
-    // Commerces
-    Route::resource('commerces', CommerceController::class);
-    
-    // Produits
-    Route::resource('products', ProductController::class);
-    Route::get('commerces/{commerce}/products', [ProductController::class, 'index'])->name('commerces.products.index');
-    Route::post('products/{product}/toggle-availability', [ProductController::class, 'toggleAvailability'])->name('products.toggle-availability');
-    Route::post('products/{product}/toggle-featured', [ProductController::class, 'toggleFeatured'])->name('products.toggle-featured');
-    
-    // Livreurs
-    Route::resource('livreurs', LivreurController::class);
-    Route::post('livreurs/{livreur}/toggle-status', [LivreurController::class, 'toggleStatus'])->name('livreurs.toggle-status');
-    
-    // Commandes
-    Route::resource('orders', OrderController::class)->only(['index', 'show']);
-    Route::post('orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('orders.update-status');
-    Route::post('orders/{order}/update-payment-status', [OrderController::class, 'updatePaymentStatus'])->name('orders.update-payment-status');
-    
-    // Clients
-    Route::resource('clients', ClientController::class);
-    Route::get('clients/{client}/orders', [ClientController::class, 'orders'])->name('clients.orders');
-    Route::get('clients/{client}/addresses', [ClientController::class, 'addresses'])->name('clients.addresses');
-    
-    // Page vide pour tests
-    Route::get('/blank', function () {
-        return view('admin.blank');
-    })->name('blank');
-    
-    // Démonstration du thème
-    Route::get('/theme-demo', function () {
-        return view('admin.theme-demo');
-    })->name('theme.demo');
+    // Pages utilitaires (accessible à tous les niveaux)
+    Route::middleware(['moderator'])->group(function () {
+        Route::get('/blank', function () {
+            return view('admin.blank');
+        })->name('blank');
+        
+        Route::get('/theme-demo', function () {
+            return view('admin.theme-demo');
+        })->name('theme.demo');
+    });
 });
 
-// Routes pour les types de commerce
-Route::resource('admin/commerce-types', App\Http\Controllers\Admin\CommerceTypeController::class)
-    ->names([
-        'index' => 'admin.commerce-types.index',
-        'create' => 'admin.commerce-types.create',
-        'store' => 'admin.commerce-types.store',
-        'show' => 'admin.commerce-types.show',
-        'edit' => 'admin.commerce-types.edit',
-        'update' => 'admin.commerce-types.update',
-        'destroy' => 'admin.commerce-types.destroy',
-    ]);
-
-// Route pour changer le statut d'un type de commerce
-Route::post('admin/commerce-types/{commerceType}/toggle-status', [App\Http\Controllers\Admin\CommerceTypeController::class, 'toggleStatus'])
-    ->name('admin.commerce-types.toggle-status');
-
-// Routes pour les catégories
-Route::resource('admin/categories', App\Http\Controllers\Admin\CategoryController::class)
-    ->names([
-        'index' => 'admin.categories.index',
-        'create' => 'admin.categories.create',
-        'store' => 'admin.categories.store',
-        'show' => 'admin.categories.show',
-        'edit' => 'admin.categories.edit',
-        'update' => 'admin.categories.update',
-        'destroy' => 'admin.categories.destroy',
-    ]);
-
-// Route pour changer le statut d'une catégorie
-Route::post('admin/categories/{category}/toggle-status', [App\Http\Controllers\Admin\CategoryController::class, 'toggleStatus'])
-    ->name('admin.categories.toggle-status');
-
-// Routes pour les commerces
-Route::resource('admin/commerces', App\Http\Controllers\Admin\CommerceController::class)
-    ->names([
-        'index' => 'admin.commerces.index',
-        'create' => 'admin.commerces.create',
-        'store' => 'admin.commerces.store',
-        'show' => 'admin.commerces.show',
-        'edit' => 'admin.commerces.edit',
-        'update' => 'admin.commerces.update',
-        'destroy' => 'admin.commerces.destroy',
-    ]);
-
-// Route pour changer le statut d'un commerce
-Route::post('admin/commerces/{commerce}/toggle-status', [App\Http\Controllers\Admin\CommerceController::class, 'toggleStatus'])
-    ->name('admin.commerces.toggle-status');
-
-// Routes pour les produits
-Route::resource('admin/products', App\Http\Controllers\Admin\ProductController::class)
-    ->names([
-        'index' => 'admin.products.index',
-        'create' => 'admin.products.create',
-        'store' => 'admin.products.store',
-        'show' => 'admin.products.show',
-        'edit' => 'admin.products.edit',
-        'update' => 'admin.products.update',
-        'destroy' => 'admin.products.destroy',
-    ]);
-
-// Routes spécifiques pour les produits d'un commerce
-Route::get('admin/commerces/{commerce}/products', [App\Http\Controllers\Admin\ProductController::class, 'index'])
-    ->name('admin.commerce.products.index');
-Route::get('admin/commerces/{commerce}/products/create', [App\Http\Controllers\Admin\ProductController::class, 'create'])
-    ->name('admin.commerce.products.create');
-
-// Routes pour changer les statuts des produits
-Route::post('admin/products/{product}/toggle-availability', [App\Http\Controllers\Admin\ProductController::class, 'toggleAvailability'])
-    ->name('admin.products.toggle-availability');
-Route::post('admin/products/{product}/toggle-featured', [App\Http\Controllers\Admin\ProductController::class, 'toggleFeatured'])
-    ->name('admin.products.toggle-featured');
+// ===== ROUTES ADMIN SUPPRIMÉES =====
+// Toutes les routes admin sont maintenant dans le groupe prefix('admin') protégé par middleware
+// Ces routes dupliquées ont été supprimées pour éviter les contournements de sécurité
 
 // Routes du panier
 Route::prefix('cart')->name('cart.')->group(function () {

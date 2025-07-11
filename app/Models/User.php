@@ -86,11 +86,25 @@ class User extends Authenticatable
     }
 
     /**
-     * Vérifier si l'utilisateur est un administrateur
+     * Vérifier si l'utilisateur est un administrateur (accès complet au panel admin)
+     * Seuls les super admins, developers et managers ont accès
      */
     public function isAdmin(): bool
     {
-        return $this->account_type === AccountType::ADMIN || $this->is_super_admin;
+        // Super admin a toujours accès
+        if ($this->is_super_admin) {
+            return true;
+        }
+        
+        // Pour les account_type admin, vérifier le rôle
+        if ($this->account_type === AccountType::ADMIN) {
+            return in_array($this->role, [
+                UserRole::DEVELOPER,
+                UserRole::MANAGER
+            ]);
+        }
+        
+        return false;
     }
 
     /**
@@ -99,6 +113,47 @@ class User extends Authenticatable
     public function isSuperAdmin(): bool
     {
         return $this->is_super_admin;
+    }
+
+    /**
+     * Vérifier si l'utilisateur peut modérer (access limité)
+     */
+    public function canModerate(): bool
+    {
+        if ($this->isAdmin()) {
+            return true;
+        }
+        
+        return $this->account_type === AccountType::ADMIN && $this->role === UserRole::MODERATOR;
+    }
+
+    /**
+     * Vérifier si l'utilisateur peut gérer les utilisateurs
+     */
+    public function canManageUsers(): bool
+    {
+        if ($this->is_super_admin) {
+            return true;
+        }
+        
+        return $this->account_type === AccountType::ADMIN && 
+               in_array($this->role, [UserRole::DEVELOPER, UserRole::MANAGER]);
+    }
+
+    /**
+     * Vérifier si l'utilisateur peut gérer les commerces
+     */
+    public function canManageCommerces(): bool
+    {
+        return $this->isAdmin(); // Seuls les vrais admins
+    }
+
+    /**
+     * Vérifier si l'utilisateur peut voir les statistiques complètes
+     */
+    public function canViewFullStats(): bool
+    {
+        return $this->isAdmin(); // Seuls les vrais admins
     }
 
     /**

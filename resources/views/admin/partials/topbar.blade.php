@@ -89,10 +89,24 @@
       </li>
 
       <!-- User -->
+      @auth
+      @php
+        $user = auth()->user();
+        $userPhoto = $user ? ($user->photo_url ?? asset('images/default-avatar.png')) : asset('images/default-avatar.png');
+        $userName = $user ? ($user->full_name ?? 'Utilisateur') : 'Utilisateur';
+        $userRole = 'Client';
+        if ($user) {
+            try {
+                $userRole = $user->isAdmin() ? 'Administrateur' : ucfirst($user->account_type->value ?? 'client');
+            } catch (\Exception $e) {
+                $userRole = 'Client';
+            }
+        }
+      @endphp
       <li class="nav-item navbar-dropdown dropdown-user dropdown">
         <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
           <div class="avatar avatar-online">
-            <img src="{{ auth()->user()->photo_url }}" alt="{{ auth()->user()->full_name }}" class="w-px-40 h-auto rounded-circle" />
+            <img src="{{ $userPhoto }}" alt="{{ $userName }}" class="w-px-40 h-auto rounded-circle" onerror="this.src='{{ asset('images/default-avatar.png') }}'" />
           </div>
         </a>
         <ul class="dropdown-menu dropdown-menu-end">
@@ -101,12 +115,12 @@
               <div class="d-flex">
                 <div class="flex-shrink-0 me-3">
                   <div class="avatar avatar-online">
-                    <img src="{{ auth()->user()->photo_url }}" alt="{{ auth()->user()->full_name }}" class="w-px-40 h-auto rounded-circle" />
+                    <img src="{{ $userPhoto }}" alt="{{ $userName }}" class="w-px-40 h-auto rounded-circle" onerror="this.src='{{ asset('images/default-avatar.png') }}'" />
                   </div>
                 </div>
                 <div class="flex-grow-1">
-                  <span class="fw-semibold d-block">{{ auth()->user()->full_name }}</span>
-                  <small class="text-muted">{{ auth()->user()->isAdmin() ? 'Administrateur' : ucfirst(auth()->user()->account_type->value) }}</small>
+                  <span class="fw-semibold d-block">{{ $userName }}</span>
+                  <small class="text-muted">{{ $userRole }}</small>
                 </div>
               </div>
             </a>
@@ -149,6 +163,15 @@
           </li>
         </ul>
       </li>
+      @else
+      <!-- Utilisateur non connecté -->
+      <li class="nav-item">
+        <a class="nav-link" href="{{ route('login') }}">
+          <i class="bx bx-log-in me-2"></i>
+          <span class="align-middle">Se connecter</span>
+        </a>
+      </li>
+      @endauth
       <!--/ User -->
     </ul>
   </div>
