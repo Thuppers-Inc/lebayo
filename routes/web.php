@@ -56,7 +56,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         
         // Gestion limitée des produits (toggle disponibilité seulement)
         Route::get('products', [ProductController::class, 'index'])->name('products.index');
-        Route::get('commerces/{commerce}/products', [ProductController::class, 'index'])->name('commerces.products.index');
+        Route::get('commerces/{commerce}/products', [ProductController::class, 'index'])->name('commerce.products.index');
         Route::post('products/{product}/toggle-availability', [ProductController::class, 'toggleAvailability'])->name('products.toggle-availability');
     });
     
