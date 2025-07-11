@@ -7,7 +7,7 @@
                 <div class="footer-brand-section">
                     <div class="footer-brand">
                         <img src="{{ asset('images/logo.png') }}" alt="Lebayo" class="footer-logo">
-                        <span class="brand-name">Lebayo</span>
+                        {{-- <span class="brand-name">Lebayo</span> --}}
                     </div>
                     <p class="footer-description">
                         Votre plateforme de livraison rapide et fiable. 
@@ -63,11 +63,11 @@
                         </div>
                         <div class="contact-item">
                             <i class="fas fa-phone"></i>
-                            <span>+33 1 23 45 67 89</span>
+                            <span>+225 07 88 66 13 75</span>
                         </div>
                         <div class="contact-item">
                             <i class="fas fa-map-marker-alt"></i>
-                            <span>Paris, France</span>
+                            <span>Daloa, Côte d'Ivoire</span>
                         </div>
                     </div>
                 </div>

@@ -3613,11 +3613,12 @@ main {
 }
 
 .footer-logo {
-    width: 45px;
+    background-color: white;
+    width: auto;
     height: 45px;
     border-radius: 12px;
     object-fit: cover;
-    box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+    box-shadow: 0 4px 12px #ffb830;
 }
 
 .brand-name {
