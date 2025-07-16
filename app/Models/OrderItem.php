@@ -99,4 +99,30 @@ class OrderItem extends Model
     {
         return $this->product_description ?? ($this->product ? $this->product->description : '');
     }
+
+    // Obtenir le nom du commerce
+    public function getCommerceNameAttribute()
+    {
+        return $this->product && $this->product->commerce ? $this->product->commerce->name : 'Commerce supprimé';
+    }
+
+    // Obtenir le logo du commerce
+    public function getCommerceLogoAttribute()
+    {
+        return $this->product && $this->product->commerce ? $this->product->commerce->logo_url : asset('images/default-avatar.png');
+    }
+
+    // Obtenir le type de commerce
+    public function getCommerceTypeNameAttribute()
+    {
+        return $this->product && $this->product->commerce && $this->product->commerce->commerceType 
+            ? $this->product->commerce->commerceType->full_name 
+            : 'N/A';
+    }
+
+    // Obtenir l'adresse du commerce
+    public function getCommerceFullAddressAttribute()
+    {
+        return $this->product && $this->product->commerce ? $this->product->commerce->full_address : 'Adresse non disponible';
+    }
 } 

@@ -134,14 +134,14 @@
                 <div class="commerce-type-icon" style="background-image: url('{{ $type->header_image }}');"></div>
                 <div class="commerce-type-info">
                     <span class="commerce-type-name">{{ $type->name }}</span>
-                    <span class="commerce-type-count">{{ $type->commerces->count() }}{{ $type->commerces->count() >= 4 ? '+' : '' }}</span>
+                    <span class="commerce-type-count">{{ $type->commerces->count() }}{{ $type->commerces->count() >= 5 ? '+' : '' }}</span>
                 </div>
             </a>
             @endforeach
             <a href="#" class="commerce-type-quick-item">
                 <div class="commerce-type-icon" style="background-image: url('');"></div>
                 <div class="commerce-type-info">
-                    <span class="commerce-type-name">Faire un course</span>
+                    <span class="commerce-type-name">Faire une course</span>
                     <span class="commerce-type-count">Livraison express</span>
                 </div>
             </a>

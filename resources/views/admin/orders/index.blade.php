@@ -92,10 +92,11 @@
         @if($orders->count() > 0)
           <div class="table-responsive rounded-3 overflow-hidden">
             <table class="table table-hover mb-0">
-              <thead class="gradient-header">
+                              <thead class="gradient-header">
                 <tr>
                   <th class="border-0 text-white fw-semibold">Commande</th>
                   <th class="border-0 text-white fw-semibold">Client</th>
+                                      <th class="border-0 text-white fw-semibold">Commerçants</th>
                   <th class="border-0 text-white fw-semibold">Total</th>
                   <th class="border-0 text-white fw-semibold">Statut</th>
                   <th class="border-0 text-white fw-semibold">Paiement</th>
@@ -114,11 +115,59 @@
                       </div>
                     </td>
                     <td class="py-3">
-                      <div>
-                        <strong class="text-dark">{{ $order->user->name }}</strong>
-                        <br>
-                        <small class="text-muted">{{ $order->user->email }}</small>
+                      <div class="d-flex align-items-center gap-2">
+                        <img src="{{ $order->user->photo_url }}" 
+                             alt="{{ $order->user->full_name }}" 
+                             class="rounded-circle" 
+                             width="32" 
+                             height="32"
+                             style="object-fit: cover;">
+                        <div>
+                          <strong class="text-dark">{{ $order->user->full_name }}</strong>
+                          <br>
+                          <small class="text-muted">{{ $order->user->email }}</small>
+                          @if($order->user->formatted_phone)
+                          <br>
+                          <small class="text-muted">
+                            <i class="bx bx-phone me-1"></i>{{ $order->user->formatted_phone }}
+                          </small>
+                          @endif
+                        </div>
                       </div>
+                    </td>
+                    <td class="py-3">
+                      @php
+                        $commerces = $order->items->map(function($item) {
+                          return [
+                            'name' => $item->commerce_name,
+                            'logo' => $item->commerce_logo,
+                            'id' => $item->product && $item->product->commerce ? $item->product->commerce->id : null
+                          ];
+                        })->filter(function($commerce) {
+                          return $commerce['name'] !== 'Commerce supprimé';
+                        })->unique('id');
+                      @endphp
+                      
+                      @if($commerces->count() > 0)
+                        <div class="d-flex flex-column gap-1">
+                          @foreach($commerces->take(2) as $commerce)
+                            <div class="d-flex align-items-center gap-2">
+                              <img src="{{ $commerce['logo'] }}" 
+                                   alt="{{ $commerce['name'] }}" 
+                                   class="rounded-circle" 
+                                   width="20" 
+                                   height="20"
+                                   style="object-fit: cover;">
+                              <small class="text-truncate" style="max-width: 120px;">{{ $commerce['name'] }}</small>
+                            </div>
+                          @endforeach
+                          @if($commerces->count() > 2)
+                            <small class="text-muted">+{{ $commerces->count() - 2 }} autre(s)</small>
+                          @endif
+                        </div>
+                      @else
+                        <small class="text-muted">Aucun commerçant</small>
+                      @endif
                     </td>
                     <td class="py-3">
                       <strong class="text-dark">{{ $order->formatted_total }}</strong>

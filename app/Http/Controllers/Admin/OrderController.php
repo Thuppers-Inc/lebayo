@@ -14,7 +14,7 @@ class OrderController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Order::with(['user', 'deliveryAddress', 'items'])
+        $query = Order::with(['user', 'deliveryAddress', 'items.product.commerce.commerceType'])
             ->recentFirst();
 
         // Filtres
@@ -56,7 +56,7 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
-        $order->load(['user', 'deliveryAddress', 'items.product']);
+        $order->load(['user', 'deliveryAddress', 'items.product.commerce.commerceType']);
         
         return view('admin.orders.show', compact('order'));
     }

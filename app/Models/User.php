@@ -331,4 +331,46 @@ class User extends Authenticatable
         
         return substr($initials, 0, 2);
     }
+
+    /**
+     * Obtenir l'âge formaté de l'utilisateur
+     */
+    public function getFormattedAgeAttribute(): ?int
+    {
+        if (!$this->date_naissance) {
+            return null;
+        }
+        
+        return $this->date_naissance->diffInYears();
+    }
+
+    /**
+     * Obtenir l'ancienneté formatée de l'utilisateur
+     */
+    public function getFormattedSeniorityAttribute(): int
+    {
+        return floor($this->created_at->diffInDays());
+    }
+
+    /**
+     * Obtenir l'ancienneté en format lisible
+     */
+    public function getSeniorityLabelAttribute(): string
+    {
+        $days = $this->formatted_seniority;
+        
+        if ($days === 0) {
+            return 'Nouveau';
+        } elseif ($days === 1) {
+            return '1 jour';
+        } elseif ($days < 30) {
+            return $days . ' jours';
+        } elseif ($days < 365) {
+            $months = floor($days / 30);
+            return $months === 1 ? '1 mois' : $months . ' mois';
+        } else {
+            $years = floor($days / 365);
+            return $years === 1 ? '1 an' : $years . ' ans';
+        }
+    }
 }
