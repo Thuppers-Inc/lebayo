@@ -58,15 +58,15 @@
                         </div>
                         
                         <div class="user-menu-items">
-                            <a href="#" class="user-menu-item">
+                            <a href="{{ route('profile.index') }}" class="user-menu-item">
                                 <i class="menu-icon">👤</i>
                                 Mon profil
                             </a>
-                            <a href="#" class="user-menu-item">
+                            <a href="{{ route('profile.orders') }}" class="user-menu-item">
                                 <i class="menu-icon">📦</i>
                                 Mes commandes
                             </a>
-                            <a href="#" class="user-menu-item">
+                            <a href="{{ route('profile.addresses') }}" class="user-menu-item">
                                 <i class="menu-icon">📍</i>
                                 Mes adresses
                             </a>

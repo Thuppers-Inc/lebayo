@@ -143,3 +143,21 @@ Route::prefix('checkout')->name('checkout.')->middleware(['auth'])->group(functi
     Route::get('/success/{orderNumber}', [App\Http\Controllers\CheckoutController::class, 'success'])->name('success');
     Route::post('/address/store', [App\Http\Controllers\CheckoutController::class, 'storeAddress'])->name('address.store');
 });
+
+// Routes du profil utilisateur (protégées par authentification)
+Route::prefix('profile')->name('profile.')->middleware(['auth'])->group(function () {
+    Route::get('/', [App\Http\Controllers\ProfileController::class, 'index'])->name('index');
+    Route::post('/update', [App\Http\Controllers\ProfileController::class, 'update'])->name('update');
+    Route::post('/update-password', [App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('update-password');
+    
+    // Gestion des commandes
+    Route::get('/orders', [App\Http\Controllers\ProfileController::class, 'orders'])->name('orders');
+    Route::get('/orders/{order}', [App\Http\Controllers\ProfileController::class, 'showOrder'])->name('orders.show');
+    
+    // Gestion des adresses
+    Route::get('/addresses', [App\Http\Controllers\ProfileController::class, 'addresses'])->name('addresses');
+    Route::post('/addresses', [App\Http\Controllers\ProfileController::class, 'storeAddress'])->name('addresses.store');
+    Route::put('/addresses/{address}', [App\Http\Controllers\ProfileController::class, 'updateAddress'])->name('addresses.update');
+    Route::delete('/addresses/{address}', [App\Http\Controllers\ProfileController::class, 'deleteAddress'])->name('addresses.delete');
+    Route::post('/addresses/{address}/set-default', [App\Http\Controllers\ProfileController::class, 'setDefaultAddress'])->name('addresses.set-default');
+});
