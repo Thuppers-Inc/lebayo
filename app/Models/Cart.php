@@ -57,12 +57,13 @@ class Cart extends Model
     }
 
     /**
-     * Calculer les frais de livraison (500 F par commerce différent)
+     * Calculer les frais de livraison (configurable par commerce différent)
      */
     public function getDeliveryFeeAttribute()
     {
+        $settings = \App\Models\DeliverySettings::getActiveSettings();
         $uniqueCommerces = $this->items->pluck('product.commerce.id')->unique();
-        return $uniqueCommerces->count() * 500;
+        return $uniqueCommerces->count() * $settings->delivery_fee_per_commerce;
     }
 
     /**
@@ -74,7 +75,7 @@ class Cart extends Model
     }
 
     /**
-     * Calculer la remise (500 F pour la première commande)
+     * Calculer la remise (configurable pour la première commande)
      */
     public function getDiscountAttribute()
     {
@@ -82,7 +83,8 @@ class Cart extends Model
             return 0;
         }
         
-        return !$this->user->orders()->exists() ? 500 : 0;
+        $settings = \App\Models\DeliverySettings::getActiveSettings();
+        return !$this->user->orders()->exists() ? $settings->first_order_discount : 0;
     }
 
     /**

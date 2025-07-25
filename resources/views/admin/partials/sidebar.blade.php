@@ -90,6 +90,14 @@
       </a>
     </li>
 
+    <!-- Paramètres de livraison -->
+    <li class="menu-item {{ request()->routeIs('admin.delivery-settings.*') ? 'active' : '' }}">
+      <a href="{{ route('admin.delivery-settings.index') }}" class="menu-link">
+        <i class="menu-icon tf-icons bx bx-cog"></i>
+        <div data-i18n="Delivery Settings">Paramètres de livraison</div>
+      </a>
+    </li>
+
     <!-- Utilisateurs -->
     <li class="menu-item">
       <a href="javascript:void(0);" class="menu-link menu-toggle">
