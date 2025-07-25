@@ -138,8 +138,8 @@
                 </div>
             </a>
             @endforeach
-            <a href="#" class="commerce-type-quick-item">
-                <div class="commerce-type-icon" style="background-image: url('');"></div>
+            <a href="{{ route('errand.create') }}" class="commerce-type-quick-item">
+                <div class="commerce-type-icon" style="background-image: url('{{asset('images/faire-une-course-lebayo.jpg')}}');"></div>
                 <div class="commerce-type-info">
                     <span class="commerce-type-name">Faire une course</span>
                     <span class="commerce-type-count">Livraison express</span>

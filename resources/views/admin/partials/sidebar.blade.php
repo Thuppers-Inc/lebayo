@@ -90,13 +90,21 @@
       </a>
     </li>
 
-    <!-- Paramètres de livraison -->
-    <li class="menu-item {{ request()->routeIs('admin.delivery-settings.*') ? 'active' : '' }}">
-      <a href="{{ route('admin.delivery-settings.index') }}" class="menu-link">
-        <i class="menu-icon tf-icons bx bx-cog"></i>
-        <div data-i18n="Delivery Settings">Paramètres de livraison</div>
-      </a>
-    </li>
+                <!-- Paramètres de livraison -->
+            <li class="menu-item {{ request()->routeIs('admin.delivery-settings.*') ? 'active' : '' }}">
+              <a href="{{ route('admin.delivery-settings.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-cog"></i>
+                <div data-i18n="Delivery Settings">Paramètres de livraison</div>
+              </a>
+            </li>
+
+            <!-- Demandes de course -->
+            <li class="menu-item {{ request()->routeIs('admin.errand-requests.*') ? 'active' : '' }}">
+              <a href="{{ route('admin.errand-requests.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-task"></i>
+                <div data-i18n="Errand Requests">Demandes de course</div>
+              </a>
+            </li>
 
     <!-- Utilisateurs -->
     <li class="menu-item">

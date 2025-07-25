@@ -100,6 +100,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Gestion des paramètres de livraison (admin seulement)
         Route::resource('delivery-settings', DeliverySettingsController::class);
         Route::post('delivery-settings/{deliverySetting}/activate', [DeliverySettingsController::class, 'activate'])->name('delivery-settings.activate');
+        
+        // Gestion des demandes de course (admin seulement)
+        Route::resource('errand-requests', \App\Http\Controllers\Admin\ErrandRequestController::class)->except(['create', 'store', 'edit', 'update']);
+        Route::post('errand-requests/{errandRequest}/update-status', [\App\Http\Controllers\Admin\ErrandRequestController::class, 'updateStatus'])->name('errand-requests.update-status');
+        Route::get('errand-requests/{errandRequest}/logs', [\App\Http\Controllers\Admin\ErrandRequestController::class, 'logs'])->name('errand-requests.logs');
+        Route::get('errand-requests-stats', [\App\Http\Controllers\Admin\ErrandRequestController::class, 'stats'])->name('errand-requests.stats');
+        Route::get('errand-requests-export', [\App\Http\Controllers\Admin\ErrandRequestController::class, 'export'])->name('errand-requests.export');
     });
     
     // ===== ROUTES POUR SUPER ADMINS SEULEMENT =====
@@ -165,6 +172,16 @@ Route::prefix('profile')->name('profile.')->middleware(['auth'])->group(function
     Route::put('/addresses/{address}', [App\Http\Controllers\ProfileController::class, 'updateAddress'])->name('addresses.update');
     Route::delete('/addresses/{address}', [App\Http\Controllers\ProfileController::class, 'deleteAddress'])->name('addresses.delete');
     Route::post('/addresses/{address}/set-default', [App\Http\Controllers\ProfileController::class, 'setDefaultAddress'])->name('addresses.set-default');
+});
+
+// Routes pour les demandes de course
+Route::middleware(['auth'])->group(function () {
+    Route::get('/errand/create', [App\Http\Controllers\ErrandController::class, 'create'])->name('errand.create');
+    Route::post('/errand', [App\Http\Controllers\ErrandController::class, 'store'])->name('errand.store');
+    Route::get('/errand/{errandRequest}/success', [App\Http\Controllers\ErrandController::class, 'success'])->name('errand.success');
+    Route::get('/errand', [App\Http\Controllers\ErrandController::class, 'index'])->name('errand.index');
+    Route::get('/errand/{errandRequest}', [App\Http\Controllers\ErrandController::class, 'show'])->name('errand.show');
+    Route::post('/errand/{errandRequest}/cancel', [App\Http\Controllers\ErrandController::class, 'cancel'])->name('errand.cancel');
 });
 
 

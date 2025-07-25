@@ -70,6 +70,10 @@
                                 <i class="menu-icon">📍</i>
                                 Mes adresses
                             </a>
+                            <a href="{{ route('errand.index') }}" class="user-menu-item">
+                                <i class="menu-icon">🚚</i>
+                                Mes courses
+                            </a>
                             <form method="POST" action="{{ route('logout') }}" style="display: inline;">
                                 @csrf
                                 <button type="submit" class="user-menu-item logout" style="background: none; border: none; width: 100%; text-align: left; cursor: pointer;">

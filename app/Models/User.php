@@ -301,6 +301,11 @@ class User extends Authenticatable
         return $this->hasMany(Address::class);
     }
 
+    public function errandRequests()
+    {
+        return $this->hasMany(ErrandRequest::class);
+    }
+
     /**
      * Relation avec les commandes de l'utilisateur
      */
