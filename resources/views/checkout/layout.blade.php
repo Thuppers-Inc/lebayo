@@ -87,13 +87,13 @@
                             </div>
                             
                             <div class="bill-line">
-                                <span>Frais de livraison</span>
-                                <span class="free-delivery">Gratuit</span>
+                                <span>Frais de livraison ({{ $cart->unique_commerces_count }} {{ $cart->unique_commerces_count > 1 ? 'boutiques' : 'boutique' }})</span>
+                                <span>{{ number_format($deliveryFee, 0, ',', ' ') }} F</span>
                             </div>
                             
                             @if($discount > 0)
                                 <div class="bill-line discount">
-                                    <span>Remise</span>
+                                    <span>Remise première commande</span>
                                     <span>-{{ number_format($discount, 0, ',', ' ') }} F</span>
                                 </div>
                             @endif
@@ -347,6 +347,7 @@
 
 .bill-line.discount {
     color: var(--success-color);
+    font-weight: 600;
 }
 
 .free-delivery {

@@ -104,12 +104,12 @@
                                         <span>{{ number_format($order->subtotal, 0, ',', ' ') }} F</span>
                                     </div>
                                     <div class="total-line">
-                                        <span>Frais de livraison</span>
-                                        <span class="free-delivery">Gratuit</span>
+                                        <span>Frais de livraison ({{ $order->items->pluck('product.commerce.id')->unique()->count() }} {{ $order->items->pluck('product.commerce.id')->unique()->count() > 1 ? 'boutiques' : 'boutique' }})</span>
+                                        <span>{{ number_format($order->delivery_fee, 0, ',', ' ') }} F</span>
                                     </div>
                                     @if($order->discount > 0)
                                         <div class="total-line discount">
-                                            <span>Remise</span>
+                                            <span>Remise première commande</span>
                                             <span>-{{ number_format($order->discount, 0, ',', ' ') }} F</span>
                                         </div>
                                     @endif
@@ -456,7 +456,7 @@
     margin-top: 0.5rem;
 }
 
-.free-delivery {
+.total-line.discount {
     color: var(--success-color);
     font-weight: 600;
 }

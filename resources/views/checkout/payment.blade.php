@@ -60,7 +60,7 @@
             </div>
 
             <!-- Autres modes de paiement (désactivés pour l'instant) -->
-            <div class="payment-method-card disabled">
+            {{-- <div class="payment-method-card disabled">
                 <input type="radio" 
                        name="payment_method" 
                        value="card" 
@@ -83,7 +83,7 @@
                         </div>
                     </div>
                 </label>
-            </div>
+            </div> --}}
 
             <div class="payment-method-card disabled">
                 <input type="radio" 

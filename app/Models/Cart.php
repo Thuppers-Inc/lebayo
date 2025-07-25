@@ -57,6 +57,67 @@ class Cart extends Model
     }
 
     /**
+     * Calculer les frais de livraison (500 F par commerce différent)
+     */
+    public function getDeliveryFeeAttribute()
+    {
+        $uniqueCommerces = $this->items->pluck('product.commerce.id')->unique();
+        return $uniqueCommerces->count() * 500;
+    }
+
+    /**
+     * Obtenir les frais de livraison formatés
+     */
+    public function getFormattedDeliveryFeeAttribute()
+    {
+        return number_format($this->delivery_fee, 0, ',', ' ') . ' F';
+    }
+
+    /**
+     * Calculer la remise (500 F pour la première commande)
+     */
+    public function getDiscountAttribute()
+    {
+        if (!$this->user) {
+            return 0;
+        }
+        
+        return !$this->user->orders()->exists() ? 500 : 0;
+    }
+
+    /**
+     * Obtenir la remise formatée
+     */
+    public function getFormattedDiscountAttribute()
+    {
+        return number_format($this->discount, 0, ',', ' ') . ' F';
+    }
+
+    /**
+     * Calculer le total final
+     */
+    public function getFinalTotalAttribute()
+    {
+        return $this->total_price + $this->delivery_fee - $this->discount;
+    }
+
+    /**
+     * Obtenir le total final formaté
+     */
+    public function getFormattedFinalTotalAttribute()
+    {
+        return number_format($this->final_total, 0, ',', ' ') . ' F';
+    }
+
+    /**
+     * Obtenir le nombre de commerces uniques
+     */
+    public function getUniqueCommercesCountAttribute()
+    {
+        return $this->items->pluck('product.commerce.id')->unique()->count();
+    }
+
+    /**
      * Vérifier si le panier est vide
      */
     public function isEmpty()
@@ -72,7 +133,7 @@ class Cart extends Model
         return static::firstOrCreate(
             ['user_id' => $userId],
             ['user_id' => $userId]
-        );
+        )->load(['items.product.commerce', 'user']);
     }
 
     /**
@@ -80,7 +141,7 @@ class Cart extends Model
      */
     public static function getForUser($userId)
     {
-        return static::where('user_id', $userId)->with('items.product')->first();
+        return static::where('user_id', $userId)->with(['items.product.commerce', 'user'])->first();
     }
 
     /**

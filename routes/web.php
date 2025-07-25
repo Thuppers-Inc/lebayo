@@ -161,3 +161,40 @@ Route::prefix('profile')->name('profile.')->middleware(['auth'])->group(function
     Route::delete('/addresses/{address}', [App\Http\Controllers\ProfileController::class, 'deleteAddress'])->name('addresses.delete');
     Route::post('/addresses/{address}/set-default', [App\Http\Controllers\ProfileController::class, 'setDefaultAddress'])->name('addresses.set-default');
 });
+
+// Route de test pour vérifier les calculs du panier (à supprimer après test)
+Route::get('/test-cart-calculations', function() {
+    $user = Auth::user();
+    if (!$user) {
+        return response()->json(['error' => 'Utilisateur non connecté']);
+    }
+    
+    $cart = \App\Models\Cart::getForUser($user->id);
+    if (!$cart) {
+        return response()->json(['error' => 'Panier vide']);
+    }
+    
+    return response()->json([
+        'cart_id' => $cart->id,
+        'total_items' => $cart->total_items,
+        'subtotal' => $cart->total_price,
+        'formatted_subtotal' => $cart->formatted_total,
+        'delivery_fee' => $cart->delivery_fee,
+        'formatted_delivery_fee' => $cart->formatted_delivery_fee,
+        'discount' => $cart->discount,
+        'formatted_discount' => $cart->formatted_discount,
+        'final_total' => $cart->final_total,
+        'formatted_final_total' => $cart->formatted_final_total,
+        'unique_commerces_count' => $cart->unique_commerces_count,
+        'is_first_order' => !$user->orders()->exists(),
+        'items' => $cart->items->map(function($item) {
+            return [
+                'product_name' => $item->product->name,
+                'commerce_name' => $item->product->commerce->name,
+                'quantity' => $item->quantity,
+                'price' => $item->price,
+                'subtotal' => $item->quantity * $item->price
+            ];
+        })
+    ]);
+});

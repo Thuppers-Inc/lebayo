@@ -90,15 +90,22 @@
                         </div>
                         
                         <div class="summary-line">
-                            <span>Frais de livraison</span>
-                            <span class="delivery-fee">Gratuit</span>
+                            <span>Frais de livraison ({{ $uniqueCommercesCount }} {{ $uniqueCommercesCount > 1 ? 'boutiques' : 'boutique' }})</span>
+                            <span class="delivery-fee">{{ number_format($deliveryFee, 0, ',', ' ') }} F</span>
                         </div>
+                        
+                        @if($discount > 0)
+                        <div class="summary-line discount-line">
+                            <span>Remise première commande</span>
+                            <span class="discount-amount">-{{ number_format($discount, 0, ',', ' ') }} F</span>
+                        </div>
+                        @endif
                         
                         <div class="summary-divider"></div>
                         
                         <div class="summary-total">
                             <span>Total</span>
-                            <span id="cartTotal">{{ number_format($totalPrice, 0, ',', ' ') }} F</span>
+                            <span id="cartTotal">{{ number_format($finalTotal, 0, ',', ' ') }} F</span>
                         </div>
                         
                         <a href="{{ route('checkout.index') }}" class="checkout-btn">
@@ -370,6 +377,15 @@
 }
 
 .delivery-fee {
+    color: var(--success-color);
+    font-weight: 600;
+}
+
+.discount-line {
+    color: var(--success-color);
+}
+
+.discount-amount {
     color: var(--success-color);
     font-weight: 600;
 }
@@ -795,10 +811,27 @@ function confirmClearCart() {
 function updateCartDisplay(cart) {
     // Mettre à jour les totaux
     if (document.getElementById('cartSubtotal')) {
-        document.getElementById('cartSubtotal').textContent = cart.formatted_total;
+        document.getElementById('cartSubtotal').textContent = cart.formatted_subtotal;
     }
     if (document.getElementById('cartTotal')) {
-        document.getElementById('cartTotal').textContent = cart.formatted_total;
+        document.getElementById('cartTotal').textContent = cart.formatted_final_total;
+    }
+    
+    // Mettre à jour les frais de livraison
+    if (document.querySelector('.delivery-fee')) {
+        document.querySelector('.delivery-fee').textContent = cart.formatted_delivery_fee;
+    }
+    
+    // Mettre à jour la remise si elle existe
+    const discountLine = document.querySelector('.discount-line');
+    if (discountLine && cart.discount > 0) {
+        discountLine.style.display = 'flex';
+        const discountAmount = discountLine.querySelector('.discount-amount');
+        if (discountAmount) {
+            discountAmount.textContent = `-${cart.formatted_discount}`;
+        }
+    } else if (discountLine) {
+        discountLine.style.display = 'none';
     }
     
     // Mettre à jour le header

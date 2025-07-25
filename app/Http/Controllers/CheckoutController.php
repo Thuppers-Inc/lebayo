@@ -31,12 +31,12 @@ class CheckoutController extends Controller
             return redirect()->route('cart.index')->with('error', 'Votre panier est vide');
         }
 
-        // Calculer les totaux
+        // Calculer les totaux avec les nouvelles règles
         $cartItems = $cart->items;
         $subtotal = $cart->total_price;
-        $deliveryFee = 0; // Gratuit pour l'instant
-        $discount = 0;
-        $total = $subtotal + $deliveryFee - $discount;
+        $deliveryFee = $cart->delivery_fee; // 500 F par commerce différent
+        $discount = $cart->discount; // 500 F pour la première commande
+        $total = $cart->final_total;
 
         // Données pour le checkout
         $checkoutData = [
@@ -74,9 +74,9 @@ class CheckoutController extends Controller
             'cart' => $cart,
             'cartItems' => $cart->items,
             'subtotal' => $cart->total_price,
-            'deliveryFee' => 0,
-            'discount' => 0,
-            'total' => $cart->total_price,
+            'deliveryFee' => $cart->delivery_fee,
+            'discount' => $cart->discount,
+            'total' => $cart->final_total,
             'totalItems' => $cart->total_items,
             'currentStep' => 'address',
             'steps' => $this->getSteps(),
@@ -117,9 +117,9 @@ class CheckoutController extends Controller
             'cart' => $cart,
             'cartItems' => $cart->items,
             'subtotal' => $cart->total_price,
-            'deliveryFee' => 0,
-            'discount' => 0,
-            'total' => $cart->total_price,
+            'deliveryFee' => $cart->delivery_fee,
+            'discount' => $cart->discount,
+            'total' => $cart->final_total,
             'totalItems' => $cart->total_items,
             'currentStep' => 'payment',
             'steps' => $this->getSteps(),
@@ -157,9 +157,9 @@ class CheckoutController extends Controller
             'cart' => $cart,
             'cartItems' => $cart->items,
             'subtotal' => $cart->total_price,
-            'deliveryFee' => 0,
-            'discount' => 0,
-            'total' => $cart->total_price,
+            'deliveryFee' => $cart->delivery_fee,
+            'discount' => $cart->discount,
+            'total' => $cart->final_total,
             'totalItems' => $cart->total_items,
             'currentStep' => 'confirm',
             'steps' => $this->getSteps(),
@@ -199,7 +199,7 @@ class CheckoutController extends Controller
         try {
             DB::beginTransaction();
 
-            // Créer la commande
+            // Créer la commande avec les nouveaux calculs
             $order = Order::create([
                 'user_id' => $user->id,
                 'order_number' => Order::generateOrderNumber(),
@@ -207,9 +207,9 @@ class CheckoutController extends Controller
                 'payment_method' => $request->payment_method,
                 'status' => Order::STATUS_PENDING,
                 'subtotal' => $cart->total_price,
-                'delivery_fee' => 0,
-                'discount' => 0,
-                'total' => $cart->total_price,
+                'delivery_fee' => $cart->delivery_fee,
+                'discount' => $cart->discount,
+                'total' => $cart->final_total,
                 'payment_status' => Order::PAYMENT_STATUS_PENDING,
                 'notes' => $request->notes,
                 'estimated_delivery_time' => now()->addMinutes(30) // 30 minutes par défaut
