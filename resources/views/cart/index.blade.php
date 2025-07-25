@@ -86,18 +86,18 @@
                         
                         <div class="summary-line">
                             <span>Sous-total ({{ $totalItems }} {{ $totalItems > 1 ? 'articles' : 'article' }})</span>
-                            <span id="cartSubtotal">{{ number_format($totalPrice, 0, ',', ' ') }} F</span>
+                            <span id="cartSubtotal">{{ $cart->formatted_total }}</span>
                         </div>
                         
                         <div class="summary-line">
-                            <span>Frais de livraison ({{ $uniqueCommercesCount }} {{ $uniqueCommercesCount > 1 ? 'boutiques' : 'boutique' }})</span>
-                            <span class="delivery-fee">{{ number_format($deliveryFee, 0, ',', ' ') }} F</span>
+                            <span>Frais de livraison ({{ $cart->unique_commerces_count }} {{ $cart->unique_commerces_count > 1 ? 'boutiques' : 'boutique' }})</span>
+                            <span class="delivery-fee">{{ $cart->formatted_delivery_fee }}</span>
                         </div>
                         
                         @if($discount > 0)
                         <div class="summary-line discount-line">
                             <span>Remise première commande</span>
-                            <span class="discount-amount">-{{ number_format($discount, 0, ',', ' ') }} F</span>
+                            <span class="discount-amount">-{{ $cart->formatted_discount }}</span>
                         </div>
                         @endif
                         
@@ -105,7 +105,7 @@
                         
                         <div class="summary-total">
                             <span>Total</span>
-                            <span id="cartTotal">{{ number_format($finalTotal, 0, ',', ' ') }} F</span>
+                            <span id="cartTotal">{{ $cart->formatted_final_total }}</span>
                         </div>
                         
                         <a href="{{ route('checkout.index') }}" class="checkout-btn">

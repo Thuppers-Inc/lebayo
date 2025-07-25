@@ -35,9 +35,10 @@ class CartController extends Controller
             }])
             ->get();
 
-        // Calculer les frais de livraison (500 F par commerce différent)
+        // Calculer les frais de livraison avec les paramètres configurables
+        $settings = \App\Models\DeliverySettings::getActiveSettings();
         $uniqueCommerces = $cartItems->pluck('product.commerce.id')->unique();
-        $deliveryFee = $uniqueCommerces->count() * 500;
+        $deliveryFee = $uniqueCommerces->count() * $settings->delivery_fee_per_commerce;
 
         // Vérifier si c'est la première commande de l'utilisateur
         $user = Auth::user();
@@ -46,22 +47,18 @@ class CartController extends Controller
         
         if ($user) {
             $isFirstOrder = !$user->orders()->exists();
-            $discount = $isFirstOrder ? 500 : 0;
+            $discount = $isFirstOrder ? $settings->first_order_discount : 0;
         }
-
-        $subtotal = $cart->total_price;
-        $finalTotal = $subtotal + $deliveryFee - $discount;
 
         return view('cart.index', [
             'cart' => $cart,
             'cartItems' => $cartItems,
             'totalItems' => $cart->total_items,
-            'totalPrice' => $subtotal,
-            'deliveryFee' => $deliveryFee,
-            'discount' => $discount,
-            'finalTotal' => $finalTotal,
-            'isFirstOrder' => $isFirstOrder,
-            'uniqueCommercesCount' => $uniqueCommerces->count()
+            'totalPrice' => $cart->total_price,
+            'deliveryFee' => $cart->delivery_fee,
+            'discount' => $cart->discount,
+            'finalTotal' => $cart->final_total,
+            'isFirstOrder' => $isFirstOrder
         ]);
     }
 
