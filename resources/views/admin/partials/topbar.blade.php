@@ -25,69 +25,6 @@
     <!-- /Search -->
 
     <ul class="navbar-nav flex-row align-items-center ms-auto">
-      <!-- Notifications -->
-      <li class="nav-item navbar-dropdown dropdown-user dropdown me-3">
-        <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
-          <div class="position-relative">
-            <i class="bx bx-bell bx-sm"></i>
-            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-              3
-              <span class="visually-hidden">notifications non lues</span>
-            </span>
-          </div>
-        </a>
-        <ul class="dropdown-menu dropdown-menu-end">
-          <li>
-            <h6 class="dropdown-header">Notifications</h6>
-          </li>
-          <li>
-            <div class="dropdown-divider"></div>
-          </li>
-          <li>
-            <a class="dropdown-item" href="#">
-              <div class="d-flex">
-                <div class="flex-shrink-0 me-3">
-                  <div class="avatar avatar-sm">
-                    <span class="avatar-initial rounded-circle bg-label-primary">
-                      <i class="bx bx-user"></i>
-                    </span>
-                  </div>
-                </div>
-                <div class="flex-grow-1">
-                  <span class="fw-semibold d-block">Nouvel utilisateur inscrit</span>
-                  <small class="text-muted">Il y a 5 minutes</small>
-                </div>
-              </div>
-            </a>
-          </li>
-          <li>
-            <a class="dropdown-item" href="#">
-              <div class="d-flex">
-                <div class="flex-shrink-0 me-3">
-                  <div class="avatar avatar-sm">
-                    <span class="avatar-initial rounded-circle bg-label-success">
-                      <i class="bx bx-shopping-bag"></i>
-                    </span>
-                  </div>
-                </div>
-                <div class="flex-grow-1">
-                  <span class="fw-semibold d-block">Nouvelle commande</span>
-                  <small class="text-muted">Il y a 15 minutes</small>
-                </div>
-              </div>
-            </a>
-          </li>
-          <li>
-            <div class="dropdown-divider"></div>
-          </li>
-          <li>
-            <a class="dropdown-item text-center" href="#">
-              Voir toutes les notifications
-            </a>
-          </li>
-        </ul>
-      </li>
-
       <!-- User -->
       @auth
       @php
@@ -129,24 +66,9 @@
             <div class="dropdown-divider"></div>
           </li>
           <li>
-            <a class="dropdown-item" href="#">
+            <a class="dropdown-item" href="{{ route('admin.profile.index') }}">
               <i class="bx bx-user me-2"></i>
               <span class="align-middle">Mon Profil</span>
-            </a>
-          </li>
-          <li>
-            <a class="dropdown-item" href="#">
-              <i class="bx bx-cog me-2"></i>
-              <span class="align-middle">Paramètres</span>
-            </a>
-          </li>
-          <li>
-            <a class="dropdown-item" href="#">
-              <span class="d-flex align-items-center align-middle">
-                <i class="flex-shrink-0 bx bx-credit-card me-2"></i>
-                <span class="flex-grow-1 align-middle">Facturation</span>
-                <span class="flex-shrink-0 badge badge-center rounded-pill bg-danger w-px-20 h-px-20">4</span>
-              </span>
             </a>
           </li>
           <li>

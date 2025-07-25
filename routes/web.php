@@ -107,6 +107,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('errand-requests/{errandRequest}/logs', [\App\Http\Controllers\Admin\ErrandRequestController::class, 'logs'])->name('errand-requests.logs');
         Route::get('errand-requests-stats', [\App\Http\Controllers\Admin\ErrandRequestController::class, 'stats'])->name('errand-requests.stats');
         Route::get('errand-requests-export', [\App\Http\Controllers\Admin\ErrandRequestController::class, 'export'])->name('errand-requests.export');
+        
+        // Gestion du profil admin
+        Route::get('profile', [\App\Http\Controllers\Admin\AdminProfileController::class, 'index'])->name('profile.index');
+        Route::post('profile/update', [\App\Http\Controllers\Admin\AdminProfileController::class, 'update'])->name('profile.update');
+        Route::post('profile/update-password', [\App\Http\Controllers\Admin\AdminProfileController::class, 'updatePassword'])->name('profile.update-password');
     });
     
     // ===== ROUTES POUR SUPER ADMINS SEULEMENT =====

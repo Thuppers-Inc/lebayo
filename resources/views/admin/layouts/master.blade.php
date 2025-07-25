@@ -33,7 +33,7 @@
     <meta name="description" content="@yield('description', 'Tableau de bord administrateur pour Lebayo')" />
 
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="{{ asset('admin-assets/assets/img/favicon/favicon.ico') }}" />
+    <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}" />
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
