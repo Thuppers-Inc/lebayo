@@ -109,7 +109,7 @@
            
 
     <!-- Utilisateurs -->
-    <li class="menu-item">
+    {{-- <li class="menu-item">
       <a href="javascript:void(0);" class="menu-link menu-toggle">
         <i class="menu-icon tf-icons bx bx-group"></i>
         <div data-i18n="Users">Utilisateurs</div>
@@ -131,7 +131,7 @@
           </a>
         </li>
       </ul>
-    </li>
+    </li> --}}
 
     <!-- OUTILS DE DÉVELOPPEMENT -->
     {{-- <li class="menu-header small text-uppercase">
