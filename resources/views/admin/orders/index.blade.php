@@ -109,7 +109,9 @@
                   <tr id="row-{{ $order->id }}" class="table-row-hover">
                     <td class="py-3">
                       <div>
-                        <strong class="text-dark">#{{ $order->order_number }}</strong>
+                        <a href="{{ route('admin.orders.show', $order) }}" class="text-decoration-none">
+                          <strong class="text-dark">#{{ $order->order_number }}</strong>
+                        </a>
                         <br>
                         <small class="text-muted">{{ $order->items->count() }} article(s)</small>
                       </div>
@@ -395,6 +397,75 @@
 .alert {
   border: none;
   box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+}
+
+/* Amélioration du défilement horizontal du tableau */
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Largeur minimale pour assurer la lisibilité */
+.table {
+  min-width: 900px;
+}
+
+/* Optimisation pour les écrans moyens et petits */
+@media (max-width: 768px) {
+  .table {
+    min-width: 800px;
+  }
+  
+  /* Réduire la taille des colonnes moins importantes */
+  .table th:nth-child(3),
+  .table td:nth-child(3) {
+    min-width: 120px;
+  }
+  
+  .table th:nth-child(4),
+  .table td:nth-child(4) {
+    min-width: 80px;
+  }
+  
+  .table th:nth-child(6),
+  .table td:nth-child(6) {
+    min-width: 90px;
+  }
+  
+  .table th:nth-child(7),
+  .table td:nth-child(7) {
+    min-width: 100px;
+  }
+  
+  .table th:nth-child(8),
+  .table td:nth-child(8) {
+    min-width: 120px;
+  }
+}
+
+@media (max-width: 576px) {
+  .table {
+    min-width: 700px;
+  }
+  
+  /* Masquer certaines colonnes sur très petits écrans */
+  .table th:nth-child(3),
+  .table td:nth-child(3),
+  .table th:nth-child(6),
+  .table td:nth-child(6) {
+    display: none;
+  }
+}
+
+/* Style pour le lien du numéro de commande */
+.table a {
+  color: inherit;
+  transition: color 0.2s ease;
+}
+
+.table a:hover {
+  color: #D62828;
+  text-decoration: underline !important;
 }
 </style>
 @endpush
