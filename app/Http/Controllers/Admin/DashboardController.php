@@ -20,13 +20,13 @@ class DashboardController extends Controller
         // Récupération des statistiques
         $stats = [
             'total_commerces' => Commerce::count(),
-            'total_products' => Product::count(),
+            'total_products' => Product::withActiveCommerce()->count(),
             'total_categories' => Category::count(),
             'total_commerce_types' => CommerceType::count(),
             'total_users' => User::count(),
             'active_commerces' => Commerce::active()->count(),
-            'available_products' => Product::available()->count(),
-            'featured_products' => Product::featured()->count(),
+            'available_products' => Product::available()->withActiveCommerce()->count(),
+            'featured_products' => Product::featured()->withActiveCommerce()->count(),
         ];
 
         // Récupération des données récentes
@@ -36,6 +36,7 @@ class DashboardController extends Controller
             ->get();
 
         $recent_products = Product::with('commerce')
+            ->withActiveCommerce()
             ->latest()
             ->take(5)
             ->get();

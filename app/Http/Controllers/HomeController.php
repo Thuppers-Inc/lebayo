@@ -15,8 +15,12 @@ class HomeController extends Controller
     {
         // Récupérer les restaurants populaires (commerces actifs avec le plus de produits)
         $popularRestaurants = Commerce::active()
-            ->with(['commerceType', 'products'])
-            ->withCount('products')
+            ->with(['commerceType', 'products' => function($query) {
+                $query->whereNull('deleted_at');
+            }])
+            ->withCount(['products' => function($query) {
+                $query->whereNull('deleted_at');
+            }])
             ->orderBy('products_count', 'desc')
             ->take(6)
             ->get();
@@ -41,7 +45,9 @@ class HomeController extends Controller
         // Récupérer les types de commerce actifs avec leurs commerces pour le module de navigation
         $commerceTypes = CommerceType::active()
             ->with(['commerces' => function($query) {
-                $query->active()->withCount('products')->take(4);
+                $query->active()->withCount(['products' => function($q) {
+                    $q->whereNull('deleted_at');
+                }])->take(4);
             }])
             ->whereHas('commerces', function($query) {
                 $query->where('is_active', true);
@@ -63,7 +69,7 @@ class HomeController extends Controller
 
         foreach ($commerceTypes as $type) {
             $type->header_image = $commerceTypeImages[$type->name] ?? 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600&h=400&fit=crop';
-            
+
             // Ajouter des images aux commerces de chaque type
             foreach ($type->commerces as $index => $commerce) {
                 $commerce->placeholder_image = $foodImages[$index % count($foodImages)];
@@ -72,4 +78,4 @@ class HomeController extends Controller
 
         return view('welcome', compact('popularRestaurants', 'commerceTypes'));
     }
-} 
+}

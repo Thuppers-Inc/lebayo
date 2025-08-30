@@ -23,20 +23,21 @@ class ProductController extends Controller
                 ->byCommerce($commerceId)
                 ->latest()
                 ->get();
-                
+
             // Récupérer toutes les catégories pour les filtres
             $categories = Category::active()->get();
-            
+
             return view('admin.products.index', compact('products', 'commerce', 'categories'));
         } else {
-            // Afficher tous les produits
+            // Afficher tous les produits (uniquement ceux dont le commerce n'est pas supprimé)
             $products = Product::with(['commerce', 'category'])
+                ->withActiveCommerce()
                 ->latest()
                 ->get();
-                
+
             $commerces = Commerce::active()->get();
             $categories = Category::active()->get();
-                
+
             return view('admin.products.index', compact('products', 'commerces', 'categories'));
         }
     }
@@ -49,13 +50,13 @@ class ProductController extends Controller
         $commerce = null;
         $commerces = Commerce::active()->get();
         $categories = Category::active()->get();
-        
+
         if ($commerceId) {
             $commerce = Commerce::findOrFail($commerceId);
             // Filtrer les catégories selon le type de commerce
             $categories = Category::where('commerce_type_id', $commerce->commerce_type_id)->active()->get();
         }
-        
+
         return view('admin.products.create', compact('commerce', 'commerces', 'categories'));
     }
 
@@ -87,13 +88,13 @@ class ProductController extends Controller
         if ($request->hasFile('image')) {
             $image = $request->file('image');
             $filename = Str::uuid() . '.' . $image->getClientOriginalExtension();
-            
+
             // Créer le répertoire s'il n'existe pas
             $directory = public_path('products');
             if (!file_exists($directory)) {
                 mkdir($directory, 0755, true);
             }
-            
+
             // Déplacer le fichier vers public/products
             $image->move($directory, $filename);
             $validated['image'] = $filename;
@@ -103,7 +104,7 @@ class ProductController extends Controller
         if ($request->filled('tags')) {
             $validated['tags'] = array_map('trim', explode(',', $request->tags));
         }
-        
+
         if ($request->filled('specifications')) {
             $specifications = [];
             foreach (explode("\n", $request->specifications) as $spec) {
@@ -147,7 +148,7 @@ class ProductController extends Controller
     {
         $commerce = $product->commerce;
         $categories = Category::where('commerce_type_id', $commerce->commerce_type_id)->active()->get();
-        
+
         if (request()->ajax()) {
             return response()->json([
                 'success' => true,
@@ -191,16 +192,16 @@ class ProductController extends Controller
                     unlink($oldImagePath);
                 }
             }
-            
+
             $image = $request->file('image');
             $filename = Str::uuid() . '.' . $image->getClientOriginalExtension();
-            
+
             // Créer le répertoire s'il n'existe pas
             $directory = public_path('products');
             if (!file_exists($directory)) {
                 mkdir($directory, 0755, true);
             }
-            
+
             // Déplacer le fichier vers public/products
             $image->move($directory, $filename);
             $validated['image'] = $filename;
@@ -210,7 +211,7 @@ class ProductController extends Controller
         if ($request->filled('tags')) {
             $validated['tags'] = array_map('trim', explode(',', $request->tags));
         }
-        
+
         if ($request->filled('specifications')) {
             $specifications = [];
             foreach (explode("\n", $request->specifications) as $spec) {
@@ -251,7 +252,7 @@ class ProductController extends Controller
                     unlink($imagePath);
                 }
             }
-            
+
             $commerceId = $product->commerce_id;
             $product->delete();
 
@@ -264,7 +265,7 @@ class ProductController extends Controller
 
             return redirect()->route('admin.products.index', $commerceId)
                 ->with('success', 'Produit supprimé avec succès !');
-                
+
         } catch (\Exception $e) {
             if (request()->ajax()) {
                 return response()->json([
@@ -300,7 +301,7 @@ class ProductController extends Controller
 
             return redirect()->back()
                 ->with('success', "Produit marqué comme {$status} !");
-                
+
         } catch (\Exception $e) {
             if (request()->ajax()) {
                 return response()->json([
@@ -336,7 +337,7 @@ class ProductController extends Controller
 
             return redirect()->back()
                 ->with('success', "Produit {$status} !");
-                
+
         } catch (\Exception $e) {
             if (request()->ajax()) {
                 return response()->json([

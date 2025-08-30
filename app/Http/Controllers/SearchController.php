@@ -38,7 +38,7 @@ class SearchController extends Controller
         $products = Product::available()
             ->with(['commerce', 'category'])
             ->whereHas('commerce', function($q) {
-                $q->where('is_active', true);
+                $q->where('is_active', true)->whereNull('deleted_at');
             })
             ->where(function($q) use ($query) {
                 $q->where('name', 'LIKE', '%' . $query . '%')
@@ -106,7 +106,7 @@ class SearchController extends Controller
             ->select('id', 'name', 'price', 'commerce_id')
             ->with('commerce:id,name')
             ->whereHas('commerce', function($q) {
-                $q->where('is_active', true);
+                $q->where('is_active', true)->whereNull('deleted_at');
             })
             ->where('name', 'LIKE', '%' . $query . '%')
             ->limit(5)

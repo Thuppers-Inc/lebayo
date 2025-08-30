@@ -65,7 +65,7 @@ class Product extends Model
         if ($this->image) {
             return asset('products/' . $this->image);
         }
-        
+
         return asset('images/product-placeholder.png');
     }
 
@@ -77,15 +77,15 @@ class Product extends Model
         if (!$this->is_available) {
             return 'Indisponible';
         }
-        
+
         if ($this->stock <= 0) {
             return 'En rupture';
         }
-        
+
         if ($this->stock <= 5) {
             return 'Stock faible';
         }
-        
+
         return 'Disponible';
     }
 
@@ -97,15 +97,15 @@ class Product extends Model
         if (!$this->is_available) {
             return 'danger';
         }
-        
+
         if ($this->stock <= 0) {
             return 'danger';
         }
-        
+
         if ($this->stock <= 5) {
             return 'warning';
         }
-        
+
         return 'success';
     }
 
@@ -125,7 +125,7 @@ class Product extends Model
         if ($this->old_price) {
             return number_format($this->old_price, 0, ',', ' ') . ' FCFA';
         }
-        
+
         return null;
     }
 
@@ -137,7 +137,7 @@ class Product extends Model
         if ($this->old_price && $this->old_price > $this->price) {
             return round((($this->old_price - $this->price) / $this->old_price) * 100);
         }
-        
+
         return null;
     }
 
@@ -171,5 +171,15 @@ class Product extends Model
     public function scopeByCategory($query, $categoryId)
     {
         return $query->where('category_id', $categoryId);
+    }
+
+    /**
+     * Scope pour les produits dont le commerce n'est pas supprimé
+     */
+    public function scopeWithActiveCommerce($query)
+    {
+        return $query->whereHas('commerce', function ($q) {
+            $q->whereNull('deleted_at');
+        });
     }
 }
