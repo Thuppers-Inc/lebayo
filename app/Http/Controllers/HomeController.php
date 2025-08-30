@@ -15,12 +15,8 @@ class HomeController extends Controller
     {
         // Récupérer les restaurants populaires (commerces actifs avec le plus de produits)
         $popularRestaurants = Commerce::active()
-            ->with(['commerceType', 'products' => function($query) {
-                $query->whereNull('deleted_at');
-            }])
-            ->withCount(['products' => function($query) {
-                $query->whereNull('deleted_at');
-            }])
+            ->with(['commerceType', 'products'])
+            ->withCount('products')
             ->orderBy('products_count', 'desc')
             ->take(6)
             ->get();
@@ -45,9 +41,7 @@ class HomeController extends Controller
         // Récupérer les types de commerce actifs avec leurs commerces pour le module de navigation
         $commerceTypes = CommerceType::active()
             ->with(['commerces' => function($query) {
-                $query->active()->withCount(['products' => function($q) {
-                    $q->whereNull('deleted_at');
-                }])->take(4);
+                $query->active()->withCount('products')->take(4);
             }])
             ->whereHas('commerces', function($query) {
                 $query->where('is_active', true);
