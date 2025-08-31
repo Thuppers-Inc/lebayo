@@ -95,7 +95,7 @@ class User extends Authenticatable
         if ($this->is_super_admin) {
             return true;
         }
-        
+
         // Pour les account_type admin, vérifier le rôle
         if ($this->account_type === AccountType::ADMIN) {
             return in_array($this->role, [
@@ -103,7 +103,7 @@ class User extends Authenticatable
                 UserRole::MANAGER
             ]);
         }
-        
+
         return false;
     }
 
@@ -123,7 +123,7 @@ class User extends Authenticatable
         if ($this->isAdmin()) {
             return true;
         }
-        
+
         return $this->account_type === AccountType::ADMIN && $this->role === UserRole::MODERATOR;
     }
 
@@ -135,8 +135,8 @@ class User extends Authenticatable
         if ($this->is_super_admin) {
             return true;
         }
-        
-        return $this->account_type === AccountType::ADMIN && 
+
+        return $this->account_type === AccountType::ADMIN &&
                in_array($this->role, [UserRole::DEVELOPER, UserRole::MANAGER]);
     }
 
@@ -172,10 +172,10 @@ class User extends Authenticatable
         if ($this->photo) {
             return asset('storage/' . $this->photo);
         }
-        
+
         // Générer un avatar par défaut basé sur les initiales et le type d'utilisateur
         $name = urlencode($this->full_name);
-        
+
         // Couleurs selon le type d'utilisateur
         $colors = match($this->account_type) {
             AccountType::AGENT => ['background' => '28a745', 'color' => 'ffffff'], // Vert
@@ -183,12 +183,12 @@ class User extends Authenticatable
             AccountType::CLIENT => ['background' => 'F77F00', 'color' => 'ffffff'], // Orange
             default => ['background' => '6c757d', 'color' => 'ffffff'], // Gris
         };
-        
+
         // Utiliser le service UI Avatars avec fallback local
         try {
             // Essayer d'abord le service externe
             $externalUrl = "https://ui-avatars.com/api/?name={$name}&size=150&background={$colors['background']}&color={$colors['color']}&bold=true&format=png";
-            
+
             // Pour éviter les problèmes de réseau, on retourne l'URL externe
             // mais on a des images locales en fallback
             return $externalUrl;
@@ -217,7 +217,7 @@ class User extends Authenticatable
     public function getLocalAvatarAttribute(): string
     {
         $initials = $this->initials;
-        
+
         // Couleurs selon le type d'utilisateur
         $colors = match($this->account_type) {
             AccountType::AGENT => ['background' => '#28a745', 'color' => '#ffffff'], // Vert
@@ -225,13 +225,13 @@ class User extends Authenticatable
             AccountType::CLIENT => ['background' => '#F77F00', 'color' => '#ffffff'], // Orange
             default => ['background' => '#6c757d', 'color' => '#ffffff'], // Gris
         };
-        
+
         $svg = '
         <svg xmlns="http://www.w3.org/2000/svg" width="150" height="150" viewBox="0 0 150 150">
             <rect width="150" height="150" fill="' . $colors['background'] . '" rx="75"/>
             <text x="75" y="85" text-anchor="middle" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="' . $colors['color'] . '">' . $initials . '</text>
         </svg>';
-        
+
         return 'data:image/svg+xml;base64,' . base64_encode($svg);
     }
 
@@ -254,18 +254,18 @@ class User extends Authenticatable
         if (!$this->numero_telephone) {
             return '';
         }
-        
+
         $numero = $this->numero_telephone;
         // Format: XX XX XX XX XX pour un numéro à 10 chiffres
         if (strlen($numero) === 10) {
-            $formatted = substr($numero, 0, 2) . ' ' . 
-                        substr($numero, 2, 2) . ' ' . 
-                        substr($numero, 4, 2) . ' ' . 
-                        substr($numero, 6, 2) . ' ' . 
+            $formatted = substr($numero, 0, 2) . ' ' .
+                        substr($numero, 2, 2) . ' ' .
+                        substr($numero, 4, 2) . ' ' .
+                        substr($numero, 6, 2) . ' ' .
                         substr($numero, 8, 2);
             return $this->indicatif . ' ' . $formatted;
         }
-        
+
         return $this->indicatif . ' ' . $numero;
     }
 
@@ -329,11 +329,11 @@ class User extends Authenticatable
     {
         $names = explode(' ', $this->full_name);
         $initials = '';
-        
+
         foreach ($names as $name) {
             $initials .= strtoupper(substr($name, 0, 1));
         }
-        
+
         return substr($initials, 0, 2);
     }
 
@@ -345,7 +345,7 @@ class User extends Authenticatable
         if (!$this->date_naissance) {
             return null;
         }
-        
+
         return $this->date_naissance->diffInYears();
     }
 
@@ -363,7 +363,7 @@ class User extends Authenticatable
     public function getSeniorityLabelAttribute(): string
     {
         $days = $this->formatted_seniority;
-        
+
         if ($days === 0) {
             return 'Nouveau';
         } elseif ($days === 1) {
@@ -376,6 +376,71 @@ class User extends Authenticatable
         } else {
             $years = floor($days / 365);
             return $years === 1 ? '1 an' : $years . ' ans';
+        }
+    }
+
+    /**
+     * Obtenir le montant total dépensé formaté
+     */
+    public function getFormattedTotalSpentAttribute(): string
+    {
+        $total = $this->orders_sum_total ?? 0;
+        return number_format($total, 0, ',', ' ') . ' FCFA';
+    }
+
+    /**
+     * Obtenir le montant moyen par commande formaté
+     */
+    public function getFormattedAverageOrderValueAttribute(): string
+    {
+        $avg = $this->orders_avg_total ?? 0;
+        return number_format($avg, 0, ',', ' ') . ' FCFA';
+    }
+
+    /**
+     * Obtenir la date de la dernière commande formatée
+     */
+    public function getFormattedLastOrderDateAttribute(): ?string
+    {
+        $lastOrder = $this->orders_max_created_at;
+        if (!$lastOrder) {
+            return 'Aucune commande';
+        }
+        return \Carbon\Carbon::parse($lastOrder)->format('d/m/Y H:i');
+    }
+
+    /**
+     * Obtenir le statut du client basé sur son activité
+     */
+    public function getClientStatusAttribute(): string
+    {
+        if ($this->orders_count === 0) {
+            return 'Nouveau';
+        } elseif ($this->orders_count <= 2) {
+            return 'Occasionnel';
+        } elseif ($this->orders_count <= 10) {
+            return 'Régulier';
+        } else {
+            return 'Fidèle';
+        }
+    }
+
+    /**
+     * Obtenir la classe CSS du statut du client
+     */
+    public function getClientStatusClassAttribute(): string
+    {
+        switch ($this->client_status) {
+            case 'Nouveau':
+                return 'info';
+            case 'Occasionnel':
+                return 'warning';
+            case 'Régulier':
+                return 'primary';
+            case 'Fidèle':
+                return 'success';
+            default:
+                return 'secondary';
         }
     }
 }

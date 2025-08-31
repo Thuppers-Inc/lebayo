@@ -16,12 +16,63 @@ class ClientController extends Controller
      */
     public function index()
     {
+        // Récupérer les clients avec des statistiques avancées
         $clients = User::where('account_type', AccountType::CLIENT)
                       ->withCount(['orders', 'addresses'])
+                      ->withSum('orders', 'total')
+                      ->withAvg('orders', 'total')
+                      ->withMax('orders', 'created_at')
                       ->orderBy('created_at', 'desc')
                       ->paginate(15);
 
-        return view('admin.clients.index', compact('clients'));
+        // Statistiques globales
+        $stats = [
+            'total_clients' => User::where('account_type', AccountType::CLIENT)->count(),
+            'active_clients' => User::where('account_type', AccountType::CLIENT)
+                                   ->whereHas('orders')
+                                   ->count(),
+            'total_orders' => \App\Models\Order::whereHas('user', function($q) {
+                                   $q->where('account_type', AccountType::CLIENT);
+                               })->count(),
+            'total_revenue' => \App\Models\Order::whereHas('user', function($q) {
+                                   $q->where('account_type', AccountType::CLIENT);
+                               })->sum('total'),
+            'avg_order_value' => \App\Models\Order::whereHas('user', function($q) {
+                                   $q->where('account_type', AccountType::CLIENT);
+                               })->avg('total'),
+        ];
+
+        // Top clients par nombre de commandes
+        $topClientsByOrders = User::where('account_type', AccountType::CLIENT)
+                                  ->withCount('orders')
+                                  ->withSum('orders', 'total')
+                                  ->orderBy('orders_count', 'desc')
+                                  ->take(5)
+                                  ->get();
+
+        // Top clients par montant total dépensé
+        $topClientsByRevenue = User::where('account_type', AccountType::CLIENT)
+                                   ->withCount('orders')
+                                   ->withSum('orders', 'total')
+                                   ->orderBy('orders_sum_total', 'desc')
+                                   ->take(5)
+                                   ->get();
+
+        // Clients récents (inscrits ce mois)
+        $recentClients = User::where('account_type', AccountType::CLIENT)
+                             ->where('created_at', '>=', now()->startOfMonth())
+                             ->withCount('orders')
+                             ->orderBy('created_at', 'desc')
+                             ->take(5)
+                             ->get();
+
+        return view('admin.clients.index', compact(
+            'clients',
+            'stats',
+            'topClientsByOrders',
+            'topClientsByRevenue',
+            'recentClients'
+        ));
     }
 
     /**
@@ -110,7 +161,7 @@ class ClientController extends Controller
         }
 
         $client->load(['orders.orderItems.product', 'addresses']);
-        
+
         return view('admin.clients.show', compact('client'));
     }
 
@@ -277,4 +328,71 @@ class ClientController extends Controller
 
         return view('admin.clients.addresses', compact('client', 'addresses'));
     }
-} 
+
+    /**
+     * Export clients data to CSV
+     */
+    public function export()
+    {
+        $clients = User::where('account_type', AccountType::CLIENT)
+                      ->withCount(['orders', 'addresses'])
+                      ->withSum('orders', 'total')
+                      ->withAvg('orders', 'total')
+                      ->withMax('orders', 'created_at')
+                      ->orderBy('created_at', 'desc')
+                      ->get();
+
+        $filename = 'clients_' . date('Y-m-d_H-i-s') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+
+        $callback = function() use ($clients) {
+            $file = fopen('php://output', 'w');
+
+            // En-têtes CSV
+            fputcsv($file, [
+                'ID',
+                'Nom',
+                'Prénoms',
+                'Email',
+                'Téléphone',
+                'Ville',
+                'Commune',
+                'Date de naissance',
+                'Nombre de commandes',
+                'Total dépensé (FCFA)',
+                'Moyenne par commande (FCFA)',
+                'Dernière commande',
+                'Statut client',
+                'Date d\'inscription'
+            ]);
+
+            // Données
+            foreach ($clients as $client) {
+                fputcsv($file, [
+                    $client->id,
+                    $client->nom,
+                    $client->prenoms,
+                    $client->email,
+                    $client->formatted_phone,
+                    $client->ville,
+                    $client->commune,
+                    $client->date_naissance ? $client->date_naissance->format('d/m/Y') : '',
+                    $client->orders_count,
+                    $client->orders_sum_total ?? 0,
+                    round($client->orders_avg_total ?? 0),
+                    $client->formatted_last_order_date,
+                    $client->client_status,
+                    $client->created_at->format('d/m/Y H:i')
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+}

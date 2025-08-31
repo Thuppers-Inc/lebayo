@@ -38,94 +38,95 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/', function () {
         return redirect()->route('admin.dashboard');
     })->middleware(['moderator']);
-    
+
     // Dashboard accessible aux modérateurs (vue limitée) et admins (vue complète)
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard')->middleware(['moderator']);
-    
+
     // ===== ROUTES POUR MODÉRATEURS (accès limité) =====
     Route::middleware(['moderator'])->group(function () {
         // Gestion des commandes (modération)
         Route::resource('orders', OrderController::class)->only(['index', 'show']);
         Route::post('orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('orders.update-status');
         Route::post('orders/{order}/update-payment-status', [OrderController::class, 'updatePaymentStatus'])->name('orders.update-payment-status');
-        
+
         // Consultation des clients (lecture seule pour modérateurs)
         Route::get('clients', [ClientController::class, 'index'])->name('clients.index');
         Route::get('clients/{client}', [ClientController::class, 'show'])->name('clients.show');
         Route::get('clients/{client}/orders', [ClientController::class, 'orders'])->name('clients.orders');
         Route::get('clients/{client}/addresses', [ClientController::class, 'addresses'])->name('clients.addresses');
-        
+
         // Gestion limitée des produits (toggle disponibilité seulement)
         Route::get('products', [ProductController::class, 'index'])->name('products.index');
         Route::get('commerces/{commerce}/products', [ProductController::class, 'index'])->name('commerce.products.index');
         Route::post('products/{product}/toggle-availability', [ProductController::class, 'toggleAvailability'])->name('products.toggle-availability');
     });
-    
+
     // ===== ROUTES POUR ADMINISTRATEURS COMPLETS SEULEMENT =====
     Route::middleware(['admin'])->group(function () {
         // Gestion des types de commerce (admin seulement)
         Route::resource('commerce-types', CommerceTypeController::class);
         Route::post('commerce-types/{commerceType}/toggle-status', [CommerceTypeController::class, 'toggleStatus'])
             ->name('commerce-types.toggle-status');
-        
+
         // Gestion des catégories (admin seulement)
         Route::resource('categories', CategoryController::class);
         Route::post('categories/{category}/toggle-status', [CategoryController::class, 'toggleStatus'])
             ->name('categories.toggle-status');
-        
+
         // Gestion complète des commerces (admin seulement)
         Route::resource('commerces', CommerceController::class);
         Route::post('commerces/{commerce}/toggle-status', [CommerceController::class, 'toggleStatus'])
             ->name('commerces.toggle-status');
-        
+
         // Gestion complète des produits (admin seulement)
         Route::resource('products', ProductController::class)->except(['index']); // index déjà défini pour modérateurs
         Route::post('products/{product}/toggle-featured', [ProductController::class, 'toggleFeatured'])->name('products.toggle-featured');
-        
+
         // Routes spécifiques pour les produits d'un commerce
         Route::get('commerces/{commerce}/products/create', [ProductController::class, 'create'])
             ->name('commerce.products.create');
-        
+
         // Gestion des livreurs (admin seulement)
         Route::resource('livreurs', LivreurController::class);
         Route::post('livreurs/{livreur}/toggle-status', [LivreurController::class, 'toggleStatus'])->name('livreurs.toggle-status');
-        
+
         // Gestion complète des clients (admin seulement)
         Route::post('clients', [ClientController::class, 'store'])->name('clients.store');
         Route::get('clients/create', [ClientController::class, 'create'])->name('clients.create');
         Route::get('clients/{client}/edit', [ClientController::class, 'edit'])->name('clients.edit');
         Route::put('clients/{client}', [ClientController::class, 'update'])->name('clients.update');
         Route::delete('clients/{client}', [ClientController::class, 'destroy'])->name('clients.destroy');
-        
+        Route::get('clients-export', [ClientController::class, 'export'])->name('clients.export');
+
         // Gestion des paramètres de livraison (admin seulement)
         Route::resource('delivery-settings', DeliverySettingsController::class);
         Route::post('delivery-settings/{deliverySetting}/activate', [DeliverySettingsController::class, 'activate'])->name('delivery-settings.activate');
-        
+
         // Gestion des demandes de course (admin seulement)
         Route::resource('errand-requests', \App\Http\Controllers\Admin\ErrandRequestController::class)->except(['create', 'store', 'edit', 'update']);
         Route::post('errand-requests/{errandRequest}/update-status', [\App\Http\Controllers\Admin\ErrandRequestController::class, 'updateStatus'])->name('errand-requests.update-status');
         Route::get('errand-requests/{errandRequest}/logs', [\App\Http\Controllers\Admin\ErrandRequestController::class, 'logs'])->name('errand-requests.logs');
         Route::get('errand-requests-stats', [\App\Http\Controllers\Admin\ErrandRequestController::class, 'stats'])->name('errand-requests.stats');
         Route::get('errand-requests-export', [\App\Http\Controllers\Admin\ErrandRequestController::class, 'export'])->name('errand-requests.export');
-        
+
         // Gestion du profil admin
         Route::get('profile', [\App\Http\Controllers\Admin\AdminProfileController::class, 'index'])->name('profile.index');
         Route::post('profile/update', [\App\Http\Controllers\Admin\AdminProfileController::class, 'update'])->name('profile.update');
         Route::post('profile/update-password', [\App\Http\Controllers\Admin\AdminProfileController::class, 'updatePassword'])->name('profile.update-password');
     });
-    
+
     // ===== ROUTES POUR SUPER ADMINS SEULEMENT =====
     Route::middleware(['admin:super_admin'])->group(function () {
         // Fonctionnalités sensibles réservées aux super admins
         // (à ajouter selon les besoins)
     });
-    
+
     // Pages utilitaires (accessible à tous les niveaux)
     Route::middleware(['moderator'])->group(function () {
         Route::get('/blank', function () {
             return view('admin.blank');
         })->name('blank');
-        
+
         Route::get('/theme-demo', function () {
             return view('admin.theme-demo');
         })->name('theme.demo');
@@ -166,11 +167,11 @@ Route::prefix('profile')->name('profile.')->middleware(['auth'])->group(function
     Route::get('/', [App\Http\Controllers\ProfileController::class, 'index'])->name('index');
     Route::post('/update', [App\Http\Controllers\ProfileController::class, 'update'])->name('update');
     Route::post('/update-password', [App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('update-password');
-    
+
     // Gestion des commandes
     Route::get('/orders', [App\Http\Controllers\ProfileController::class, 'orders'])->name('orders');
     Route::get('/orders/{order}', [App\Http\Controllers\ProfileController::class, 'showOrder'])->name('orders.show');
-    
+
     // Gestion des adresses
     Route::get('/addresses', [App\Http\Controllers\ProfileController::class, 'addresses'])->name('addresses');
     Route::post('/addresses', [App\Http\Controllers\ProfileController::class, 'storeAddress'])->name('addresses.store');
