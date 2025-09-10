@@ -20,10 +20,10 @@ class AdminComponents {
             ${message}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         `;
-        
+
         const container = document.querySelector('.card-body') || document.querySelector('.container-xxl');
         container.insertBefore(alertDiv, container.firstChild);
-        
+
         setTimeout(() => {
             alertDiv.remove();
         }, duration);
@@ -66,18 +66,18 @@ class AdminComponents {
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const submitBtn = form.querySelector('[type="submit"]');
             const submitText = submitBtn.querySelector('[data-submit-text]') || submitBtn;
             const submitSpinner = submitBtn.querySelector('.spinner-border');
-            
+
             // Avant soumission
             if (beforeSubmit) beforeSubmit();
-            
+
             // Désactiver le bouton
             submitBtn.disabled = true;
             if (submitSpinner) submitSpinner.classList.remove('d-none');
-            
+
             try {
                 const formData = new FormData(form);
                 const response = await fetch(form.action, {
@@ -112,7 +112,7 @@ class AdminComponents {
             } finally {
                 // Après soumission
                 if (afterSubmit) afterSubmit();
-                
+
                 // Réactiver le bouton
                 submitBtn.disabled = false;
                 if (submitSpinner) submitSpinner.classList.add('d-none');
@@ -173,7 +173,7 @@ class AdminComponents {
         if (!confirm(confirmMessage)) return;
 
         try {
-            const response = await fetch(`${url}/${id}/toggle-status`, {
+            const response = await fetch(url, {
                 method: 'POST',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
@@ -190,8 +190,8 @@ class AdminComponents {
                 } else {
                     const statusBadge = document.getElementById(`status-${id}`);
                     if (statusBadge) {
-                        statusBadge.textContent = data.is_active ? 'Actif' : 'Inactif';
-                        statusBadge.className = `badge admin-badge ${data.is_active ? 'admin-badge-success' : 'admin-badge-inactive'}`;
+                        statusBadge.textContent = data.user.deleted_at ? 'Inactif' : 'Actif';
+                        statusBadge.className = `badge bg-${data.user.deleted_at ? 'danger' : 'success'}`;
                     }
                     this.showAlert(data.message, 'success');
                     setTimeout(() => window.location.reload(), 1000);
@@ -260,7 +260,7 @@ class AdminComponents {
         if (resetForm && form) form.reset();
         if (idField) idField.value = '';
         if (methodField) methodField.value = 'POST';
-        
+
         this.clearErrors();
         this.currentEditId = null;
     }
@@ -284,9 +284,9 @@ class AdminComponents {
         };
 
         return `
-            <button type="button" 
-                    class="btn btn-sm ${classes[type] || ''}" 
-                    onclick="${onclick}" 
+            <button type="button"
+                    class="btn btn-sm ${classes[type] || ''}"
+                    onclick="${onclick}"
                     title="${title}">
                 <i class="bx ${icons[type] || ''}"></i>
             </button>
@@ -303,7 +303,7 @@ class AdminComponents {
                 card.style.transform = 'translateY(-2px)';
                 card.style.boxShadow = '0 1rem 2rem rgba(0, 0, 0, 0.15)';
             });
-            
+
             card.addEventListener('mouseleave', () => {
                 card.style.transform = 'translateY(0)';
                 card.style.boxShadow = '0 0.5rem 1rem rgba(0, 0, 0, 0.1)';
@@ -316,7 +316,7 @@ class AdminComponents {
      */
     init() {
         this.addHoverAnimations();
-        
+
         // Fermer automatiquement les alertes après 5 secondes
         document.querySelectorAll('.alert:not(.alert-dismissible)').forEach(alert => {
             setTimeout(() => alert.remove(), 5000);
@@ -335,4 +335,4 @@ document.addEventListener('DOMContentLoaded', () => {
 // Fonctions globales pour compatibilité
 window.showAlert = (message, type, duration) => window.AdminComponents.showAlert(message, type, duration);
 window.clearErrors = () => window.AdminComponents.clearErrors();
-window.showErrors = (errors) => window.AdminComponents.showErrors(errors); 
+window.showErrors = (errors) => window.AdminComponents.showErrors(errors);

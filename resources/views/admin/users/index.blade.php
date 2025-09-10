@@ -584,29 +584,55 @@ $(document).ready(function() {
 
 // Fonctions d'action
 function openCreateUserModal() {
-    AdminComponents.initCreateModal('userModal', {
-        title: 'Nouvel Utilisateur',
-        submitText: 'Créer'
-    });
+    console.log('Ouverture du modal de création');
+
+    // Réinitialiser le formulaire
+    document.getElementById('userForm').reset();
+    document.getElementById('modalTitle').textContent = 'Nouvel Utilisateur';
+    document.querySelector('[data-submit-text]').textContent = 'Créer';
+    document.getElementById('userId').value = '';
+    document.getElementById('methodField').value = 'POST';
 
     // Réinitialiser les champs de mot de passe comme requis
     document.getElementById('passwordRequired').style.display = 'inline';
     document.getElementById('passwordConfirmRequired').style.display = 'inline';
     document.getElementById('password').required = true;
     document.getElementById('password_confirmation').required = true;
+    document.getElementById('password').placeholder = '••••••••';
+    document.getElementById('password_confirmation').placeholder = '••••••••';
+
+    // Cacher le champ rôle par défaut
+    document.getElementById('roleField').style.display = 'none';
+    document.getElementById('role').required = false;
+
+    // Afficher le modal
+    const modal = new bootstrap.Modal(document.getElementById('userModal'));
+    modal.show();
+    console.log('Modal de création affiché');
 }
 
 function viewUser(id) {
     currentUserId = id;
-    fetch(`${USER_BASE_URL}/${id}`)
-        .then(response => response.json())
+    console.log('Chargement des détails pour l\'utilisateur:', id);
+
+    fetch(`${USER_BASE_URL}/${id}`, {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json',
+        }
+    })
+        .then(response => {
+            console.log('Réponse reçue:', response);
+            return response.json();
+        })
         .then(data => {
+            console.log('Données reçues:', data);
             if (data.success) {
                 const user = data.user;
                 document.getElementById('userViewContent').innerHTML = `
                     <div class="row">
                         <div class="col-md-4 text-center">
-                            <img src="${user.photo_url}" alt="${user.full_name}" class="admin-logo-lg rounded-circle mb-3">
+                            <img src="${user.photo_url || '/images/default-avatar.png'}" alt="${user.full_name}" class="admin-logo-lg rounded-circle mb-3">
                             <h5>${user.full_name}</h5>
                             <p class="text-muted">${user.email}</p>
                             <span class="badge bg-${user.account_type_class}">${user.account_type_label}</span>
@@ -635,7 +661,7 @@ function viewUser(id) {
                                 </div>
                             </div>
                             <table class="table table-borderless">
-                                <tr><td><strong>Téléphone:</strong></td><td>${user.formatted_phone}</td></tr>
+                                <tr><td><strong>Téléphone:</strong></td><td>${user.formatted_phone || 'Non renseigné'}</td></tr>
                                 <tr><td><strong>Type de compte:</strong></td><td><span class="badge bg-${user.account_type_class}">${user.account_type_label}</span></td></tr>
                                 <tr><td><strong>Date de naissance:</strong></td><td>${user.date_naissance || 'Non renseignée'}</td></tr>
                                 <tr><td><strong>Lieu de naissance:</strong></td><td>${user.lieu_naissance || 'Non renseigné'}</td></tr>
@@ -643,78 +669,155 @@ function viewUser(id) {
                                 <tr><td><strong>Commune:</strong></td><td>${user.commune || 'Non renseignée'}</td></tr>
                                 <tr><td><strong>CNI:</strong></td><td>${user.numero_cni || 'Non renseigné'}</td></tr>
                                 <tr><td><strong>Passeport:</strong></td><td>${user.numero_passeport || 'Non renseigné'}</td></tr>
-                                <tr><td><strong>Adresses:</strong></td><td><span class="admin-badge admin-badge-success">${user.addresses_count || 0}</span></td></tr>
+                                <tr><td><strong>Adresses:</strong></td><td><span class="badge bg-success">${user.addresses_count || 0}</span></td></tr>
                                 <tr><td><strong>Dernière commande:</strong></td><td>${user.formatted_last_order_date || 'Aucune'}</td></tr>
                                 <tr><td><strong>Inscription:</strong></td><td>${new Date(user.created_at).toLocaleDateString('fr-FR')}</td></tr>
                             </table>
                         </div>
                     </div>
                 `;
-                new bootstrap.Modal(document.getElementById('userViewModal')).show();
+
+                // Afficher le modal
+                const modal = new bootstrap.Modal(document.getElementById('userViewModal'));
+                modal.show();
+                console.log('Modal affiché');
+            } else {
+                console.error('Erreur dans la réponse:', data);
+                alert('Erreur lors du chargement des détails');
             }
         })
         .catch(error => {
             console.error('Erreur:', error);
-            AdminComponents.showAlert('Erreur lors du chargement des détails', 'danger');
+            alert('Erreur lors du chargement des détails: ' + error.message);
         });
 }
 
 function editUser(id) {
-    AdminComponents.loadForEdit(id, USER_BASE_URL, {
-        successCallback: (data) => {
-            const user = data.user;
-            document.getElementById('modalTitle').textContent = 'Modifier l\'Utilisateur';
-            document.querySelector('[data-submit-text]').textContent = 'Modifier';
-            document.getElementById('userId').value = user.id;
-            document.getElementById('methodField').value = 'PUT';
+    console.log('Chargement des données pour modification:', id);
 
-            // Remplir les champs
-            document.getElementById('nom').value = user.nom || '';
-            document.getElementById('prenoms').value = user.prenoms || '';
-            document.getElementById('email').value = user.email || '';
-            document.getElementById('account_type').value = user.account_type || '';
-            document.getElementById('role').value = user.role || '';
-            document.getElementById('date_naissance').value = user.date_naissance || '';
-            document.getElementById('indicatif').value = user.indicatif || '+225';
-            document.getElementById('numero_telephone').value = user.numero_telephone || '';
-            document.getElementById('ville').value = user.ville || '';
-            document.getElementById('commune').value = user.commune || '';
-            document.getElementById('lieu_naissance').value = user.lieu_naissance || '';
-            document.getElementById('numero_cni').value = user.numero_cni || '';
-            document.getElementById('numero_passeport').value = user.numero_passeport || '';
-
-            // Gérer l'affichage du champ rôle
-            if (user.account_type === 'admin') {
-                document.getElementById('roleField').style.display = 'block';
-                document.getElementById('role').required = true;
-            } else {
-                document.getElementById('roleField').style.display = 'none';
-                document.getElementById('role').required = false;
-            }
-
-            // Mot de passe optionnel en modification
-            document.getElementById('passwordRequired').style.display = 'none';
-            document.getElementById('passwordConfirmRequired').style.display = 'none';
-            document.getElementById('password').required = false;
-            document.getElementById('password_confirmation').required = false;
-            document.getElementById('password').placeholder = 'Laisser vide pour ne pas changer';
-            document.getElementById('password_confirmation').placeholder = 'Laisser vide pour ne pas changer';
-
-            new bootstrap.Modal(document.getElementById('userModal')).show();
+    fetch(`${USER_BASE_URL}/${id}/edit`, {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json',
         }
-    });
+    })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Données d\'édition reçues:', data);
+            if (data.success) {
+                const user = data.user;
+                document.getElementById('modalTitle').textContent = 'Modifier l\'Utilisateur';
+                document.querySelector('[data-submit-text]').textContent = 'Modifier';
+                document.getElementById('userId').value = user.id;
+                document.getElementById('methodField').value = 'PUT';
+
+                // Remplir les champs
+                document.getElementById('nom').value = user.nom || '';
+                document.getElementById('prenoms').value = user.prenoms || '';
+                document.getElementById('email').value = user.email || '';
+                document.getElementById('account_type').value = user.account_type || '';
+                document.getElementById('role').value = user.role || '';
+                document.getElementById('date_naissance').value = user.date_naissance || '';
+                document.getElementById('indicatif').value = user.indicatif || '+225';
+                document.getElementById('numero_telephone').value = user.numero_telephone || '';
+                document.getElementById('ville').value = user.ville || '';
+                document.getElementById('commune').value = user.commune || '';
+                document.getElementById('lieu_naissance').value = user.lieu_naissance || '';
+                document.getElementById('numero_cni').value = user.numero_cni || '';
+                document.getElementById('numero_passeport').value = user.numero_passeport || '';
+
+                // Gérer l'affichage du champ rôle
+                if (user.account_type === 'admin') {
+                    document.getElementById('roleField').style.display = 'block';
+                    document.getElementById('role').required = true;
+                } else {
+                    document.getElementById('roleField').style.display = 'none';
+                    document.getElementById('role').required = false;
+                }
+
+                // Mot de passe optionnel en modification
+                document.getElementById('passwordRequired').style.display = 'none';
+                document.getElementById('passwordConfirmRequired').style.display = 'none';
+                document.getElementById('password').required = false;
+                document.getElementById('password_confirmation').required = false;
+                document.getElementById('password').placeholder = 'Laisser vide pour ne pas changer';
+                document.getElementById('password_confirmation').placeholder = 'Laisser vide pour ne pas changer';
+
+                // Afficher le modal
+                const modal = new bootstrap.Modal(document.getElementById('userModal'));
+                modal.show();
+                console.log('Modal d\'édition affiché');
+            } else {
+                console.error('Erreur dans la réponse:', data);
+                alert('Erreur lors du chargement des données');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur lors du chargement des données: ' + error.message);
+        });
 }
 
 function toggleUserStatus(id) {
-    AdminComponents.toggleStatus(id, `${USER_BASE_URL}/${id}/toggle-status`, {
-        confirmMessage: 'Changer le statut de cet utilisateur ?'
-    });
+    console.log('Changement de statut pour l\'utilisateur:', id);
+
+    if (!confirm('Changer le statut de cet utilisateur ?')) {
+        return;
+    }
+
+    fetch(`${USER_BASE_URL}/${id}/toggle-status`, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'Accept': 'application/json',
+        }
+    })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Réponse toggle status:', data);
+            if (data.success) {
+                alert(data.message);
+                window.location.reload();
+            } else {
+                alert('Erreur lors de la modification du statut');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur lors de la modification du statut: ' + error.message);
+        });
 }
 
 function deleteUser(id) {
-    AdminComponents.deleteItem(id, USER_BASE_URL, {
-        confirmMessage: 'Supprimer définitivement cet utilisateur ? Cette action est irréversible et supprimera aussi toutes ses commandes et adresses.'
-    });
+    console.log('Suppression de l\'utilisateur:', id);
+
+    if (!confirm('Supprimer définitivement cet utilisateur ? Cette action est irréversible et supprimera aussi toutes ses commandes et adresses.')) {
+        return;
+    }
+
+    fetch(`${USER_BASE_URL}/${id}`, {
+        method: 'DELETE',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'Accept': 'application/json',
+        }
+    })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Réponse suppression:', data);
+            if (data.success) {
+                alert(data.message);
+                window.location.reload();
+            } else {
+                alert('Erreur lors de la suppression');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur lors de la suppression: ' + error.message);
+        });
 }
 
 function openUserOrders() {
