@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\LivreurController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ClientController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\DeliverySettingsController;
 
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
@@ -51,6 +52,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // Consultation des clients (lecture seule pour modérateurs)
         Route::get('clients', [ClientController::class, 'index'])->name('clients.index');
+        Route::get('clients/details', [ClientController::class, 'details'])->name('clients.details');
         Route::get('clients/{client}', [ClientController::class, 'show'])->name('clients.show');
         Route::get('clients/{client}/orders', [ClientController::class, 'orders'])->name('clients.orders');
         Route::get('clients/{client}/addresses', [ClientController::class, 'addresses'])->name('clients.addresses');
@@ -97,6 +99,18 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::put('clients/{client}', [ClientController::class, 'update'])->name('clients.update');
         Route::delete('clients/{client}', [ClientController::class, 'destroy'])->name('clients.destroy');
         Route::get('clients-export', [ClientController::class, 'export'])->name('clients.export');
+        Route::get('clients-details-export', [ClientController::class, 'exportDetails'])->name('clients.details.export');
+        Route::get('clients-top-orders-export', [ClientController::class, 'exportTopByOrders'])->name('clients.top.orders.export');
+        Route::get('clients-top-revenue-export', [ClientController::class, 'exportTopByRevenue'])->name('clients.top.revenue.export');
+        Route::get('clients-recent-export', [ClientController::class, 'exportRecentClients'])->name('clients.recent.export');
+        Route::get('clients-active-export', [ClientController::class, 'exportActiveClients'])->name('clients.active.export');
+
+        // Gestion complète des utilisateurs (admin seulement)
+        Route::resource('users', UserController::class);
+        Route::post('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
+        Route::get('users/{user}/orders', [UserController::class, 'orders'])->name('users.orders');
+        Route::get('users/{user}/addresses', [UserController::class, 'addresses'])->name('users.addresses');
+        Route::get('users-export', [UserController::class, 'export'])->name('users.export');
 
         // Gestion des paramètres de livraison (admin seulement)
         Route::resource('delivery-settings', DeliverySettingsController::class);

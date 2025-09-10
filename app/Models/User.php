@@ -443,4 +443,30 @@ class User extends Authenticatable
                 return 'secondary';
         }
     }
+
+    /**
+     * Obtenir le label du type de compte
+     */
+    public function getAccountTypeLabelAttribute(): string
+    {
+        return match($this->account_type) {
+            AccountType::ADMIN => 'Administrateur',
+            AccountType::CLIENT => 'Client',
+            AccountType::AGENT => 'Agent',
+            default => 'Inconnu'
+        };
+    }
+
+    /**
+     * Obtenir la classe CSS du type de compte
+     */
+    public function getAccountTypeClassAttribute(): string
+    {
+        return match($this->account_type) {
+            AccountType::ADMIN => 'primary',
+            AccountType::CLIENT => 'warning',
+            AccountType::AGENT => 'success',
+            default => 'secondary'
+        };
+    }
 }

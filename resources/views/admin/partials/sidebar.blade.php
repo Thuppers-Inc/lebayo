@@ -77,6 +77,14 @@
       </a>
     </li>
 
+    <!-- Utilisateurs -->
+    <li class="menu-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+      <a href="{{ route('admin.users.index') }}" class="menu-link">
+        <i class="menu-icon tf-icons bx bx-group"></i>
+        <div data-i18n="Users">Utilisateurs</div>
+      </a>
+    </li>
+
     <!-- PARAMÉTRAGE -->
     <li class="menu-header small text-uppercase">
       <span class="menu-header-text">Paramétrage</span>
@@ -106,7 +114,7 @@
               </a>
             </li>
 
-           
+
 
     <!-- Utilisateurs -->
     {{-- <li class="menu-item">
@@ -155,4 +163,4 @@
     </li> --}}
   </ul>
 </aside>
-<!-- / Menu --> 
+<!-- / Menu -->
