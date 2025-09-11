@@ -413,7 +413,7 @@ Ce projet est sous licence MIT. Voir le fichier [LICENSE](LICENSE) pour plus de 
 
 ### Équipe de Développement
 - **Design & Développement** : Créé avec ❤️ par l'équipe Lebayo
-- **Design System** : Conçu par [Thuppers Inc](https://thuppers.com)
+- **Design System** : Conçu par [Jislabs Africa](https://jislabs.com)
 
 ### Technologies & Communautés
 - [Laravel](https://laravel.com) - Framework PHP exceptionnel

@@ -10,7 +10,7 @@
                         {{-- <span class="brand-name">Lebayo</span> --}}
                     </div>
                     <p class="footer-description">
-                        Votre plateforme de livraison rapide et fiable. 
+                        Votre plateforme de livraison rapide et fiable.
                         Découvrez les meilleurs commerces de votre région.
                     </p>
                     <div class="social-links">
@@ -28,7 +28,7 @@
                         </a>
                     </div>
                 </div>
-                
+
                 <!-- Liens rapides -->
                 <div class="footer-section">
                     <h4 class="footer-title">Liens rapides</h4>
@@ -40,7 +40,7 @@
                         <li><a href="#help">Aide</a></li>
                     </ul>
                 </div>
-                
+
                 <!-- Catégories -->
                 <div class="footer-section">
                     <h4 class="footer-title">Catégories</h4>
@@ -52,7 +52,7 @@
                         <li><a href="#">Services</a></li>
                     </ul>
                 </div>
-                
+
                 <!-- Contact -->
                 <div class="footer-section">
                     <h4 class="footer-title">Contact</h4>
@@ -73,10 +73,10 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- Séparateur -->
         <div class="footer-divider"></div>
-        
+
         <!-- Pied de page -->
         <div class="footer-bottom">
             <div class="footer-bottom-content">
@@ -84,7 +84,7 @@
                     <p>&copy; {{ date('Y') }} Lebayo. Tous droits réservés.</p>
                 </div>
                 <div class="footer-credits">
-                    <p>Designed by <a href="https://thuppers.com" target="_blank" rel="noopener noreferrer" class="thuppers-link">Thuppers Inc</a></p>
+                    <p>Designed by <a href="https://jislabs.com" target="_blank" rel="noopener noreferrer" class="thuppers-link">Jislabs Africa</a></p>
                 </div>
                 <div class="footer-policies">
                     <a href="#privacy">Politique de confidentialité</a>
@@ -93,4 +93,4 @@
             </div>
         </div>
     </div>
-</footer> 
+</footer>

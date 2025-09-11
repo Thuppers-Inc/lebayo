@@ -240,12 +240,79 @@
         </div>
     </div>
 
+    <!-- Barre de recherche et filtres -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Recherche et Filtres</h6>
+        </div>
+        <div class="card-body">
+            <form id="searchForm" method="GET" action="{{ route('admin.users.index') }}">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label for="search" class="form-label">Recherche</label>
+                        <input type="text" class="form-control" id="search" name="search"
+                               value="{{ request('search') }}"
+                               placeholder="Nom, prénom, email...">
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="account_type" class="form-label">Type de compte</label>
+                        <select class="form-select" id="account_type" name="account_type">
+                            <option value="">Tous</option>
+                            <option value="admin" {{ request('account_type') == 'admin' ? 'selected' : '' }}>Administrateur</option>
+                            <option value="client" {{ request('account_type') == 'client' ? 'selected' : '' }}>Client</option>
+                            <option value="agent" {{ request('account_type') == 'agent' ? 'selected' : '' }}>Agent</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="status" class="form-label">Statut</label>
+                        <select class="form-select" id="status" name="status">
+                            <option value="">Tous</option>
+                            <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Actif</option>
+                            <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactif</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="sort_by" class="form-label">Trier par</label>
+                        <select class="form-select" id="sort_by" name="sort_by">
+                            <option value="created_at" {{ request('sort_by') == 'created_at' ? 'selected' : '' }}>Date d'inscription</option>
+                            <option value="nom" {{ request('sort_by') == 'nom' ? 'selected' : '' }}>Nom</option>
+                            <option value="email" {{ request('sort_by') == 'email' ? 'selected' : '' }}>Email</option>
+                            <option value="orders_count" {{ request('sort_by') == 'orders_count' ? 'selected' : '' }}>Nombre de commandes</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="sort_order" class="form-label">Ordre</label>
+                        <select class="form-select" id="sort_order" name="sort_order">
+                            <option value="desc" {{ request('sort_order') == 'desc' ? 'selected' : '' }}>Décroissant</option>
+                            <option value="asc" {{ request('sort_order') == 'asc' ? 'selected' : '' }}>Croissant</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bx bx-search"></i> Rechercher
+                        </button>
+                        <a href="{{ route('admin.users.index') }}" class="btn btn-secondary">
+                            <i class="bx bx-x"></i> Effacer
+                        </a>
+                        @if(request()->hasAny(['search', 'account_type', 'status', 'sort_by', 'sort_order']))
+                        <span class="badge bg-info ms-2">
+                            {{ $users->total() }} résultat(s) trouvé(s)
+                        </span>
+                        @endif
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Datatable principal -->
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
             <h6 class="m-0 font-weight-bold text-primary">Liste Complète des Utilisateurs</h6>
             <div class="btn-group" role="group">
-                <a href="{{ route('admin.users.export') }}" class="btn btn-success btn-sm">
+                <a href="{{ route('admin.users.export', request()->query()) }}" class="btn btn-success btn-sm" id="exportBtn">
                     <i class="bx bx-download"></i> Exporter CSV
                 </a>
                 <button class="btn btn-primary btn-sm" onclick="openCreateUserModal()">
@@ -547,6 +614,42 @@
 </div>
 @endsection
 
+@push('styles')
+<style>
+    /* Styles pour la recherche */
+    .search-highlight {
+        background-color: #fff3cd;
+        padding: 2px 4px;
+        border-radius: 3px;
+    }
+
+    mark {
+        background-color: #ffeb3b;
+        padding: 1px 3px;
+        border-radius: 2px;
+    }
+
+    /* Animation pour les filtres */
+    .form-control:focus, .form-select:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+
+    /* Badge pour les résultats */
+    .badge.bg-info {
+        font-size: 0.875em;
+        padding: 0.5em 0.75em;
+    }
+
+    /* Responsive pour les filtres */
+    @media (max-width: 768px) {
+        .col-md-2, .col-md-4 {
+            margin-bottom: 1rem;
+        }
+    }
+</style>
+@endpush
+
 @push('scripts')
 <script>
 // Configuration des URLs
@@ -555,16 +658,17 @@ let currentUserId = null;
 
 // Initialisation du datatable
 $(document).ready(function() {
-    $('#usersTable').DataTable({
-        "language": {
-            "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/French.json"
-        },
-        "pageLength": 25,
-        "order": [[7, "desc"]], // Trier par date d'inscription
-        "columnDefs": [
-            { "orderable": false, "targets": [8] } // Désactiver le tri sur la colonne actions
-        ]
-    });
+    // Désactiver DataTables pour utiliser la pagination Laravel
+    // $('#usersTable').DataTable({
+    //     "language": {
+    //         "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/French.json"
+    //     },
+    //     "pageLength": 25,
+    //     "order": [[7, "desc"]], // Trier par date d'inscription
+    //     "columnDefs": [
+    //         { "orderable": false, "targets": [8] } // Désactiver le tri sur la colonne actions
+    //     ]
+    // });
 
     // Gestion de l'affichage du champ rôle
     $('#account_type').on('change', function() {
@@ -580,6 +684,72 @@ $(document).ready(function() {
             roleSelect.val('');
         }
     });
+
+    // Recherche en temps réel
+    let searchTimeout;
+    $('#search').on('input', function() {
+        clearTimeout(searchTimeout);
+        const searchValue = $(this).val();
+
+        searchTimeout = setTimeout(function() {
+            if (searchValue.length >= 2 || searchValue.length === 0) {
+                showLoading();
+                $('#searchForm').submit();
+            }
+        }, 500); // Attendre 500ms après la dernière frappe
+    });
+
+    // Soumission automatique des filtres
+    $('#account_type, #status, #sort_by, #sort_order').on('change', function() {
+        showLoading();
+        $('#searchForm').submit();
+    });
+
+    // Mettre à jour le lien d'export quand les filtres changent
+    function updateExportLink() {
+        const formData = new FormData(document.getElementById('searchForm'));
+        const params = new URLSearchParams();
+
+        for (let [key, value] of formData.entries()) {
+            if (value) {
+                params.append(key, value);
+            }
+        }
+
+        const exportUrl = '{{ route("admin.users.export") }}' + (params.toString() ? '?' + params.toString() : '');
+        $('#exportBtn').attr('href', exportUrl);
+    }
+
+    // Mettre à jour le lien d'export au chargement et lors des changements
+    updateExportLink();
+    $('#search, #account_type, #status, #sort_by, #sort_order').on('input change', updateExportLink);
+
+    // Fonction pour afficher le chargement
+    function showLoading() {
+        const loadingHtml = `
+            <div class="d-flex justify-content-center align-items-center" style="min-height: 200px;">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Chargement...</span>
+                </div>
+                <span class="ms-2">Recherche en cours...</span>
+            </div>
+        `;
+        $('.table-responsive').html(loadingHtml);
+    }
+
+    // Mise en évidence des termes de recherche
+    const searchTerm = '{{ request("search") }}';
+    if (searchTerm) {
+        $('td').each(function() {
+            const text = $(this).text();
+            if (text.toLowerCase().includes(searchTerm.toLowerCase())) {
+                $(this).html(text.replace(
+                    new RegExp(searchTerm, 'gi'),
+                    '<mark>$&</mark>'
+                ));
+            }
+        });
+    }
 });
 
 // Fonctions d'action

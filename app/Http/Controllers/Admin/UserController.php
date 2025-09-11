@@ -15,15 +15,51 @@ class UserController extends Controller
     /**
      * Display a listing of all users.
      */
-    public function index()
+    public function index(Request $request)
     {
-        // Récupérer tous les utilisateurs avec des statistiques avancées
-        $users = User::withCount(['orders', 'addresses'])
+        // Construire la requête de base
+        $query = User::withCount(['orders', 'addresses'])
                     ->withSum('orders', 'total')
                     ->withAvg('orders', 'total')
-                    ->withMax('orders', 'created_at')
-                    ->orderBy('created_at', 'desc')
-                    ->paginate(15);
+                    ->withMax('orders', 'created_at');
+
+        // Recherche par nom, prénom ou email
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('nom', 'like', "%{$search}%")
+                  ->orWhere('prenoms', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('numero_telephone', 'like', "%{$search}%");
+            });
+        }
+
+        // Filtre par type de compte
+        if ($request->filled('account_type')) {
+            $query->where('account_type', $request->account_type);
+        }
+
+        // Filtre par statut (actif/inactif)
+        if ($request->filled('status')) {
+            if ($request->status === 'active') {
+                $query->whereNull('deleted_at');
+            } elseif ($request->status === 'inactive') {
+                $query->whereNotNull('deleted_at');
+            }
+        }
+
+        // Tri
+        $sortBy = $request->get('sort_by', 'created_at');
+        $sortOrder = $request->get('sort_order', 'desc');
+
+        // Gérer les champs de tri spéciaux
+        if ($sortBy === 'orders_count') {
+            $query->orderBy('orders_count', $sortOrder);
+        } else {
+            $query->orderBy($sortBy, $sortOrder);
+        }
+
+        $users = $query->paginate(15)->appends($request->query());
 
         // Statistiques globales
         $stats = [
@@ -357,14 +393,47 @@ class UserController extends Controller
     /**
      * Export users data to CSV
      */
-    public function export()
+    public function export(Request $request)
     {
-        $users = User::withCount(['orders', 'addresses'])
+        // Utiliser les mêmes filtres que la page index
+        $query = User::withCount(['orders', 'addresses'])
                     ->withSum('orders', 'total')
                     ->withAvg('orders', 'total')
-                    ->withMax('orders', 'created_at')
-                    ->orderBy('created_at', 'desc')
-                    ->get();
+                    ->withMax('orders', 'created_at');
+
+        // Appliquer les mêmes filtres que la recherche
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('nom', 'like', "%{$search}%")
+                  ->orWhere('prenoms', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('numero_telephone', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('account_type')) {
+            $query->where('account_type', $request->account_type);
+        }
+
+        if ($request->filled('status')) {
+            if ($request->status === 'active') {
+                $query->whereNull('deleted_at');
+            } elseif ($request->status === 'inactive') {
+                $query->whereNotNull('deleted_at');
+            }
+        }
+
+        $sortBy = $request->get('sort_by', 'created_at');
+        $sortOrder = $request->get('sort_order', 'desc');
+
+        if ($sortBy === 'orders_count') {
+            $query->orderBy('orders_count', $sortOrder);
+        } else {
+            $query->orderBy($sortBy, $sortOrder);
+        }
+
+        $users = $query->get();
 
         $filename = 'utilisateurs_' . date('Y-m-d_H-i-s') . '.csv';
 

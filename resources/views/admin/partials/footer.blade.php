@@ -6,12 +6,12 @@
       <script>
         document.write(new Date().getFullYear());
       </script>
-      <span class="footer-link fw-bolder">Lebayo</span> 
+      <span class="footer-link fw-bolder">Lebayo</span>
     </div>
     <div>
       conçu avec ❤️ par
-      <span class="footer-link fw-bolder"><a href="https://thuppers.com">Thuppers Inc</a></span>
+      <span class="footer-link fw-bolder"><a href="https://jislabs.com">Jislabs Africa</a></span>
     </div>
   </div>
 </footer>
-<!-- / Footer --> 
+<!-- / Footer -->
