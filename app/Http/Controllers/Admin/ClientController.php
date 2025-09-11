@@ -421,6 +421,9 @@ class ClientController extends Controller
                       ->withSum('orders', 'total')
                       ->withAvg('orders', 'total')
                       ->withMax('orders', 'created_at')
+                      ->with(['addresses' => function($query) {
+                          $query->orderBy('is_default', 'desc')->orderBy('created_at', 'asc');
+                      }])
                       ->orderBy('created_at', 'desc')
                       ->get();
 
@@ -459,12 +462,21 @@ class ClientController extends Controller
 
             // Données détaillées
             foreach ($clients as $client) {
+                // Utiliser le téléphone de l'adresse par défaut ou de la première adresse
+                $phone = $client->formatted_phone; // Fallback sur le téléphone du profil
+                if ($client->addresses->isNotEmpty()) {
+                    $defaultAddress = $client->addresses->first();
+                    if ($defaultAddress && $defaultAddress->phone) {
+                        $phone = $defaultAddress->phone;
+                    }
+                }
+
                 fputcsv($file, [
                     $client->id,
                     $client->nom,
                     $client->prenoms,
                     $client->email,
-                    $client->formatted_phone,
+                    $phone,
                     $client->date_naissance ? $client->date_naissance->format('d/m/Y') : '',
                     $client->lieu_naissance ?? '',
                     $client->ville ?? '',
@@ -563,6 +575,11 @@ class ClientController extends Controller
         $clients = User::where('account_type', AccountType::CLIENT)
                       ->withCount('orders')
                       ->withSum('orders', 'total')
+                      ->withAvg('orders', 'total')
+                      ->withMax('orders', 'created_at')
+                      ->with(['addresses' => function($query) {
+                          $query->orderBy('is_default', 'desc')->orderBy('created_at', 'asc');
+                      }])
                       ->orderBy('orders_count', 'desc')
                       ->get();
 
@@ -597,13 +614,22 @@ class ClientController extends Controller
             // Données avec rang
             $rank = 1;
             foreach ($clients as $client) {
+                // Utiliser le téléphone de l'adresse par défaut ou de la première adresse
+                $phone = $client->formatted_phone; // Fallback sur le téléphone du profil
+                if ($client->addresses->isNotEmpty()) {
+                    $defaultAddress = $client->addresses->first();
+                    if ($defaultAddress && $defaultAddress->phone) {
+                        $phone = $defaultAddress->phone;
+                    }
+                }
+
                 fputcsv($file, [
                     $rank++,
                     $client->id,
                     $client->nom,
                     $client->prenoms,
                     $client->email,
-                    $client->formatted_phone,
+                    $phone,
                     $client->ville,
                     $client->commune,
                     $client->orders_count,
@@ -629,6 +655,11 @@ class ClientController extends Controller
         $clients = User::where('account_type', AccountType::CLIENT)
                       ->withCount('orders')
                       ->withSum('orders', 'total')
+                      ->withAvg('orders', 'total')
+                      ->withMax('orders', 'created_at')
+                      ->with(['addresses' => function($query) {
+                          $query->orderBy('is_default', 'desc')->orderBy('created_at', 'asc');
+                      }])
                       ->orderBy('orders_sum_total', 'desc')
                       ->get();
 
@@ -663,13 +694,22 @@ class ClientController extends Controller
             // Données avec rang
             $rank = 1;
             foreach ($clients as $client) {
+                // Utiliser le téléphone de l'adresse par défaut ou de la première adresse
+                $phone = $client->formatted_phone; // Fallback sur le téléphone du profil
+                if ($client->addresses->isNotEmpty()) {
+                    $defaultAddress = $client->addresses->first();
+                    if ($defaultAddress && $defaultAddress->phone) {
+                        $phone = $defaultAddress->phone;
+                    }
+                }
+
                 fputcsv($file, [
                     $rank++,
                     $client->id,
                     $client->nom,
                     $client->prenoms,
                     $client->email,
-                    $client->formatted_phone,
+                    $phone,
                     $client->ville,
                     $client->commune,
                     $client->orders_sum_total ?? 0,
@@ -695,6 +735,9 @@ class ClientController extends Controller
         $clients = User::where('account_type', AccountType::CLIENT)
                       ->where('created_at', '>=', now()->startOfMonth())
                       ->withCount('orders')
+                      ->with(['addresses' => function($query) {
+                          $query->orderBy('is_default', 'desc')->orderBy('created_at', 'asc');
+                      }])
                       ->orderBy('created_at', 'desc')
                       ->get();
 
@@ -724,12 +767,21 @@ class ClientController extends Controller
 
             // Données
             foreach ($clients as $client) {
+                // Utiliser le téléphone de l'adresse par défaut ou de la première adresse
+                $phone = $client->formatted_phone; // Fallback sur le téléphone du profil
+                if ($client->addresses->isNotEmpty()) {
+                    $defaultAddress = $client->addresses->first();
+                    if ($defaultAddress && $defaultAddress->phone) {
+                        $phone = $defaultAddress->phone;
+                    }
+                }
+
                 fputcsv($file, [
                     $client->id,
                     $client->nom,
                     $client->prenoms,
                     $client->email,
-                    $client->formatted_phone,
+                    $phone,
                     $client->ville,
                     $client->commune,
                     $client->created_at->format('d/m/Y H:i'),
@@ -755,6 +807,10 @@ class ClientController extends Controller
                       })
                       ->withCount('orders')
                       ->withSum('orders', 'total')
+                      ->withMax('orders', 'created_at')
+                      ->with(['addresses' => function($query) {
+                          $query->orderBy('is_default', 'desc')->orderBy('created_at', 'asc');
+                      }])
                       ->orderBy('orders_sum_total', 'desc')
                       ->get();
 
@@ -785,12 +841,21 @@ class ClientController extends Controller
 
             // Données
             foreach ($clients as $client) {
+                // Utiliser le téléphone de l'adresse par défaut ou de la première adresse
+                $phone = $client->formatted_phone; // Fallback sur le téléphone du profil
+                if ($client->addresses->isNotEmpty()) {
+                    $defaultAddress = $client->addresses->first();
+                    if ($defaultAddress && $defaultAddress->phone) {
+                        $phone = $defaultAddress->phone;
+                    }
+                }
+
                 fputcsv($file, [
                     $client->id,
                     $client->nom,
                     $client->prenoms,
                     $client->email,
-                    $client->formatted_phone,
+                    $phone,
                     $client->ville,
                     $client->commune,
                     $client->orders_sum_total ?? 0,
