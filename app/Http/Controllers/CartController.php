@@ -15,7 +15,7 @@ class CartController extends Controller
     public function index()
     {
         $cart = $this->getCurrentCart();
-        
+
         if (!$cart || $cart->isEmpty()) {
             return view('cart.index', [
                 'cart' => null,
@@ -35,16 +35,34 @@ class CartController extends Controller
             }])
             ->get();
 
+        // Filtrer les articles orphelins (produits ou commerces supprimés)
+        $validCartItems = $cartItems->filter(function($item) {
+            return $item->product && $item->product->commerce;
+        });
+
+        // Supprimer les articles orphelins du panier
+        $orphanedItems = $cartItems->filter(function($item) {
+            return !$item->product || !$item->product->commerce;
+        });
+
+        if ($orphanedItems->isNotEmpty()) {
+            foreach ($orphanedItems as $orphanedItem) {
+                $orphanedItem->delete();
+            }
+            // Recharger le panier après suppression des orphelins
+            $cart->refresh();
+        }
+
         // Calculer les frais de livraison avec les paramètres configurables
         $settings = \App\Models\DeliverySettings::getActiveSettings();
-        $uniqueCommerces = $cartItems->pluck('product.commerce.id')->unique();
+        $uniqueCommerces = $validCartItems->pluck('product.commerce.id')->unique();
         $deliveryFee = $uniqueCommerces->count() * $settings->delivery_fee_per_commerce;
 
         // Vérifier si c'est la première commande de l'utilisateur
         $user = Auth::user();
         $isFirstOrder = false;
         $discount = 0;
-        
+
         if ($user) {
             $isFirstOrder = !$user->orders()->exists();
             $discount = $isFirstOrder ? $settings->first_order_discount : 0;
@@ -52,7 +70,7 @@ class CartController extends Controller
 
         return view('cart.index', [
             'cart' => $cart,
-            'cartItems' => $cartItems,
+            'cartItems' => $validCartItems,
             'totalItems' => $cart->total_items,
             'totalPrice' => $cart->total_price,
             'deliveryFee' => $cart->delivery_fee,
@@ -208,6 +226,60 @@ class CartController extends Controller
     }
 
     /**
+     * Supprimer un article du panier par ID de cart item (pour les articles orphelins)
+     */
+    public function removeItem(Request $request, $cartItemId)
+    {
+        $cart = $this->getCurrentCart();
+
+        if (!$cart) {
+            if ($this->isAjaxRequest($request)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Panier introuvable.'
+                ], 404);
+            }
+            return redirect()->route('cart.index')->with('error', 'Panier introuvable.');
+        }
+
+        $cartItem = $cart->items()->find($cartItemId);
+
+        if (!$cartItem) {
+            if ($this->isAjaxRequest($request)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Article introuvable dans le panier.'
+                ], 404);
+            }
+            return redirect()->route('cart.index')->with('error', 'Article introuvable dans le panier.');
+        }
+
+        $cartItem->delete();
+
+        if ($this->isAjaxRequest($request)) {
+            $cart->load(['items.product.commerce']);
+            return response()->json([
+                'success' => true,
+                'message' => 'Article supprimé du panier !',
+                'cart' => [
+                    'total_items' => $cart->total_items,
+                    'total_price' => $cart->total_price,
+                    'formatted_subtotal' => $cart->formatted_total,
+                    'delivery_fee' => $cart->delivery_fee,
+                    'formatted_delivery_fee' => $cart->formatted_delivery_fee,
+                    'discount' => $cart->discount,
+                    'formatted_discount' => $cart->formatted_discount,
+                    'final_total' => $cart->final_total,
+                    'formatted_final_total' => $cart->formatted_final_total,
+                    'unique_commerces_count' => $cart->unique_commerces_count
+                ]
+            ]);
+        }
+
+        return redirect()->route('cart.index')->with('success', 'Article supprimé du panier !');
+    }
+
+    /**
      * Vider complètement le panier
      */
     public function clear()
@@ -293,8 +365,8 @@ class CartController extends Controller
      */
     private function isAjaxRequest($request)
     {
-        return $request->ajax() || 
-               $request->wantsJson() || 
+        return $request->ajax() ||
+               $request->wantsJson() ||
                $request->expectsJson() ||
                $request->header('Accept') === 'application/json' ||
                $request->header('Content-Type') === 'application/json';

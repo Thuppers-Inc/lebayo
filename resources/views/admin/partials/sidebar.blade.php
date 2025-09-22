@@ -29,90 +29,102 @@
       <span class="menu-header-text">Gestion Principale</span>
     </li>
 
-    <!-- Commerces -->
-    <li class="menu-item {{ request()->routeIs('admin.commerces.*') ? 'active' : '' }}">
-      <a href="{{ route('admin.commerces.index') }}" class="menu-link">
-        <i class="menu-icon tf-icons bx bx-buildings"></i>
-        <div data-i18n="Commerces">Commerces</div>
-      </a>
-    </li>
+    @auth
+      @if(auth()->user()->isAdmin())
+        <!-- Commerces (Admin complet seulement) -->
+        <li class="menu-item {{ request()->routeIs('admin.commerces.*') ? 'active' : '' }}">
+          <a href="{{ route('admin.commerces.index') }}" class="menu-link">
+            <i class="menu-icon tf-icons bx bx-buildings"></i>
+            <div data-i18n="Commerces">Commerces</div>
+          </a>
+        </li>
+      @endif
 
-    <!-- Produits -->
-    <li class="menu-item {{ request()->routeIs('admin.products.*') ? 'active' : '' }}">
-      <a href="{{ route('admin.products.index') }}" class="menu-link">
-        <i class="menu-icon tf-icons bx bx-package"></i>
-        <div data-i18n="Products">Produits</div>
-      </a>
-    </li>
+      @if(auth()->user()->canModerate())
+        <!-- Produits (Modérateurs et Admins) -->
+        <li class="menu-item {{ request()->routeIs('admin.products.*') ? 'active' : '' }}">
+          <a href="{{ route('admin.products.index') }}" class="menu-link">
+            <i class="menu-icon tf-icons bx bx-package"></i>
+            <div data-i18n="Products">Produits</div>
+          </a>
+        </li>
 
-    <!-- Commandes -->
-    <li class="menu-item">
-      <a href="{{ route('admin.orders.index') }}" class="menu-link">
-        <i class="menu-icon tf-icons bx bx-shopping-bag"></i>
-        <div data-i18n="Orders">Commandes</div>
-      </a>
-    </li>
+        <!-- Commandes (Modérateurs et Admins) -->
+        <li class="menu-item {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
+          <a href="{{ route('admin.orders.index') }}" class="menu-link">
+            <i class="menu-icon tf-icons bx bx-shopping-bag"></i>
+            <div data-i18n="Orders">Commandes</div>
+          </a>
+        </li>
 
-     <!-- Demandes de course -->
-    <li class="menu-item {{ request()->routeIs('admin.errand-requests.*') ? 'active' : '' }}">
-      <a href="{{ route('admin.errand-requests.index') }}" class="menu-link">
-        <i class="menu-icon tf-icons bx bx-task"></i>
-        <div data-i18n="Errand Requests">Demandes de course</div>
-      </a>
-    </li>
+        <!-- Demandes de course (Modérateurs et Admins) -->
+        <li class="menu-item {{ request()->routeIs('admin.errand-requests.*') ? 'active' : '' }}">
+          <a href="{{ route('admin.errand-requests.index') }}" class="menu-link">
+            <i class="menu-icon tf-icons bx bx-task"></i>
+            <div data-i18n="Errand Requests">Demandes de course</div>
+          </a>
+        </li>
 
-    <!-- Clients -->
-    <li class="menu-item">
-      <a href="{{ route('admin.clients.index') }}" class="menu-link">
-        <i class="menu-icon tf-icons bx bx-user"></i>
-        <div data-i18n="Clients">Clients</div>
-      </a>
-    </li>
+        <!-- Clients (Modérateurs et Admins) -->
+        <li class="menu-item {{ request()->routeIs('admin.clients.*') ? 'active' : '' }}">
+          <a href="{{ route('admin.clients.index') }}" class="menu-link">
+            <i class="menu-icon tf-icons bx bx-user"></i>
+            <div data-i18n="Clients">Clients</div>
+          </a>
+        </li>
+      @endif
 
-    <!-- Livreurs -->
-    <li class="menu-item {{ request()->routeIs('admin.livreurs.*') ? 'active' : '' }}">
-      <a href="{{ route('admin.livreurs.index') }}" class="menu-link">
-        <i class="menu-icon tf-icons bx bx-cycling"></i>
-        <div data-i18n="Delivery">Livreurs</div>
-      </a>
-    </li>
+      @if(auth()->user()->isAdmin())
+        <!-- Livreurs (Admin complet seulement) -->
+        <li class="menu-item {{ request()->routeIs('admin.livreurs.*') ? 'active' : '' }}">
+          <a href="{{ route('admin.livreurs.index') }}" class="menu-link">
+            <i class="menu-icon tf-icons bx bx-cycling"></i>
+            <div data-i18n="Delivery">Livreurs</div>
+          </a>
+        </li>
 
-    <!-- Utilisateurs -->
-    <li class="menu-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
-      <a href="{{ route('admin.users.index') }}" class="menu-link">
-        <i class="menu-icon tf-icons bx bx-group"></i>
-        <div data-i18n="Users">Utilisateurs</div>
-      </a>
-    </li>
+        <!-- Utilisateurs (Admin complet seulement) -->
+        <li class="menu-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+          <a href="{{ route('admin.users.index') }}" class="menu-link">
+            <i class="menu-icon tf-icons bx bx-group"></i>
+            <div data-i18n="Users">Utilisateurs</div>
+          </a>
+        </li>
+      @endif
+    @endauth
 
-    <!-- PARAMÉTRAGE -->
-    <li class="menu-header small text-uppercase">
-      <span class="menu-header-text">Paramétrage</span>
-    </li>
+    @auth
+      @if(auth()->user()->isAdmin())
+        <!-- PARAMÉTRAGE (Admin complet seulement) -->
+        <li class="menu-header small text-uppercase">
+          <span class="menu-header-text">Paramétrage</span>
+        </li>
 
-    <!-- Types de Commerce -->
-    <li class="menu-item {{ request()->routeIs('admin.commerce-types.*') ? 'active' : '' }}">
-      <a href="{{ route('admin.commerce-types.index') }}" class="menu-link">
-        <i class="menu-icon tf-icons bx bx-store"></i>
-        <div data-i18n="Commerce Types">Types de Commerce</div>
-      </a>
-    </li>
+        <!-- Types de Commerce -->
+        <li class="menu-item {{ request()->routeIs('admin.commerce-types.*') ? 'active' : '' }}">
+          <a href="{{ route('admin.commerce-types.index') }}" class="menu-link">
+            <i class="menu-icon tf-icons bx bx-store"></i>
+            <div data-i18n="Commerce Types">Types de Commerce</div>
+          </a>
+        </li>
 
-    <!-- Catégories -->
-    <li class="menu-item {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
-      <a href="{{ route('admin.categories.index') }}" class="menu-link">
-        <i class="menu-icon tf-icons bx bx-category"></i>
-        <div data-i18n="Categories">Catégories</div>
-      </a>
-    </li>
+        <!-- Catégories -->
+        <li class="menu-item {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
+          <a href="{{ route('admin.categories.index') }}" class="menu-link">
+            <i class="menu-icon tf-icons bx bx-category"></i>
+            <div data-i18n="Categories">Catégories</div>
+          </a>
+        </li>
 
-                <!-- Paramètres de livraison -->
-            <li class="menu-item {{ request()->routeIs('admin.delivery-settings.*') ? 'active' : '' }}">
-              <a href="{{ route('admin.delivery-settings.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-cog"></i>
-                <div data-i18n="Delivery Settings">Paramètres de livraison</div>
-              </a>
-            </li>
+        <!-- Paramètres de livraison -->
+        <li class="menu-item {{ request()->routeIs('admin.delivery-settings.*') ? 'active' : '' }}">
+          <a href="{{ route('admin.delivery-settings.index') }}" class="menu-link">
+            <i class="menu-icon tf-icons bx bx-cog"></i>
+            <div data-i18n="Delivery Settings">Paramètres de livraison</div>
+          </a>
+        </li>
+      @endif
+    @endauth
 
 
 

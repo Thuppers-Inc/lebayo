@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use App\Models\AccountType;
 use App\Models\Cart;
 use Illuminate\Validation\ValidationException;
 
@@ -52,7 +53,7 @@ class AuthController extends Controller
                 'user_email' => $user->email,
                 'session_id' => $sessionId
             ]);
-            
+
             // Migrer le panier de session vers l'utilisateur connecté
             $migratedCart = Cart::migrateSessionCartToUser($user->id, $sessionId);
             \Log::info('Cart migration result', [
@@ -61,22 +62,22 @@ class AuthController extends Controller
                 'migrated_cart_id' => $migratedCart ? $migratedCart->id : null,
                 'migrated_items' => $migratedCart ? $migratedCart->total_items : 0
             ]);
-            
+
             // Régénérer la session APRÈS la migration
             $request->session()->regenerate();
-            
+
             // Message de bienvenue avec info sur le panier
             $welcomeMessage = "Bon retour, {$user->prenoms} !";
             if ($migratedCart && $migratedCart->total_items > 0) {
-                $welcomeMessage .= " Votre panier a été restauré ({$migratedCart->total_items} " . 
+                $welcomeMessage .= " Votre panier a été restauré ({$migratedCart->total_items} " .
                                  ($migratedCart->total_items > 1 ? 'articles' : 'article') . ").";
             }
-            
-            // Rediriger selon le rôle de l'utilisateur
-            if ($user->isAdmin()) {
+
+            // Rediriger selon le type de compte de l'utilisateur
+            if ($user->account_type === AccountType::ADMIN) {
                 return redirect()->intended('/admin/dashboard')->with('success', $welcomeMessage);
             }
-            
+
             return redirect()->intended('/')->with('success', $welcomeMessage);
         }
 
@@ -134,7 +135,7 @@ class AuthController extends Controller
         // Message de bienvenue avec info sur le panier
         $welcomeMessage = "Bienvenue sur Lebayo, {$user->prenoms} ! Votre compte a été créé avec succès.";
         if ($migratedCart && $migratedCart->total_items > 0) {
-            $welcomeMessage .= " Votre panier a été sauvegardé ({$migratedCart->total_items} " . 
+            $welcomeMessage .= " Votre panier a été sauvegardé ({$migratedCart->total_items} " .
                              ($migratedCart->total_items > 1 ? 'articles' : 'article') . ").";
         }
 
@@ -153,4 +154,4 @@ class AuthController extends Controller
 
         return redirect('/');
     }
-} 
+}

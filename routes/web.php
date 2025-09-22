@@ -12,16 +12,16 @@ use App\Http\Controllers\Admin\ClientController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\DeliverySettingsController;
 
-Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home')->middleware('redirect.admin');
 
 // Route pour afficher un restaurant spécifique
-Route::get('/restaurant/{commerce}', [App\Http\Controllers\RestaurantController::class, 'show'])->name('restaurant.show');
+Route::get('/restaurant/{commerce}', [App\Http\Controllers\RestaurantController::class, 'show'])->name('restaurant.show')->middleware('redirect.admin');
 
 // Route pour afficher les commerces d'un type spécifique
-Route::get('/type/{commerceType}', [App\Http\Controllers\CommerceTypeController::class, 'show'])->name('commerce-type.show');
+Route::get('/type/{commerceType}', [App\Http\Controllers\CommerceTypeController::class, 'show'])->name('commerce-type.show')->middleware('redirect.admin');
 
 // Routes de recherche
-Route::get('/search', [App\Http\Controllers\SearchController::class, 'search'])->name('search');
+Route::get('/search', [App\Http\Controllers\SearchController::class, 'search'])->name('search')->middleware('redirect.admin');
 Route::get('/api/search/autocomplete', [App\Http\Controllers\SearchController::class, 'autocomplete'])->name('search.autocomplete');
 
 // Routes d'authentification
@@ -49,6 +49,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('orders', OrderController::class)->only(['index', 'show']);
         Route::post('orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('orders.update-status');
         Route::post('orders/{order}/update-payment-status', [OrderController::class, 'updatePaymentStatus'])->name('orders.update-payment-status');
+
+        // Gestion des demandes de course (modération)
+        Route::resource('errand-requests', \App\Http\Controllers\Admin\ErrandRequestController::class)->only(['index', 'show']);
+        Route::post('errand-requests/{errandRequest}/update-status', [\App\Http\Controllers\Admin\ErrandRequestController::class, 'updateStatus'])->name('errand-requests.update-status');
+        Route::get('errand-requests/{errandRequest}/logs', [\App\Http\Controllers\Admin\ErrandRequestController::class, 'logs'])->name('errand-requests.logs');
+        Route::get('errand-requests-stats', [\App\Http\Controllers\Admin\ErrandRequestController::class, 'stats'])->name('errand-requests.stats');
+        Route::get('errand-requests-export', [\App\Http\Controllers\Admin\ErrandRequestController::class, 'export'])->name('errand-requests.export');
 
         // Consultation des clients (lecture seule pour modérateurs)
         Route::get('clients', [ClientController::class, 'index'])->name('clients.index');
@@ -116,12 +123,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('delivery-settings', DeliverySettingsController::class);
         Route::post('delivery-settings/{deliverySetting}/activate', [DeliverySettingsController::class, 'activate'])->name('delivery-settings.activate');
 
-        // Gestion des demandes de course (admin seulement)
-        Route::resource('errand-requests', \App\Http\Controllers\Admin\ErrandRequestController::class)->except(['create', 'store', 'edit', 'update']);
-        Route::post('errand-requests/{errandRequest}/update-status', [\App\Http\Controllers\Admin\ErrandRequestController::class, 'updateStatus'])->name('errand-requests.update-status');
-        Route::get('errand-requests/{errandRequest}/logs', [\App\Http\Controllers\Admin\ErrandRequestController::class, 'logs'])->name('errand-requests.logs');
-        Route::get('errand-requests-stats', [\App\Http\Controllers\Admin\ErrandRequestController::class, 'stats'])->name('errand-requests.stats');
-        Route::get('errand-requests-export', [\App\Http\Controllers\Admin\ErrandRequestController::class, 'export'])->name('errand-requests.export');
+        // Gestion complète des demandes de course (admin seulement - création, modification, suppression)
+        Route::resource('errand-requests', \App\Http\Controllers\Admin\ErrandRequestController::class)->except(['index', 'show', 'update-status', 'logs', 'stats', 'export']);
+        Route::post('errand-requests/{errandRequest}/create', [\App\Http\Controllers\Admin\ErrandRequestController::class, 'create'])->name('errand-requests.create');
+        Route::post('errand-requests', [\App\Http\Controllers\Admin\ErrandRequestController::class, 'store'])->name('errand-requests.store');
+        Route::get('errand-requests/{errandRequest}/edit', [\App\Http\Controllers\Admin\ErrandRequestController::class, 'edit'])->name('errand-requests.edit');
+        Route::put('errand-requests/{errandRequest}', [\App\Http\Controllers\Admin\ErrandRequestController::class, 'update'])->name('errand-requests.update');
+        Route::delete('errand-requests/{errandRequest}', [\App\Http\Controllers\Admin\ErrandRequestController::class, 'destroy'])->name('errand-requests.destroy');
 
         // Gestion du profil admin
         Route::get('profile', [\App\Http\Controllers\Admin\AdminProfileController::class, 'index'])->name('profile.index');
@@ -152,11 +160,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
 // Ces routes dupliquées ont été supprimées pour éviter les contournements de sécurité
 
 // Routes du panier
-Route::prefix('cart')->name('cart.')->group(function () {
+Route::prefix('cart')->name('cart.')->middleware('redirect.admin')->group(function () {
     Route::get('/', [App\Http\Controllers\CartController::class, 'index'])->name('index');
     Route::post('/add/{product}', [App\Http\Controllers\CartController::class, 'add'])->name('add');
     Route::patch('/update/{product}', [App\Http\Controllers\CartController::class, 'update'])->name('update');
     Route::delete('/remove/{product}', [App\Http\Controllers\CartController::class, 'remove'])->name('remove');
+    Route::delete('/remove-item/{cartItem}', [App\Http\Controllers\CartController::class, 'removeItem'])->name('remove-item');
     Route::delete('/clear', [App\Http\Controllers\CartController::class, 'clear'])->name('clear');
     Route::get('/count', [App\Http\Controllers\CartController::class, 'count'])->name('count');
 });
@@ -166,7 +175,7 @@ Route::post('/api/reverse-geocode', [\App\Http\Controllers\LocationController::c
 Route::get('/api/location-by-ip', [\App\Http\Controllers\LocationController::class, 'getLocationByIp'])->name('api.location-by-ip');
 
 // Routes du processus de checkout (protégées par authentification)
-Route::prefix('checkout')->name('checkout.')->middleware(['auth'])->group(function () {
+Route::prefix('checkout')->name('checkout.')->middleware(['auth', 'redirect.admin'])->group(function () {
     Route::get('/', [App\Http\Controllers\CheckoutController::class, 'index'])->name('index');
     Route::get('/address', [App\Http\Controllers\CheckoutController::class, 'address'])->name('address');
     Route::get('/payment', [App\Http\Controllers\CheckoutController::class, 'payment'])->name('payment');
@@ -177,7 +186,7 @@ Route::prefix('checkout')->name('checkout.')->middleware(['auth'])->group(functi
 });
 
 // Routes du profil utilisateur (protégées par authentification)
-Route::prefix('profile')->name('profile.')->middleware(['auth'])->group(function () {
+Route::prefix('profile')->name('profile.')->middleware(['auth', 'redirect.admin'])->group(function () {
     Route::get('/', [App\Http\Controllers\ProfileController::class, 'index'])->name('index');
     Route::post('/update', [App\Http\Controllers\ProfileController::class, 'update'])->name('update');
     Route::post('/update-password', [App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('update-password');

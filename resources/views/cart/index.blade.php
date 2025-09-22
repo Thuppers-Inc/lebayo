@@ -13,7 +13,7 @@
                     Continuer les achats
                 </a>
             </div>
-            
+
             <div class="cart-title-section">
                 <h1 class="cart-title">Mon Panier</h1>
                 @if($cart && !$cart->isEmpty())
@@ -43,35 +43,45 @@
 
                     <div class="cart-items-list" id="cartItemsList">
                         @foreach($cartItems as $item)
-                            <div class="cart-item" id="cart-item-{{ $item->product->id }}">
+                            <div class="cart-item" id="cart-item-{{ $item->product->id ?? $item->id }}">
                                 <div class="item-image">
-                                    <img src="{{ $item->product->image_url }}" alt="{{ $item->product->name }}" loading="lazy">
+                                    <img src="{{ $item->product->image_url ?? asset('images/product-placeholder.png') }}" alt="{{ $item->product->name ?? 'Produit supprimé' }}" loading="lazy">
                                 </div>
-                                
+
                                 <div class="item-details">
                                     <div class="item-info">
-                                        <h4 class="item-name">{{ $item->product->name }}</h4>
-                                        <p class="item-commerce">{{ $item->product->commerce->name }}</p>
-                                        @if($item->product->description)
+                                        <h4 class="item-name">{{ $item->product->name ?? 'Produit supprimé' }}</h4>
+                                        <p class="item-commerce">{{ $item->product->commerce->name ?? 'Commerce supprimé' }}</p>
+                                        @if($item->product && $item->product->description)
                                             <p class="item-description">{{ Str::limit($item->product->description, 80) }}</p>
                                         @endif
                                     </div>
-                                    
+
                                     <div class="item-actions">
                                         <div class="quantity-controls">
-                                            <button type="button" class="quantity-btn minus" data-product-id="{{ $item->product->id }}" data-quantity="{{ $item->quantity - 1 }}">-</button>
-                                            <span class="quantity">{{ $item->quantity }}</span>
-                                            <button type="button" class="quantity-btn plus" data-product-id="{{ $item->product->id }}" data-quantity="{{ $item->quantity + 1 }}">+</button>
+                                            @if($item->product)
+                                                <button type="button" class="quantity-btn minus" data-product-id="{{ $item->product->id }}" data-quantity="{{ $item->quantity - 1 }}">-</button>
+                                                <span class="quantity">{{ $item->quantity }}</span>
+                                                <button type="button" class="quantity-btn plus" data-product-id="{{ $item->product->id }}" data-quantity="{{ $item->quantity + 1 }}">+</button>
+                                            @else
+                                                <span class="quantity">{{ $item->quantity }}</span>
+                                            @endif
                                         </div>
-                                        
+
                                         <div class="item-price">
                                             <span class="unit-price">{{ $item->formatted_price }}</span>
                                             <span class="total-price">{{ $item->formatted_subtotal }}</span>
                                         </div>
-                                        
-                                        <button type="button" class="remove-item-btn" data-product-id="{{ $item->product->id }}">
-                                            🗑️
-                                        </button>
+
+                                        @if($item->product)
+                                            <button type="button" class="remove-item-btn" data-product-id="{{ $item->product->id }}">
+                                                🗑️
+                                            </button>
+                                        @else
+                                            <button type="button" class="remove-item-btn" data-cart-item-id="{{ $item->id }}">
+                                                🗑️
+                                            </button>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -83,36 +93,36 @@
                 <div class="cart-summary">
                     <div class="summary-card">
                         <h3>Résumé de la commande</h3>
-                        
+
                         <div class="summary-line">
                             <span>Sous-total ({{ $totalItems }} {{ $totalItems > 1 ? 'articles' : 'article' }})</span>
                             <span id="cartSubtotal">{{ $cart->formatted_total }}</span>
                         </div>
-                        
+
                         <div class="summary-line">
                             <span>Frais de livraison ({{ $cart->unique_commerces_count }} {{ $cart->unique_commerces_count > 1 ? 'boutiques' : 'boutique' }})</span>
                             <span class="delivery-fee">{{ $cart->formatted_delivery_fee }}</span>
                         </div>
-                        
+
                         @if($discount > 0)
                         <div class="summary-line discount-line">
                             <span>Remise première commande</span>
                             <span class="discount-amount">-{{ $cart->formatted_discount }}</span>
                         </div>
                         @endif
-                        
+
                         <div class="summary-divider"></div>
-                        
+
                         <div class="summary-total">
                             <span>Total</span>
                             <span id="cartTotal">{{ $cart->formatted_final_total }}</span>
                         </div>
-                        
+
                         <a href="{{ route('checkout.index') }}" class="checkout-btn">
                             <span>Passer la commande</span>
                             <span class="checkout-icon">→</span>
                         </a>
-                        
+
                         <div class="security-info">
                             <span class="security-icon">🔒</span>
                             <span>Paiement sécurisé</span>
@@ -576,22 +586,22 @@
         grid-template-columns: 1fr;
         gap: 1.5rem;
     }
-    
+
     .cart-item {
         flex-direction: column;
         text-align: center;
     }
-    
+
     .item-details {
         flex-direction: column;
         gap: 1rem;
     }
-    
+
     .item-actions {
         justify-content: space-between;
         width: 100%;
     }
-    
+
     .cart-summary {
         order: -1;
         position: static;
@@ -608,25 +618,31 @@ document.addEventListener('DOMContentLoaded', function() {
         button.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
-            
+
             const productId = this.getAttribute('data-product-id');
             const newQuantity = parseInt(this.getAttribute('data-quantity'));
-            
+
             updateQuantity(productId, newQuantity);
         });
     });
-    
+
     // Event listeners pour les boutons de suppression
     document.querySelectorAll('.remove-item-btn').forEach(button => {
         button.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
-            
+
             const productId = this.getAttribute('data-product-id');
-            removeItem(productId);
+            const cartItemId = this.getAttribute('data-cart-item-id');
+
+            if (productId) {
+                removeItem(productId);
+            } else if (cartItemId) {
+                removeCartItem(cartItemId);
+            }
         });
     });
-    
+
     // Event listener pour le bouton vider le panier
     const clearCartBtn = document.getElementById('clearCartBtn');
     if (clearCartBtn) {
@@ -636,7 +652,7 @@ document.addEventListener('DOMContentLoaded', function() {
             clearCart();
         });
     }
-    
+
     // Event listener pour la confirmation de vidage
     const confirmClearCartBtn = document.getElementById('confirmClearCartBtn');
     if (confirmClearCartBtn) {
@@ -646,12 +662,12 @@ document.addEventListener('DOMContentLoaded', function() {
             confirmClearCart();
         });
     }
-    
+
     // Event listeners pour fermer le modal
     const closeModalBtn = document.getElementById('closeModalBtn');
     const cancelClearBtn = document.getElementById('cancelClearBtn');
     const modalBackdrop = document.querySelector('.custom-modal-backdrop');
-    
+
     if (closeModalBtn) {
         closeModalBtn.addEventListener('click', closeModal);
     }
@@ -661,7 +677,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (modalBackdrop) {
         modalBackdrop.addEventListener('click', closeModal);
     }
-    
+
     // Fermer le modal avec Escape
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
@@ -673,9 +689,9 @@ document.addEventListener('DOMContentLoaded', function() {
 // Fonctions pour gérer le panier
 function updateQuantity(productId, newQuantity) {
     if (newQuantity < 0) return;
-    
+
     console.log('Updating quantity:', { productId, newQuantity });
-    
+
     fetch(`/cart/update/${productId}`, {
         method: 'PATCH',
         headers: {
@@ -694,7 +710,7 @@ function updateQuantity(productId, newQuantity) {
     })
     .then(data => {
         console.log('Update response data:', data);
-        
+
         if (data.success) {
             if (newQuantity === 0) {
                 document.getElementById(`cart-item-${productId}`).remove();
@@ -715,9 +731,9 @@ function updateQuantity(productId, newQuantity) {
 
 function removeItem(productId) {
     if (!confirm('Êtes-vous sûr de vouloir supprimer cet article ?')) return;
-    
+
     console.log('Removing item:', productId);
-    
+
     fetch(`/cart/remove/${productId}`, {
         method: 'DELETE',
         headers: {
@@ -734,11 +750,11 @@ function removeItem(productId) {
     })
     .then(data => {
         console.log('Remove response data:', data);
-        
+
         if (data.success) {
             document.getElementById(`cart-item-${productId}`).remove();
             updateCartDisplay(data.cart);
-            
+
             // Si le panier est vide, recharger la page
             if (data.cart.total_items === 0) {
                 location.reload();
@@ -750,6 +766,47 @@ function removeItem(productId) {
     })
     .catch(error => {
         console.error('Remove error:', error);
+        alert(`Erreur technique: ${error.message}`);
+    });
+}
+
+function removeCartItem(cartItemId) {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer cet article ?')) return;
+
+    console.log('Removing cart item:', cartItemId);
+
+    fetch(`/cart/remove-item/${cartItemId}`, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => {
+        console.log('Remove cart item response status:', response.status);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Remove cart item response data:', data);
+
+        if (data.success) {
+            document.getElementById(`cart-item-${cartItemId}`).remove();
+            updateCartDisplay(data.cart);
+
+            // Si le panier est vide, recharger la page
+            if (data.cart.total_items === 0) {
+                location.reload();
+            }
+        } else {
+            console.error('Remove cart item failed:', data.message);
+            alert(data.message || 'Erreur lors de la suppression');
+        }
+    })
+    .catch(error => {
+        console.error('Remove cart item error:', error);
         alert(`Erreur technique: ${error.message}`);
     });
 }
@@ -774,10 +831,10 @@ function closeModal() {
 
 function confirmClearCart() {
     console.log('Clearing cart');
-    
+
     // Fermer le modal d'abord
     closeModal();
-    
+
     fetch('/cart/clear', {
         method: 'DELETE',
         headers: {
@@ -794,7 +851,7 @@ function confirmClearCart() {
     })
     .then(data => {
         console.log('Clear response data:', data);
-        
+
         if (data.success) {
             location.reload();
         } else {
@@ -816,12 +873,12 @@ function updateCartDisplay(cart) {
     if (document.getElementById('cartTotal')) {
         document.getElementById('cartTotal').textContent = cart.formatted_final_total;
     }
-    
+
     // Mettre à jour les frais de livraison
     if (document.querySelector('.delivery-fee')) {
         document.querySelector('.delivery-fee').textContent = cart.formatted_delivery_fee;
     }
-    
+
     // Mettre à jour la remise si elle existe
     const discountLine = document.querySelector('.discount-line');
     if (discountLine && cart.discount > 0) {
@@ -833,7 +890,7 @@ function updateCartDisplay(cart) {
     } else if (discountLine) {
         discountLine.style.display = 'none';
     }
-    
+
     // Mettre à jour le header
     updateCartHeader(cart.total_items);
 }
@@ -846,4 +903,4 @@ function updateCartHeader(count) {
     }
 }
 </script>
-@endpush 
+@endpush

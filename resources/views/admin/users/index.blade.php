@@ -477,8 +477,8 @@
                         </div>
 
                         <div class="col-md-6 mb-3">
-                            <label for="account_type" class="form-label">Type de Compte <span class="text-danger">*</span></label>
-                            <select class="form-select admin-form-control" id="account_type" name="account_type" required>
+                            <label for="modal_account_type" class="form-label">Type de Compte <span class="text-danger">*</span></label>
+                            <select class="form-select admin-form-control" id="modal_account_type" name="account_type" required>
                                 <option value="">Sélectionner un type</option>
                                 <option value="admin">Administrateur</option>
                                 <option value="client">Client</option>
@@ -670,8 +670,8 @@ $(document).ready(function() {
     //     ]
     // });
 
-    // Gestion de l'affichage du champ rôle
-    $('#account_type').on('change', function() {
+    // Gestion de l'affichage du champ rôle dans le modal
+    $('#modal_account_type').on('change', function() {
         const roleField = $('#roleField');
         const roleSelect = $('#role');
 
@@ -774,6 +774,7 @@ function openCreateUserModal() {
     // Cacher le champ rôle par défaut
     document.getElementById('roleField').style.display = 'none';
     document.getElementById('role').required = false;
+    document.getElementById('role').value = '';
 
     // Afficher le modal
     const modal = new bootstrap.Modal(document.getElementById('userModal'));
@@ -885,7 +886,7 @@ function editUser(id) {
                 document.getElementById('nom').value = user.nom || '';
                 document.getElementById('prenoms').value = user.prenoms || '';
                 document.getElementById('email').value = user.email || '';
-                document.getElementById('account_type').value = user.account_type || '';
+                document.getElementById('modal_account_type').value = user.account_type || '';
                 document.getElementById('role').value = user.role || '';
                 document.getElementById('date_naissance').value = user.date_naissance || '';
                 document.getElementById('indicatif').value = user.indicatif || '+225';

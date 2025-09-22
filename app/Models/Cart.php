@@ -62,7 +62,9 @@ class Cart extends Model
     public function getDeliveryFeeAttribute()
     {
         $settings = \App\Models\DeliverySettings::getActiveSettings();
-        $uniqueCommerces = $this->items->pluck('product.commerce.id')->unique();
+        $uniqueCommerces = $this->items->filter(function($item) {
+            return $item->product && $item->product->commerce;
+        })->pluck('product.commerce.id')->unique();
         return $uniqueCommerces->count() * $settings->delivery_fee_per_commerce;
     }
 
@@ -74,6 +76,7 @@ class Cart extends Model
         return number_format($this->delivery_fee, 0, ',', ' ') . ' F';
     }
 
+
     /**
      * Calculer la remise (configurable pour la première commande)
      */
@@ -82,7 +85,7 @@ class Cart extends Model
         if (!$this->user) {
             return 0;
         }
-        
+
         $settings = \App\Models\DeliverySettings::getActiveSettings();
         return !$this->user->orders()->exists() ? $settings->first_order_discount : 0;
     }
@@ -116,7 +119,9 @@ class Cart extends Model
      */
     public function getUniqueCommercesCountAttribute()
     {
-        return $this->items->pluck('product.commerce.id')->unique()->count();
+        return $this->items->filter(function($item) {
+            return $item->product && $item->product->commerce;
+        })->pluck('product.commerce.id')->unique()->count();
     }
 
     /**
@@ -227,13 +232,13 @@ class Cart extends Model
 
         // Récupérer le panier de session
         $sessionCart = static::where('session_id', $sessionId)->first();
-        
+
         \Log::info('Session cart found', [
             'session_cart_exists' => $sessionCart !== null,
             'session_cart_id' => $sessionCart ? $sessionCart->id : null,
             'session_cart_items' => $sessionCart ? $sessionCart->total_items : 0
         ]);
-        
+
         if (!$sessionCart || $sessionCart->isEmpty()) {
             \Log::info('No session cart or empty cart, migration skipped');
             return null; // Pas de panier de session ou panier vide
@@ -241,7 +246,7 @@ class Cart extends Model
 
         // Récupérer ou créer le panier utilisateur
         $userCart = static::getOrCreateForUser($userId);
-        
+
         \Log::info('User cart prepared', [
             'user_cart_id' => $userCart->id,
             'user_cart_items_before' => $userCart->total_items
@@ -249,7 +254,7 @@ class Cart extends Model
 
         // Migrer tous les articles du panier de session vers le panier utilisateur
         $sessionItems = $sessionCart->items()->with('product')->get();
-        
+
         \Log::info('Session items to migrate', [
             'items_count' => $sessionItems->count(),
             'items' => $sessionItems->map(function($item) {
@@ -260,11 +265,11 @@ class Cart extends Model
                 ];
             })->toArray()
         ]);
-        
+
         foreach ($sessionItems as $sessionItem) {
             // Vérifier si le produit existe déjà dans le panier utilisateur
             $existingItem = $userCart->items()->where('product_id', $sessionItem->product_id)->first();
-            
+
             if ($existingItem) {
                 // Si le produit existe déjà, additionner les quantités
                 $oldQuantity = $existingItem->quantity;
@@ -292,7 +297,7 @@ class Cart extends Model
 
         // Recharger le panier utilisateur pour obtenir les totaux mis à jour
         $userCart->refresh();
-        
+
         \Log::info('User cart after migration', [
             'user_cart_items_after' => $userCart->total_items,
             'user_cart_total_price' => $userCart->total_price
