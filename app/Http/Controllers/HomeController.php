@@ -41,7 +41,7 @@ class HomeController extends Controller
         // Récupérer les types de commerce actifs avec leurs commerces pour le module de navigation
         $commerceTypes = CommerceType::active()
             ->with(['commerces' => function($query) {
-                $query->active()->withCount('products')->take(4);
+                $query->active()->withCount('products');
             }])
             ->whereHas('commerces', function($query) {
                 $query->where('is_active', true);
