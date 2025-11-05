@@ -366,19 +366,6 @@ main {
     text-align: center;
 }
 
-.navbar-toggle {
-    display: none;
-    flex-direction: column;
-    cursor: pointer;
-}
-
-.navbar-toggle span {
-    width: 25px;
-    height: 3px;
-    background-color: var(--text-dark);
-    margin: 2px 0;
-    transition: var(--transition);
-}
 
 /* Hero Section */
 .hero-section {
@@ -2042,10 +2029,6 @@ main {
         margin: var(--spacing-sm) 0;
     }
 
-    .navbar-toggle {
-        display: flex;
-    }
-
     .navbar-actions {
         display: none;
     }
@@ -2930,16 +2913,14 @@ main {
     }
 
     .auth-buttons {
-        flex-direction: column;
-        gap: 5px;
-        width: 100%;
+        display: flex;
+        gap: 0;
     }
 
     .auth-buttons .btn {
-        padding: 8px 12px;
+        padding: 8px 16px;
         font-size: 0.85rem;
-        width: 100%;
-        text-align: center;
+        white-space: nowrap;
     }
 }
 
@@ -2996,13 +2977,13 @@ main {
     }
 
     .auth-buttons {
-        flex-direction: column;
-        gap: 4px;
-        min-width: 80px;
+        display: flex;
+        gap: 0;
+        min-width: auto;
     }
 
     .auth-buttons .btn {
-        padding: 6px 8px;
+        padding: 6px 12px;
         font-size: 0.75rem;
         white-space: nowrap;
     }
