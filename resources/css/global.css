@@ -101,6 +101,8 @@ main {
     position: sticky;
     top: 0;
     z-index: 1000;
+    /* Marge pour la barre d'état Android/iOS sur mobile */
+    padding-top: env(safe-area-inset-top);
 }
 
 .navbar {
@@ -2814,6 +2816,11 @@ main {
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
+    .site-header {
+        /* Marge pour la barre d'état Android/iOS + fallback si safe-area-inset-top n'est pas supporté */
+        padding-top: max(env(safe-area-inset-top), 24px);
+    }
+
     .navbar {
         padding: 10px 0;
     }
@@ -2925,6 +2932,11 @@ main {
 }
 
 @media (max-width: 480px) {
+    .site-header {
+        /* Marge pour la barre d'état Android/iOS + fallback si safe-area-inset-top n'est pas supporté */
+        padding-top: max(env(safe-area-inset-top), 20px);
+    }
+
     .navbar {
         padding: 8px 0;
     }
