@@ -7,15 +7,18 @@
 <section class="hero-section">
     <div class="container">
         <div class="hero-content">
-            <div class="hero-text">
-                <h1>Découvrez les restaurants qui livrent près de chez vous</h1>
+            <!-- Hero Text & Search -->
+            <div class="hero-text-wrapper">
+                <h1 class="hero-title">Découvrez les restaurants qui livrent près de chez vous</h1>
+                <p class="hero-subtitle">Commandez vos plats préférés et recevez-les rapidement chez vous</p>
+
                 <div class="search-container">
                     <form action="{{ route('search') }}" method="GET" class="search-form">
                         <div class="search-box">
                             <i class="search-icon">🔍</i>
-                            <input type="text" 
-                                   name="q" 
-                                   placeholder="Rechercher un restaurant ou un produit..." 
+                            <input type="text"
+                                   name="q"
+                                   placeholder="Rechercher un restaurant ou un produit..."
                                    class="search-input"
                                    id="homeSearchInput"
                                    autocomplete="off">
@@ -24,7 +27,25 @@
                         <div class="search-suggestions-home" id="homeSearchSuggestions"></div>
                     </form>
                 </div>
+
+                <!-- Trust Badges - Mobile optimized -->
+                <div class="hero-trust-badges">
+                    <div class="trust-badge">
+                        <span class="trust-icon">🔒</span>
+                        <span class="trust-text">Sécurisé</span>
+                    </div>
+                    <div class="trust-badge">
+                        <span class="trust-icon">⚡</span>
+                        <span class="trust-text">Rapide</span>
+                    </div>
+                    <div class="trust-badge">
+                        <span class="trust-icon">📍</span>
+                        <span class="trust-text">Tracking</span>
+                    </div>
+                </div>
             </div>
+
+            <!-- Delivery Animation - Hidden on mobile, shown on desktop -->
             <div class="hero-delivery-animation">
                 <div class="delivery-map">
                     <!-- Point de départ (Restaurant) -->
@@ -33,14 +54,14 @@
                         <div class="point-label">Restaurant</div>
                         <div class="point-pulse"></div>
                     </div>
-                    
+
                     <!-- Tracé de livraison -->
                     <div class="delivery-path">
                         <svg class="path-svg" viewBox="0 0 300 200">
-                            <path id="deliveryRoute" d="M 50 100 Q 150 50 250 100" 
-                                  stroke="url(#pathGradient)" 
-                                  stroke-width="4" 
-                                  fill="none" 
+                            <path id="deliveryRoute" d="M 50 100 Q 150 50 250 100"
+                                  stroke="url(#pathGradient)"
+                                  stroke-width="4"
+                                  fill="none"
                                   stroke-dasharray="8,4"/>
                             <defs>
                                 <linearGradient id="pathGradient" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -50,46 +71,27 @@
                                 </linearGradient>
                             </defs>
                         </svg>
-                        
+
                         <!-- Véhicule de livraison animé -->
                         <div class="delivery-vehicle">
                             <div class="vehicle-icon">🛵</div>
                             <div class="vehicle-trail"></div>
                         </div>
-                        
+
                         <!-- Plats en transit -->
                         <div class="food-item food-1">🍕</div>
                         <div class="food-item food-2">🍔</div>
                         <div class="food-item food-3">🍟</div>
                         <div class="food-item food-4">🥗</div>
                     </div>
-                    
+
                     <!-- Point d'arrivée (Client) -->
                     <div class="delivery-point client-point">
                         <div class="point-icon">🏠</div>
                         <div class="point-label">Chez vous</div>
                         <div class="point-pulse"></div>
                     </div>
-                    
-                    <!-- Indicateurs de sécurité -->
-                    <div class="security-indicators">
-                        <div class="security-badge">
-                            <div class="badge-icon">🔒</div>
-                            <div class="badge-text">Sécurisé</div>
-                            <div class="badge-glow"></div>
-                        </div>
-                        <div class="security-badge">
-                            <div class="badge-icon">⚡</div>
-                            <div class="badge-text">Rapide</div>
-                            <div class="badge-glow"></div>
-                        </div>
-                        <div class="security-badge">
-                            <div class="badge-icon">📍</div>
-                            <div class="badge-text">Tracking</div>
-                            <div class="badge-glow"></div>
-                        </div>
-                    </div>
-                    
+
                     <!-- Statut de livraison -->
                     <div class="delivery-status">
                         <div class="status-item" data-status="0">
@@ -109,7 +111,7 @@
                             <div class="status-text">Livré</div>
                         </div>
                     </div>
-                    
+
                     <!-- Particules de confiance -->
                     <div class="trust-particles">
                         <div class="particle"></div>
@@ -158,7 +160,7 @@
                 <h2>{{ $type->name }}</h2>
                 <p>{{ $type->description }}</p>
             </div>
-    
+
             <div class="grocery-grid">
                 @foreach($type->commerces->take(3) as $commerce)
                 <a href="{{ route('restaurant.show', $commerce) }}" class="grocery-category-card">
@@ -187,7 +189,7 @@
                 </a>
                 @endforeach
             </div>
-    
+
             @if($type->commerces->count() >= 3)
             <div class="grocery-cta">
                 <a href="{{ route('search') }}?q=supermarché" class="grocery-btn">
@@ -220,7 +222,7 @@
                                 Exclusif
                             </div>
                         @endif
-                        
+
                         @if($index === 0 || $index === 2 || $index === 4)
                             <div class="promotion-badge">
                                 <div class="promo-text">jusqu'à {{ number_format(rand(1500, 3000)) }}F</div>
@@ -229,7 +231,7 @@
                         @endif
                     </div>
                 </div>
-                
+
                 <div class="restaurant-card-info">
                     <div class="restaurant-header">
                         <h3 class="restaurant-name">{{ $restaurant->name }}</h3>
@@ -238,9 +240,9 @@
                             <span class="rating-value">{{ number_format(rand(32, 39) / 10, 1) }}</span>
                         </div>
                     </div>
-                    
+
                     <p class="restaurant-description">{{ $restaurant->description ?: $restaurant->commerce_type_name }}</p>
-                    
+
                     <div class="restaurant-meta">
                         <div class="meta-item">
                             <span class="meta-icon">📍</span>
@@ -385,22 +387,22 @@ document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('homeSearchInput');
     const suggestionsContainer = document.getElementById('homeSearchSuggestions');
     let currentTimeout;
-    
+
     if (searchInput && suggestionsContainer) {
         searchInput.addEventListener('input', function() {
             const query = this.value.trim();
-            
+
             // Annuler la recherche précédente
             if (currentTimeout) {
                 clearTimeout(currentTimeout);
             }
-            
+
             // Masquer les suggestions si la requête est trop courte
             if (query.length < 2) {
                 suggestionsContainer.style.display = 'none';
                 return;
             }
-            
+
             // Délai avant la recherche
             currentTimeout = setTimeout(() => {
                 fetch(`{{ route('search.autocomplete') }}?q=${encodeURIComponent(query)}`)
@@ -414,13 +416,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
             }, 300);
         });
-        
+
         function displayHomeSuggestions(suggestions) {
             if (suggestions.length === 0) {
                 suggestionsContainer.style.display = 'none';
                 return;
             }
-            
+
             const html = suggestions.map(item => `
                 <div class="suggestion-item" data-url="${item.url}">
                     <div class="suggestion-icon">${item.icon}</div>
@@ -430,10 +432,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 </div>
             `).join('');
-            
+
             suggestionsContainer.innerHTML = html;
             suggestionsContainer.style.display = 'block';
-            
+
             // Ajouter les événements de clic
             suggestionsContainer.querySelectorAll('.suggestion-item').forEach(item => {
                 item.addEventListener('click', function() {
@@ -441,7 +443,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             });
         }
-        
+
         // Masquer les suggestions quand on clique ailleurs
         document.addEventListener('click', function(e) {
             if (!e.target.closest('.search-container')) {
@@ -459,22 +461,22 @@ document.addEventListener('DOMContentLoaded', function() {
     // Animation du statut de livraison
     const statusItems = document.querySelectorAll('.status-item');
     let currentStatusIndex = 0;
-    
+
     // Fonction pour mettre à jour le statut
     function updateDeliveryStatus() {
         // Retirer la classe active de tous les éléments
         statusItems.forEach(item => item.classList.remove('active'));
-        
+
         // Ajouter la classe active jusqu'à l'index actuel
         for (let i = 0; i <= currentStatusIndex; i++) {
             if (statusItems[i]) {
                 statusItems[i].classList.add('active');
             }
         }
-        
+
         // Passer au statut suivant
         currentStatusIndex++;
-        
+
         // Réinitialiser après le dernier statut
         if (currentStatusIndex >= statusItems.length) {
             setTimeout(() => {
@@ -483,21 +485,21 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 2000); // Pause de 2 secondes avant de recommencer
         }
     }
-    
+
     // Initialiser avec le premier statut
     if (statusItems.length > 0) {
         statusItems[0].classList.add('active');
-        
+
         // Mettre à jour le statut toutes les 3 secondes
         setInterval(updateDeliveryStatus, 3000);
     }
-    
+
     // Animation des badges de sécurité avec des délais différents
     const securityBadges = document.querySelectorAll('.security-badge');
     securityBadges.forEach((badge, index) => {
         badge.style.animationDelay = `${index * 0.5}s`;
     });
-    
+
     // Effet de vibration subtile sur hover des points de livraison
     const deliveryPoints = document.querySelectorAll('.delivery-point');
     deliveryPoints.forEach(point => {
@@ -505,13 +507,13 @@ document.addEventListener('DOMContentLoaded', function() {
             const icon = this.querySelector('.point-icon');
             icon.style.animation = 'pointBounce 0.6s ease-in-out 3';
         });
-        
+
         point.addEventListener('mouseleave', function() {
             const icon = this.querySelector('.point-icon');
             icon.style.animation = 'pointBounce 2s ease-in-out infinite';
         });
     });
-    
+
     // Animation progressive des particules de confiance
     const particles = document.querySelectorAll('.particle');
     particles.forEach((particle, index) => {
@@ -519,7 +521,7 @@ document.addEventListener('DOMContentLoaded', function() {
         particle.style.left = `${Math.random() * 80 + 10}%`;
         particle.style.top = `${Math.random() * 80 + 10}%`;
     });
-    
+
     // Effet de parallax léger sur le mouvement de la souris
     const deliveryMap = document.querySelector('.delivery-map');
     if (deliveryMap) {
@@ -527,16 +529,16 @@ document.addEventListener('DOMContentLoaded', function() {
             const rect = deliveryMap.getBoundingClientRect();
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
-            
+
             if (x > 0 && x < rect.width && y > 0 && y < rect.height) {
                 const moveX = (x / rect.width - 0.5) * 10;
                 const moveY = (y / rect.height - 0.5) * 10;
-                
+
                 const vehicle = deliveryMap.querySelector('.delivery-vehicle');
                 if (vehicle) {
                     vehicle.style.transform = `translate(${moveX}px, ${moveY}px)`;
                 }
-                
+
                 const foodItems = deliveryMap.querySelectorAll('.food-item');
                 foodItems.forEach((item, index) => {
                     const delay = index * 0.1;
@@ -546,20 +548,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
         });
-        
+
         document.addEventListener('mouseleave', function() {
             const vehicle = deliveryMap.querySelector('.delivery-vehicle');
             if (vehicle) {
                 vehicle.style.transform = '';
             }
-            
+
             const foodItems = deliveryMap.querySelectorAll('.food-item');
             foodItems.forEach(item => {
                 item.style.transform = '';
             });
         });
     }
-    
+
     // Effet sonore visuel lors du passage d'étapes (simulation)
     function triggerVisualFeedback() {
         const currentActiveStatus = document.querySelector('.status-item.active:last-of-type');
@@ -569,7 +571,7 @@ document.addEventListener('DOMContentLoaded', function() {
             setTimeout(() => {
                 currentActiveStatus.style.background = '';
             }, 300);
-            
+
             // Effet de pulsation sur les badges de sécurité
             securityBadges.forEach(badge => {
                 badge.style.transform = 'scale(1.1)';
@@ -579,26 +581,26 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     }
-    
+
     // Déclencher l'effet visuel à chaque mise à jour de statut
     const originalUpdateStatus = updateDeliveryStatus;
     updateDeliveryStatus = function() {
         originalUpdateStatus();
         triggerVisualFeedback();
     };
-    
+
     // Fonction pour redémarrer les animations si elles se figent
     function restartAnimations() {
         const foodItems = document.querySelectorAll('.food-item');
         const vehicle = document.querySelector('.delivery-vehicle');
-        
+
         foodItems.forEach((item, index) => {
             // Forcer la position initiale
             item.style.left = '10%';
             item.style.top = '30%';
             item.style.opacity = '0';
             item.style.transform = 'scale(0.8) translateZ(0)';
-            
+
             // Redémarrer l'animation
             item.style.animation = 'none';
             setTimeout(() => {
@@ -606,7 +608,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 item.style.animationDelay = `${index * 3}s`;
             }, 50);
         });
-        
+
         if (vehicle) {
             vehicle.style.left = '10%';
             vehicle.style.top = '30%';
@@ -616,28 +618,28 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 50);
         }
     }
-    
+
     // Vérifier et redémarrer les animations toutes les 15 secondes
     setInterval(() => {
         const foodItems = document.querySelectorAll('.food-item');
         let hasStuckItem = false;
-        
+
         foodItems.forEach(item => {
             const rect = item.getBoundingClientRect();
             const parentRect = item.parentElement.getBoundingClientRect();
-            
+
             // Si un élément est resté dans le coin supérieur gauche trop longtemps
             if (rect.left < parentRect.left + 50 && rect.top < parentRect.top + 50) {
                 hasStuckItem = true;
             }
         });
-        
+
         if (hasStuckItem) {
             console.log('Animation figée détectée, redémarrage...');
             restartAnimations();
         }
     }, 15000);
-    
+
     // Redémarrer les animations lors du focus/retour sur la page
     document.addEventListener('visibilitychange', function() {
         if (!document.hidden) {
