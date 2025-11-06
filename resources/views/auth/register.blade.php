@@ -145,11 +145,22 @@
         gap: 0.5rem;
     }
 
-    .phone-input-group select {
-        flex: 0 0 100px;
+    .phone-input-group select,
+    .phone-input-group input[disabled] {
+        flex: 0 0 200px;
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 0.95rem;
     }
 
-    .phone-input-group input {
+    .phone-input-group input[disabled] {
+        background-color: #f5f5f5;
+        cursor: not-allowed;
+        color: #666;
+    }
+
+    .phone-input-group input[type="tel"] {
         flex: 1;
     }
 
@@ -322,8 +333,15 @@
             flex-direction: column;
         }
 
-        .phone-input-group select {
+        .phone-input-group select,
+        .phone-input-group input[disabled] {
             flex: 1;
+            width: 100%;
+        }
+
+        .phone-input-group input[type="tel"] {
+            flex: 1;
+            width: 100%;
         }
     }
 </style>
@@ -334,7 +352,7 @@
     <div class="form-container">
         <div class="form-card">
             <div class="form-header">
-                <h1>Créer un compte</h1>
+                    <h1>Créer un compte</h1>
                 <p>Rejoignez LEBAYO en quelques étapes simples</p>
             </div>
 
@@ -342,10 +360,10 @@
                 <div class="step-dot active" id="stepDot1"></div>
                 <div class="step-dot" id="stepDot2"></div>
                 <div class="step-dot" id="stepDot3"></div>
-            </div>
+                </div>
 
             <form id="registerForm" method="POST" action="{{ route('register') }}">
-                @csrf
+                    @csrf
 
                 <div class="form-body">
                     @if ($errors->any())
@@ -378,7 +396,35 @@
 
                         <div class="form-group">
                             <label for="commune">Quartier *</label>
-                            <input type="text" id="commune" name="commune" value="{{ old('commune') }}" placeholder="Ex: Plateau, Yoff, Grand Dakar..." required>
+                            <input type="text" id="commune" name="commune" value="{{ old('commune') }}" list="quartiers-list" placeholder="Saisissez ou sélectionnez un quartier" required autocomplete="off">
+                            <datalist id="quartiers-list">
+                                <!-- Quartiers originels (villages des descendants de Dalo) -->
+                                <option value="Dalolabia">
+                                <option value="Lobia">
+                                <option value="Tazibouo">
+                                <option value="Gbeuliville">
+
+                                <!-- Quartier colonial/commercial -->
+                                <option value="Commerce">
+
+                                <!-- Quartiers résidentiels -->
+                                <option value="Evêché">
+                                <option value="Huberson">
+
+                                <!-- Quartiers communautaires -->
+                                <option value="Baoulé">
+                                <option value="Dioulabougou">
+                                <option value="Wolof">
+                                <option value="Segou">
+                                <option value="Cissoko">
+                                <option value="Mossibougou">
+
+                                <!-- Quartiers industriels -->
+                                <option value="Kennedy">
+                                <option value="Soleil">
+                                <option value="Marais">
+                            </datalist>
+                            <small style="color: #666; font-size: 0.8rem; display: block; margin-top: 0.25rem;">Vous pouvez saisir un quartier librement ou choisir parmi les suggestions</small>
                             @error('commune')
                                 <span class="error-message">{{ $message }}</span>
                             @enderror
@@ -396,15 +442,8 @@
                         <div class="form-group">
                             <label for="indicatif">Indicatif pays *</label>
                             <div class="phone-input-group">
-                                <select id="indicatif" name="indicatif" required>
-                                    <option value="+221" {{ old('indicatif', '+221') == '+221' ? 'selected' : '' }}>🇸🇳 +221 (Sénégal)</option>
-                                    <option value="+225" {{ old('indicatif') == '+225' ? 'selected' : '' }}>🇨🇮 +225 (Côte d'Ivoire)</option>
-                                    <option value="+226" {{ old('indicatif') == '+226' ? 'selected' : '' }}>🇧🇫 +226 (Burkina Faso)</option>
-                                    <option value="+227" {{ old('indicatif') == '+227' ? 'selected' : '' }}>🇳🇪 +227 (Niger)</option>
-                                    <option value="+228" {{ old('indicatif') == '+228' ? 'selected' : '' }}>🇹🇬 +228 (Togo)</option>
-                                    <option value="+229" {{ old('indicatif') == '+229' ? 'selected' : '' }}>🇧🇯 +229 (Bénin)</option>
-                                    <option value="+223" {{ old('indicatif') == '+223' ? 'selected' : '' }}>🇲🇱 +223 (Mali)</option>
-                                </select>
+                                <input type="text" id="indicatif" value="🇨🇮 +225 (Côte d'Ivoire)" disabled>
+                                <input type="hidden" name="indicatif" value="+225">
                                 <input type="tel" id="numero_telephone" name="numero_telephone" value="{{ old('numero_telephone') }}" placeholder="77 123 45 67" required pattern="[0-9\s]+">
                             </div>
                             @error('numero_telephone')
@@ -457,8 +496,8 @@
                             <input type="checkbox" id="terms" name="terms" required>
                             <label for="terms">
                                 J'accepte les <a href="#" target="_blank">conditions d'utilisation</a> et la <a href="#" target="_blank">politique de confidentialité</a>
-                            </label>
-                        </div>
+                        </label>
+                    </div>
 
                         <div class="form-actions">
                             <button type="button" class="btn-step btn-step-secondary" onclick="prevStep()">
