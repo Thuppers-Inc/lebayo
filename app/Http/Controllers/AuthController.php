@@ -25,15 +25,17 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
+        $request->validate([
+            'identifier' => ['required', 'string'],
             'password' => ['required'],
         ]);
 
         // Récupérer l'ID de session AVANT la tentative de connexion
         $sessionId = $request->session()->getId();
+        $identifier = $request->identifier;
+
         \Log::info('Login attempt', [
-            'email' => $credentials['email'],
+            'identifier' => $identifier,
             'session_id' => $sessionId
         ]);
 
@@ -46,11 +48,44 @@ class AuthController extends Controller
             'items_count' => $sessionCartItems
         ]);
 
-        if (Auth::attempt($credentials, $request->boolean('remember'))) {
+        // Déterminer si c'est un email ou un numéro de téléphone
+        $isEmail = filter_var($identifier, FILTER_VALIDATE_EMAIL);
+        $user = null;
+        $loginSuccessful = false;
+
+        // Chercher l'utilisateur par email ou téléphone
+        if ($isEmail) {
+            $user = User::where('email', $identifier)->first();
+            if ($user && $user->email) {
+                // Utiliser Auth::attempt avec l'email
+                $loginSuccessful = Auth::attempt(['email' => $identifier, 'password' => $request->password], $request->boolean('remember'));
+            }
+        } else {
+            // Nettoyer le numéro de téléphone
+            $cleanedPhone = preg_replace('/[^0-9]/', '', $identifier);
+            $user = User::where('numero_telephone', $cleanedPhone)->first();
+
+            // Si l'utilisateur existe, vérifier le mot de passe
+            if ($user) {
+                if ($user->email) {
+                    // Si l'utilisateur a un email, utiliser Auth::attempt
+                    $loginSuccessful = Auth::attempt(['email' => $user->email, 'password' => $request->password], $request->boolean('remember'));
+                } else {
+                    // Si pas d'email, vérifier le mot de passe manuellement
+                    if (Hash::check($request->password, $user->password)) {
+                        // Connecter l'utilisateur manuellement
+                        Auth::login($user, $request->boolean('remember'));
+                        $loginSuccessful = true;
+                    }
+                }
+            }
+        }
+
+        if ($loginSuccessful) {
             $user = Auth::user();
             \Log::info('Login successful', [
                 'user_id' => $user->id,
-                'user_email' => $user->email,
+                'identifier' => $identifier,
                 'session_id' => $sessionId
             ]);
 
@@ -82,7 +117,7 @@ class AuthController extends Controller
         }
 
         throw ValidationException::withMessages([
-            'email' => 'Ces identifiants ne correspondent pas à nos enregistrements.',
+            'identifier' => 'Ces identifiants ne correspondent pas à nos enregistrements.',
         ]);
     }
 
@@ -99,32 +134,54 @@ class AuthController extends Controller
      */
     public function register(Request $request)
     {
+        // Nettoyer le numéro de téléphone d'abord pour la validation
+        $cleanedPhone = preg_replace('/[^0-9]/', '', $request->numero_telephone);
+
         $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'nom' => ['required', 'string', 'max:255'],
+            'prenoms' => ['required', 'string', 'max:255'],
+            'commune' => ['required', 'string', 'max:255'],
+            'indicatif' => ['required', 'string', 'max:10'],
+            'numero_telephone' => ['required', 'string', 'max:20'],
+            'email' => ['nullable', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'terms' => ['required', 'accepted'],
+        ], [
+            'nom.required' => 'Le nom est obligatoire',
+            'prenoms.required' => 'Les prénoms sont obligatoires',
+            'commune.required' => 'Le quartier est obligatoire',
+            'indicatif.required' => 'L\'indicatif est obligatoire',
+            'numero_telephone.required' => 'Le numéro de téléphone est obligatoire',
+            'email.email' => 'L\'adresse email doit être valide',
+            'email.unique' => 'Cette adresse email est déjà utilisée',
+            'password.required' => 'Le mot de passe est obligatoire',
+            'password.min' => 'Le mot de passe doit contenir au moins 8 caractères',
+            'password.confirmed' => 'La confirmation du mot de passe ne correspond pas',
+            'terms.accepted' => 'Vous devez accepter les conditions d\'utilisation',
         ]);
+
+        // Vérifier l'unicité du numéro de téléphone nettoyé
+        $existingUser = User::where('numero_telephone', $cleanedPhone)->first();
+        if ($existingUser) {
+            return redirect()->back()->withErrors([
+                'numero_telephone' => 'Ce numéro de téléphone est déjà utilisé.'
+            ])->withInput();
+        }
 
         // Récupérer l'ID de session avant de créer l'utilisateur
         $sessionId = $request->session()->getId();
 
-        // Séparer le nom complet en nom et prénoms
-        $nameparts = explode(' ', $request->name, 2);
-        $prenoms = $nameparts[0];
-        $nom = $nameparts[1] ?? '';
-
         $user = User::create([
-            'nom' => $nom,
-            'prenoms' => $prenoms,
-            'email' => $request->email,
+            'nom' => $request->nom,
+            'prenoms' => $request->prenoms,
+            'email' => $request->email ?? null, // Email optionnel
             'password' => Hash::make($request->password),
             'account_type' => 'client', // Par défaut, les nouvelles inscriptions sont des clients
             'is_super_admin' => false,
-            'indicatif' => '+221',
-            'numero_telephone' => '',
+            'indicatif' => $request->indicatif,
+            'numero_telephone' => $cleanedPhone,
+            'commune' => $request->commune,
             'ville' => '',
-            'commune' => '',
         ]);
 
         Auth::login($user);
