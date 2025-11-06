@@ -5,12 +5,114 @@
 @push('styles')
 <style>
     .multi-step-form {
-        background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+        background: linear-gradient(135deg, #FF6B35 0%, #FF8C42 20%, #FFB830 40%, #FFD93D 60%, #FF6B35 80%, #FF4500 100%);
+        background-size: 400% 400%;
+        animation: gradientShift 15s ease infinite;
         min-height: 100vh;
         padding: 2rem 0;
         display: flex;
         align-items: center;
         justify-content: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Animation du gradient de fond */
+    @keyframes gradientShift {
+        0% {
+            background-position: 0% 50%;
+        }
+        50% {
+            background-position: 100% 50%;
+        }
+        100% {
+            background-position: 0% 50%;
+        }
+    }
+
+    /* Formes géométriques animées en arrière-plan */
+    .multi-step-form::before,
+    .multi-step-form::after {
+        content: '';
+        position: absolute;
+        width: 500px;
+        height: 500px;
+        border-radius: 50%;
+        filter: blur(80px);
+        animation: float 20s ease-in-out infinite;
+    }
+
+    .multi-step-form::before {
+        top: -250px;
+        left: -250px;
+        background: rgba(255, 107, 53, 0.3);
+        animation-delay: 0s;
+    }
+
+    .multi-step-form::after {
+        bottom: -250px;
+        right: -250px;
+        background: rgba(255, 184, 48, 0.3);
+        animation-delay: 10s;
+    }
+
+    @keyframes float {
+        0%, 100% {
+            transform: translate(0, 0) scale(1);
+        }
+        33% {
+            transform: translate(50px, 50px) scale(1.1);
+        }
+        66% {
+            transform: translate(-50px, -50px) scale(0.9);
+        }
+    }
+
+    /* Particules flottantes */
+    .background-particles {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        z-index: 0;
+    }
+
+    .particle {
+        position: absolute;
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        animation: particleFloat 15s infinite ease-in-out;
+        box-shadow: 0 0 6px currentColor;
+    }
+
+    .particle:nth-child(1) { left: 10%; background: rgba(255, 107, 53, 0.8); color: #FF6B35; animation-delay: 0s; }
+    .particle:nth-child(2) { left: 20%; background: rgba(255, 184, 48, 0.8); color: #FFB830; animation-delay: 2s; }
+    .particle:nth-child(3) { left: 30%; background: rgba(255, 217, 61, 0.8); color: #FFD93D; animation-delay: 4s; }
+    .particle:nth-child(4) { left: 40%; background: rgba(255, 140, 66, 0.8); color: #FF8C42; animation-delay: 6s; }
+    .particle:nth-child(5) { left: 50%; background: rgba(255, 69, 0, 0.8); color: #FF4500; animation-delay: 8s; }
+    .particle:nth-child(6) { left: 60%; background: rgba(255, 107, 53, 0.8); color: #FF6B35; animation-delay: 10s; }
+    .particle:nth-child(7) { left: 70%; background: rgba(255, 184, 48, 0.8); color: #FFB830; animation-delay: 12s; }
+    .particle:nth-child(8) { left: 80%; background: rgba(255, 217, 61, 0.8); color: #FFD93D; animation-delay: 14s; }
+    .particle:nth-child(9) { left: 90%; background: rgba(255, 140, 66, 0.8); color: #FF8C42; animation-delay: 16s; }
+
+    @keyframes particleFloat {
+        0% {
+            transform: translateY(100vh) translateX(0) rotate(0deg);
+            opacity: 0;
+        }
+        10% {
+            opacity: 1;
+        }
+        90% {
+            opacity: 1;
+        }
+        100% {
+            transform: translateY(-100px) translateX(100px) rotate(360deg);
+            opacity: 0;
+        }
     }
 
     .form-container {
@@ -18,33 +120,106 @@
         width: 100%;
         margin: 0 auto;
         padding: 0 1rem;
+        position: relative;
+        z-index: 10;
     }
 
     .form-card {
-        background: white;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
         border-radius: 24px;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.2);
         overflow: hidden;
         position: relative;
+        animation: cardFloat 6s ease-in-out infinite;
+    }
+
+    @keyframes cardFloat {
+        0%, 100% {
+            transform: translateY(0px);
+        }
+        50% {
+            transform: translateY(-10px);
+        }
     }
 
     .form-header {
-        background: linear-gradient(135deg, #FF6B35 0%, #FFB830 100%);
+        background: linear-gradient(135deg, #FF6B35 0%, #FFB830 50%, #FF6B35 100%);
+        background-size: 200% 200%;
+        animation: headerGradient 8s ease infinite;
         color: white;
         padding: 2rem 1.5rem;
         text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .form-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+        animation: headerShine 10s linear infinite;
+    }
+
+    @keyframes headerGradient {
+        0%, 100% {
+            background-position: 0% 50%;
+        }
+        50% {
+            background-position: 100% 50%;
+        }
+    }
+
+    @keyframes headerShine {
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
     }
 
     .form-header h1 {
         font-size: 1.75rem;
         font-weight: 800;
         margin: 0 0 0.5rem 0;
+        position: relative;
+        z-index: 1;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        animation: titlePulse 3s ease-in-out infinite;
+    }
+
+    @keyframes titlePulse {
+        0%, 100% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.02);
+        }
     }
 
     .form-header p {
         font-size: 0.95rem;
         opacity: 0.95;
         margin: 0;
+        position: relative;
+        z-index: 1;
+        animation: fadeInUp 0.8s ease;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 0.95;
+            transform: translateY(0);
+        }
     }
 
     .step-indicator {
@@ -60,18 +235,43 @@
         height: 12px;
         border-radius: 50%;
         background: #e0e0e0;
-        transition: all 0.3s ease;
+        transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
         position: relative;
+        cursor: pointer;
     }
 
     .step-dot.active {
-        background: #FF6B35;
+        background: linear-gradient(135deg, #FF6B35 0%, #FFB830 100%);
         width: 32px;
         border-radius: 6px;
+        box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+        animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% {
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+        }
+        50% {
+            box-shadow: 0 4px 20px rgba(255, 107, 53, 0.5);
+        }
     }
 
     .step-dot.completed {
-        background: #28A745;
+        background: linear-gradient(135deg, #28A745 0%, #20C997 100%);
+        animation: checkmark 0.5s ease;
+    }
+
+    @keyframes checkmark {
+        0% {
+            transform: scale(0.8);
+        }
+        50% {
+            transform: scale(1.1);
+        }
+        100% {
+            transform: scale(1);
+        }
     }
 
     .step-dot.completed::after {
@@ -91,21 +291,26 @@
 
     .step-content {
         display: none;
-        animation: fadeIn 0.3s ease;
+        opacity: 0;
+        transform: translateX(20px);
+        transition: opacity 0.5s ease, transform 0.5s ease;
     }
 
     .step-content.active {
         display: block;
+        opacity: 1;
+        transform: translateX(0);
+        animation: slideIn 0.5s ease;
     }
 
-    @keyframes fadeIn {
+    @keyframes slideIn {
         from {
             opacity: 0;
-            transform: translateY(10px);
+            transform: translateX(20px);
         }
         to {
             opacity: 1;
-            transform: translateY(0);
+            transform: translateX(0);
         }
     }
 
@@ -131,13 +336,22 @@
         transition: all 0.3s ease;
         background: white;
         box-sizing: border-box;
+        position: relative;
+    }
+
+    .form-group input:hover,
+    .form-group select:hover {
+        border-color: #FF6B35;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 107, 53, 0.15);
     }
 
     .form-group input:focus,
     .form-group select:focus {
         outline: none;
         border-color: #FF6B35;
-        box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+        box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1), 0 4px 12px rgba(255, 107, 53, 0.2);
+        transform: translateY(-2px);
     }
 
     .phone-input-group {
@@ -186,13 +400,45 @@
     }
 
     .btn-step-primary {
-        background: linear-gradient(135deg, #FF6B35 0%, #FFB830 100%);
+        background: linear-gradient(135deg, #FF6B35 0%, #FFB830 50%, #FF6B35 100%);
+        background-size: 200% 200%;
+        animation: buttonGradient 3s ease infinite;
         color: white;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-step-primary::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.5s;
+    }
+
+    .btn-step-primary:hover::before {
+        left: 100%;
+    }
+
+    @keyframes buttonGradient {
+        0%, 100% {
+            background-position: 0% 50%;
+        }
+        50% {
+            background-position: 100% 50%;
+        }
     }
 
     .btn-step-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+    }
+
+    .btn-step-primary:active {
+        transform: translateY(-1px) scale(0.98);
     }
 
     .btn-step-secondary {
@@ -203,6 +449,8 @@
 
     .btn-step-secondary:hover {
         background: #e9ecef;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
     .btn-step:disabled {
@@ -349,6 +597,18 @@
 
 @section('content')
 <section class="multi-step-form">
+    <!-- Particules animées en arrière-plan -->
+    <div class="background-particles">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
     <div class="form-container">
         <div class="form-card">
             <div class="form-header">
