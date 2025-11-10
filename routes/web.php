@@ -213,4 +213,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/errand/{errandRequest}/cancel', [App\Http\Controllers\ErrandController::class, 'cancel'])->name('errand.cancel');
 });
 
+// Route pour la politique de confidentialité
+Route::get('/privacy-policy', function () {
+    return view('policy-privacy');
+})->name('privacy-policy')->middleware('redirect.admin');
+
 
