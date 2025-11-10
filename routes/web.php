@@ -201,6 +201,10 @@ Route::prefix('profile')->name('profile.')->middleware(['auth', 'redirect.admin'
     Route::put('/addresses/{address}', [App\Http\Controllers\ProfileController::class, 'updateAddress'])->name('addresses.update');
     Route::delete('/addresses/{address}', [App\Http\Controllers\ProfileController::class, 'deleteAddress'])->name('addresses.delete');
     Route::post('/addresses/{address}/set-default', [App\Http\Controllers\ProfileController::class, 'setDefaultAddress'])->name('addresses.set-default');
+
+    // Suppression de compte
+    Route::get('/delete-account', [App\Http\Controllers\ProfileController::class, 'showDeleteAccount'])->name('delete-account');
+    Route::delete('/delete-account', [App\Http\Controllers\ProfileController::class, 'deleteAccount'])->name('delete-account.destroy');
 });
 
 // Routes pour les demandes de course

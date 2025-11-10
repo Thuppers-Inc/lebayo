@@ -226,4 +226,51 @@ class ProfileController extends Controller
 
         return redirect()->route('profile.addresses')->with('success', 'Adresse définie comme défaut !');
     }
+
+    /**
+     * Afficher la page de confirmation de suppression de compte
+     */
+    public function showDeleteAccount()
+    {
+        $user = Auth::user();
+        return view('profile.delete-account', compact('user'));
+    }
+
+    /**
+     * Supprimer le compte utilisateur
+     */
+    public function deleteAccount(Request $request)
+    {
+        $user = Auth::user();
+
+        // Valider la confirmation
+        $request->validate([
+            'password' => 'required',
+            'confirm_delete' => 'required|accepted'
+        ], [
+            'password.required' => 'Veuillez entrer votre mot de passe pour confirmer.',
+            'confirm_delete.required' => 'Vous devez confirmer la suppression de votre compte.',
+            'confirm_delete.accepted' => 'Vous devez confirmer la suppression de votre compte.'
+        ]);
+
+        // Vérifier le mot de passe
+        if (!Hash::check($request->password, $user->password)) {
+            return back()->withErrors(['password' => 'Le mot de passe est incorrect.']);
+        }
+
+        // Empêcher la suppression si l'utilisateur est un admin
+        if ($user->account_type === 'admin' || $user->is_super_admin) {
+            return back()->withErrors(['error' => 'Les comptes administrateurs ne peuvent pas être supprimés depuis cette interface.']);
+        }
+
+        // Déconnecter l'utilisateur avant la suppression
+        Auth::logout();
+
+        // Supprimer le compte (soft delete)
+        $user->delete();
+
+        // Rediriger vers la page d'accueil avec un message
+        return redirect()->route('home')
+            ->with('success', 'Votre compte a été supprimé avec succès. Nous sommes désolés de vous voir partir.');
+    }
 } 
