@@ -222,4 +222,22 @@ Route::get('/privacy-policy', function () {
     return view('policy-privacy');
 })->name('privacy-policy')->middleware('redirect.admin');
 
+// Route pour le téléchargement de l'application mobile
+Route::get('/download', function () {
+    // Calculer les statistiques dynamiques
+    $deliveredOrders = \App\Models\Order::where('status', \App\Models\Order::STATUS_DELIVERED)->count();
+    $completedErrands = \App\Models\ErrandRequest::where('status', \App\Models\ErrandRequest::STATUS_COMPLETED)->count();
+
+    $stats = [
+        'total_commerces' => \App\Models\Commerce::active()->count(),
+        'active_users' => \App\Models\User::where('account_type', \App\Models\AccountType::CLIENT)
+            ->whereHas('orders')
+            ->count(),
+        'delivered_orders' => $deliveredOrders + $completedErrands, // Commandes livrées + Errands effectués
+        'rating' => '4.8★' // Note statique
+    ];
+
+    return view('download', compact('stats'));
+})->name('download')->middleware('redirect.admin');
+
 
