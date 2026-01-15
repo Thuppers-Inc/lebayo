@@ -114,9 +114,14 @@
                                         </div>
                                         
                                         @if($product->is_available && $product->stock > 0)
+                                            @php
+                                                $isRealEstate = in_array($commerce->commerceType->name ?? '', ['Immobilier', 'Résidence Meublée']);
+                                                $buttonText = $isRealEstate ? 'Réserver' : 'Ajouter au panier';
+                                                $buttonIcon = $isRealEstate ? '🔑' : '🛒';
+                                            @endphp
                                             <button type="button" class="add-to-cart-btn" data-product-id="{{ $product->id }}" data-product-name="{{ $product->name }}">
-                                                <span class="cart-icon">🛒</span>
-                                                Ajouter au panier
+                                                <span class="cart-icon">{{ $buttonIcon }}</span>
+                                                {{ $buttonText }}
                                             </button>
                                         @else
                                             <button type="button" class="add-to-cart-btn disabled" disabled>
@@ -174,9 +179,17 @@ document.addEventListener('DOMContentLoaded', function() {
 function addToCart(productId, productName, button) {
     const originalText = button.innerHTML;
     
+    // Détecter si c'est de l'immobilier en vérifiant le texte du bouton
+    const isRealEstate = button.textContent.includes('Réserver');
+    const actionText = isRealEstate ? 'Réservation' : 'Ajout';
+    const successText = isRealEstate ? 'Réservé' : 'Ajouté';
+    const loadingText = isRealEstate ? 'Réservation...' : 'Ajout...';
+    const successMessage = isRealEstate ? `${productName} réservé !` : `${productName} ajouté au panier !`;
+    const errorMessage = isRealEstate ? 'Erreur lors de la réservation' : 'Erreur lors de l\'ajout au panier';
+    
     // Désactiver le bouton et montrer le loading
     button.disabled = true;
-    button.innerHTML = '<span class="cart-icon">⏳</span> Ajout...';
+    button.innerHTML = `<span class="cart-icon">⏳</span> ${loadingText}`;
     
     fetch(`/cart/add/${productId}`, {
         method: 'POST',
@@ -201,14 +214,14 @@ function addToCart(productId, productName, button) {
         
         if (data.success) {
             // Animation de succès
-            button.innerHTML = '<span class="cart-icon">✅</span> Ajouté !';
+            button.innerHTML = `<span class="cart-icon">✅</span> ${successText} !`;
             button.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
             
             // Mettre à jour le compteur du panier dans le header
             updateCartCounter(data.cart.total_items);
             
             // Afficher une notification
-            showNotification(`${productName} ajouté au panier !`, 'success');
+            showNotification(successMessage, 'success');
             
             // Restaurer le bouton après 2 secondes
             setTimeout(() => {
@@ -221,7 +234,7 @@ function addToCart(productId, productName, button) {
             button.innerHTML = '<span class="cart-icon">❌</span> Erreur';
             button.style.background = 'linear-gradient(135deg, #dc3545, #c82333)';
             
-            showNotification(data.message || 'Erreur lors de l\'ajout au panier', 'error');
+            showNotification(data.message || errorMessage, 'error');
             
             // Restaurer le bouton après 2 secondes
             setTimeout(() => {
