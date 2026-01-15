@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 class Commerce extends Model
 {
@@ -12,6 +13,7 @@ class Commerce extends Model
 
     protected $fillable = [
         'name',
+        'slug',
         'logo',
         'commerce_type_id',
         'city',
@@ -164,5 +166,94 @@ class Commerce extends Model
     public function scopeByCity($query, $city)
     {
         return $query->where('city', 'LIKE', '%' . $city . '%');
+    }
+
+    /**
+     * Boot method pour générer automatiquement le slug
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($commerce) {
+            if (empty($commerce->slug)) {
+                $baseSlug = Str::slug($commerce->name);
+                $slug = $baseSlug;
+                $counter = 1;
+                
+                // Vérifier l'unicité du slug
+                while (static::where('slug', $slug)->exists()) {
+                    $slug = $baseSlug . '-' . $counter;
+                    $counter++;
+                }
+                
+                $commerce->slug = $slug;
+            }
+        });
+
+        static::updating(function ($commerce) {
+            if ($commerce->isDirty('name') && empty($commerce->slug)) {
+                $baseSlug = Str::slug($commerce->name);
+                $slug = $baseSlug;
+                $counter = 1;
+                
+                // Vérifier l'unicité du slug (en excluant l'ID actuel)
+                while (static::where('slug', $slug)->where('id', '!=', $commerce->id)->exists()) {
+                    $slug = $baseSlug . '-' . $counter;
+                    $counter++;
+                }
+                
+                $commerce->slug = $slug;
+            }
+        });
+    }
+
+    /**
+     * Obtenir la clé de route pour le binding de modèle
+     */
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
+
+    /**
+     * Accessor pour la note (rating) stable basée sur l'ID
+     * Génère une note entre 3.2 et 4.9 qui reste constante pour chaque commerce
+     */
+    public function getRatingAttribute()
+    {
+        // Génère une note stable entre 3.2 et 4.9 basée sur l'ID
+        // Utilise un modulo pour garantir une valeur stable
+        $seed = $this->id * 17 + 23; // Multiplicateur pour varier les notes
+        $rating = 3.2 + (($seed % 18) / 10); // Entre 3.2 et 4.9
+        
+        return round($rating, 1);
+    }
+
+    /**
+     * Accessor pour le nombre d'avis (reviews count) stable basé sur l'ID
+     * Génère un nombre d'avis réaliste qui reste constant
+     */
+    public function getReviewsCountAttribute()
+    {
+        // Génère un nombre d'avis stable entre 25 et 350 basé sur l'ID
+        $seed = $this->id * 13 + 7;
+        $count = 25 + ($seed % 326); // Entre 25 et 350
+        
+        return $count;
+    }
+
+    /**
+     * Accessor pour le temps de livraison estimé stable
+     * Génère un temps entre 15-45 min qui reste constant
+     */
+    public function getEstimatedDeliveryTimeAttribute()
+    {
+        // Génère un temps stable basé sur l'ID
+        $seed = $this->id * 11 + 5;
+        $minTime = 15 + ($seed % 21); // Entre 15 et 35
+        $maxTime = $minTime + 10 + (($seed * 3) % 11); // Entre minTime+10 et minTime+20
+        
+        return $minTime . '-' . $maxTime;
     }
 } 

@@ -63,7 +63,7 @@
                                         <h3 class="commerce-name">{{ $commerce->name }}</h3>
                                         <div class="commerce-rating">
                                             <span class="rating-star">⭐</span>
-                                            <span class="rating-value">{{ number_format(rand(32, 39) / 10, 1) }}</span>
+                                            <span class="rating-value">{{ number_format($commerce->rating, 1) }}</span>
                                         </div>
                                     </div>
                                     

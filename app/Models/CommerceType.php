@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 class CommerceType extends Model
 {
@@ -17,6 +18,7 @@ class CommerceType extends Model
      */
     protected $fillable = [
         'name',
+        'slug',
         'emoji',
         'description',
         'is_active',
@@ -32,6 +34,34 @@ class CommerceType extends Model
         return [
             'is_active' => 'boolean',
         ];
+    }
+
+    /**
+     * Boot method pour générer automatiquement le slug
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($commerceType) {
+            if (empty($commerceType->slug)) {
+                $commerceType->slug = Str::slug($commerceType->name);
+            }
+        });
+
+        static::updating(function ($commerceType) {
+            if ($commerceType->isDirty('name') && empty($commerceType->slug)) {
+                $commerceType->slug = Str::slug($commerceType->name);
+            }
+        });
+    }
+
+    /**
+     * Obtenir la clé de route pour le binding de modèle
+     */
+    public function getRouteKeyName()
+    {
+        return 'slug';
     }
 
     /**

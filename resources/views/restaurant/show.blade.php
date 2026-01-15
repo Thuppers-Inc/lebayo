@@ -19,12 +19,12 @@
                         <div class="restaurant-badges">
                             <div class="rating-badge">
                                 <span class="rating-star">⭐</span>
-                                <span class="rating-value">{{ number_format(rand(32, 39) / 10, 1) }}</span>
-                                <span class="rating-count">({{ rand(50, 300) }} avis)</span>
+                                <span class="rating-value">{{ number_format($commerce->rating, 1) }}</span>
+                                <span class="rating-count">({{ $commerce->reviews_count }} avis)</span>
                             </div>
                             <div class="delivery-badge">
                                 <span class="delivery-icon">🚚</span>
-                                <span class="delivery-text">{{ rand(15, 35) }}-{{ rand(25, 45) }} min</span>
+                                <span class="delivery-text">{{ $commerce->estimated_delivery_time }} min</span>
                             </div>
                             <div class="location-badge">
                                 <span class="location-icon">📍</span>
@@ -347,10 +347,63 @@ function showNotification(message, type = 'success') {
         left: 10px;
         transform: translateY(-100px);
         max-width: none;
+        padding: 0.875rem 1.25rem;
     }
     
     .notification.show {
         transform: translateY(0);
+    }
+
+    .notification-icon {
+        font-size: 1.1rem;
+    }
+
+    .notification-message {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .notification {
+        right: 8px;
+        left: 8px;
+        top: 10px;
+        padding: 0.75rem 1rem;
+        border-radius: 10px;
+    }
+
+    .notification-icon {
+        font-size: 1rem;
+    }
+
+    .notification-message {
+        font-size: 13px;
+    }
+
+    .notification-content {
+        gap: 0.5rem;
+    }
+}
+
+@media (max-width: 360px) {
+    .notification {
+        right: 6px;
+        left: 6px;
+        top: 8px;
+        padding: 0.625rem 0.875rem;
+        border-radius: 8px;
+    }
+
+    .notification-icon {
+        font-size: 0.9rem;
+    }
+
+    .notification-message {
+        font-size: 12px;
+    }
+
+    .notification-content {
+        gap: 0.4rem;
     }
 }
 </style>

@@ -67,7 +67,7 @@
                                 <h3 class="commerce-name">{{ $commerce->name }}</h3>
                                 <div class="commerce-rating">
                                     <span class="rating-star">⭐</span>
-                                    <span class="rating-value">{{ number_format(rand(32, 39) / 10, 1) }}</span>
+                                    <span class="rating-value">{{ number_format($commerce->rating, 1) }}</span>
                                 </div>
                             </div>
                             
@@ -86,7 +86,7 @@
                                 </div>
                                 <div class="meta-item">
                                     <span class="meta-icon">🕒</span>
-                                    <span class="meta-text">{{ rand(15, 35) }}-{{ rand(25, 45) }} min</span>
+                                    <span class="meta-text">{{ $commerce->estimated_delivery_time }} min</span>
                                 </div>
                             </div>
                             

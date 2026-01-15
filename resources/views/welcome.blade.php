@@ -235,7 +235,7 @@
                         <h3 class="restaurant-name">{{ $restaurant->name }}</h3>
                         <div class="restaurant-rating">
                             <span class="rating-star">⭐</span>
-                            <span class="rating-value">{{ number_format(rand(32, 39) / 10, 1) }}</span>
+                            <span class="rating-value">{{ number_format($restaurant->rating, 1) }}</span>
                         </div>
                     </div>
                     
@@ -245,11 +245,10 @@
                         <div class="meta-item">
                             <span class="meta-icon">📍</span>
                             <span class="meta-text">{{ $restaurant->city }}</span>
-                            <span class="meta-distance">{{ rand(1, 5) }} km</span>
                         </div>
                         <div class="meta-item">
                             <span class="meta-icon">🕒</span>
-                            <span class="meta-text">{{ rand(15, 35) }} min</span>
+                            <span class="meta-text">{{ $restaurant->estimated_delivery_time }} min</span>
                         </div>
                     </div>
                 </div>

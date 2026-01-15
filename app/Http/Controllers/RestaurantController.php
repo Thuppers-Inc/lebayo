@@ -30,7 +30,7 @@ class RestaurantController extends Controller
         // Grouper les produits par catégorie
         $productsByCategory = $commerce->products->groupBy('category.name');
 
-        // Ajouter une image de fond pour le restaurant
+        // Ajouter une image de fond stable pour le restaurant (basée sur l'ID pour rester constante)
         $headerImages = [
             'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200&h=400&fit=crop',
             'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&h=400&fit=crop',
@@ -39,7 +39,9 @@ class RestaurantController extends Controller
             'https://images.unsplash.com/photo-1481931098730-318b6f776db0?w=1200&h=400&fit=crop',
         ];
         
-        $commerce->header_image = $headerImages[array_rand($headerImages)];
+        // Sélection stable basée sur l'ID du commerce (reste la même à chaque chargement)
+        $imageIndex = $commerce->id % count($headerImages);
+        $commerce->header_image = $headerImages[$imageIndex];
 
         // Calculer quelques statistiques
         $totalProducts = $commerce->products->count();
