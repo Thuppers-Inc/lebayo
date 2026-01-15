@@ -318,7 +318,7 @@ function showNotification(message, type = 'success') {
 
 .notification {
     position: fixed;
-    top: 20px;
+    top: max(calc(env(safe-area-inset-top) + 20px), 20px);
     right: 20px;
     z-index: 10000;
     background: white;
@@ -358,6 +358,7 @@ function showNotification(message, type = 'success') {
     .notification {
         right: 10px;
         left: 10px;
+        top: max(calc(env(safe-area-inset-top) + 16px), 16px);
         transform: translateY(-100px);
         max-width: none;
         padding: 0.875rem 1.25rem;
@@ -380,7 +381,7 @@ function showNotification(message, type = 'success') {
     .notification {
         right: 8px;
         left: 8px;
-        top: 10px;
+        top: max(calc(env(safe-area-inset-top) + 14px), 14px);
         padding: 0.75rem 1rem;
         border-radius: 10px;
     }
@@ -402,7 +403,7 @@ function showNotification(message, type = 'success') {
     .notification {
         right: 6px;
         left: 6px;
-        top: 8px;
+        top: max(calc(env(safe-area-inset-top) + 12px), 12px);
         padding: 0.625rem 0.875rem;
         border-radius: 8px;
     }
