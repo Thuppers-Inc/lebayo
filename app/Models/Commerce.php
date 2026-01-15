@@ -217,6 +217,16 @@ class Commerce extends Model
     }
 
     /**
+     * Résoudre le modèle pour le route model binding
+     */
+    public function resolveRouteBinding($value, $field = null)
+    {
+        $field = $field ?: $this->getRouteKeyName();
+        
+        return $this->where($field, $value)->firstOrFail();
+    }
+
+    /**
      * Accessor pour la note (rating) stable basée sur l'ID
      * Génère une note entre 3.2 et 4.9 qui reste constante pour chaque commerce
      */

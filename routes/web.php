@@ -14,12 +14,6 @@ use App\Http\Controllers\Admin\DeliverySettingsController;
 
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home')->middleware('redirect.admin');
 
-// Route pour afficher un restaurant spécifique
-Route::get('/restaurant/{commerce}', [App\Http\Controllers\RestaurantController::class, 'show'])->name('restaurant.show')->middleware('redirect.admin');
-
-// Route pour afficher les commerces d'un type spécifique
-Route::get('/type/{commerceType}', [App\Http\Controllers\CommerceTypeController::class, 'show'])->name('commerce-type.show')->middleware('redirect.admin');
-
 // Routes de recherche
 Route::get('/search', [App\Http\Controllers\SearchController::class, 'search'])->name('search')->middleware('redirect.admin');
 Route::get('/api/search/autocomplete', [App\Http\Controllers\SearchController::class, 'autocomplete'])->name('search.autocomplete');
@@ -240,4 +234,16 @@ Route::get('/download', function () {
     return view('download', compact('stats'));
 })->name('download')->middleware('redirect.admin');
 
+// Route pour afficher un commerce spécifique (doit être AVANT les types pour éviter les conflits)
+// Exemple: /commerce/chawama-du-grand-carrefour-commerce
+Route::get('/commerce/{commerce}', [App\Http\Controllers\RestaurantController::class, 'show'])
+    ->name('commerce.show')
+    ->middleware('redirect.admin');
+
+// Routes dynamiques pour les types de commerce (doivent être en dernier pour éviter les conflits)
+// Exemple: /restaurants, /magasins, etc.
+Route::get('/{commerceType}', [App\Http\Controllers\CommerceTypeController::class, 'show'])
+    ->where('commerceType', '^(?!admin|login|register|search|cart|checkout|profile|errand|privacy-policy|download|api|commerce).+')
+    ->name('commerce-type.show')
+    ->middleware('redirect.admin');
 

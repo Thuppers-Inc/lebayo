@@ -65,6 +65,16 @@ class CommerceType extends Model
     }
 
     /**
+     * Résoudre le modèle pour le route model binding
+     */
+    public function resolveRouteBinding($value, $field = null)
+    {
+        $field = $field ?: $this->getRouteKeyName();
+        
+        return $this->where($field, $value)->firstOrFail();
+    }
+
+    /**
      * Obtenir seulement les types de commerce actifs
      */
     public function scopeActive($query)

@@ -43,7 +43,7 @@
         @if($commerces->count() > 0)
             <div class="commerces-grid">
                 @foreach($commerces as $commerce)
-                    <a href="{{ route('restaurant.show', $commerce) }}" class="commerce-card">
+                    <a href="{{ route('commerce.show', $commerce) }}" class="commerce-card">
                         <div class="commerce-image" style="background-image: url('{{ $commerce->placeholder_image }}');">
                             <div class="commerce-overlay">
                                 @if($commerce->products_count >= 20)

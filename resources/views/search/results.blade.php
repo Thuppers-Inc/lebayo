@@ -51,7 +51,7 @@
                     
                     <div class="commerces-results-grid">
                         @foreach($commerces as $commerce)
-                            <a href="{{ route('restaurant.show', $commerce) }}" class="commerce-result-card">
+                            <a href="{{ route('commerce.show', $commerce) }}" class="commerce-result-card">
                                 <div class="commerce-image" style="background-image: url('{{ $commerce->placeholder_image }}');">
                                     <div class="commerce-overlay">
                                         <div class="commerce-badge">{{ $commerce->commerceType->name }}</div>
@@ -98,7 +98,7 @@
                     
                     <div class="products-results-grid">
                         @foreach($products as $product)
-                            <a href="{{ route('restaurant.show', $product->commerce) }}" class="product-result-card">
+                            <a href="{{ route('commerce.show', $product->commerce) }}" class="product-result-card">
                                 <div class="product-image">
                                     <img src="{{ $product->image_url }}" alt="{{ $product->name }}">
                                     @if($product->is_featured)

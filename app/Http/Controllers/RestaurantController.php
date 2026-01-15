@@ -9,13 +9,13 @@ use Illuminate\Http\Request;
 class RestaurantController extends Controller
 {
     /**
-     * Afficher les détails d'un restaurant et ses produits
+     * Afficher les détails d'un commerce et ses produits
      */
     public function show(Commerce $commerce)
     {
         // Vérifier que le commerce est actif
         if (!$commerce->is_active) {
-            abort(404, 'Ce restaurant n\'est pas disponible.');
+            abort(404, 'Ce commerce n\'est pas disponible.');
         }
 
         // Charger les relations nécessaires

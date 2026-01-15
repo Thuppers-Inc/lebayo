@@ -161,7 +161,7 @@
     
             <div class="grocery-grid">
                 @foreach($type->commerces->take(3) as $commerce)
-                <a href="{{ route('restaurant.show', $commerce) }}" class="grocery-category-card">
+                <a href="{{ route('commerce.show', $commerce) }}" class="grocery-category-card">
                     <div class="grocery-image" style="background-image: url('{{ $commerce->placeholder_image }}');">
                         <div class="grocery-overlay">
                             @if($commerce->is_active)
@@ -211,7 +211,7 @@
 
         <div class="featured-restaurants-grid">
             @forelse($popularRestaurants as $index => $restaurant)
-            <a href="{{ route('restaurant.show', $restaurant) }}" class="featured-restaurant-card">
+            <a href="{{ route('commerce.show', $restaurant) }}" class="featured-restaurant-card">
                 <div class="restaurant-image-bg" style="background-image: url('{{ $restaurant->placeholder_image ?? $restaurant->logo_url }}');">
                     <div class="restaurant-overlay">
                         @if($index === 1)

@@ -97,7 +97,7 @@ class SearchController extends Controller
                     'id' => $commerce->id,
                     'name' => $commerce->name,
                     'subtitle' => $commerce->city . ' • ' . $commerce->commerceType->name,
-                    'url' => route('restaurant.show', $commerce),
+                    'url' => route('commerce.show', $commerce),
                     'icon' => '🏪'
                 ];
             });
@@ -119,7 +119,7 @@ class SearchController extends Controller
                     'id' => $product->id,
                     'name' => $product->name,
                     'subtitle' => $product->commerce->name . ' • ' . number_format($product->price) . 'F',
-                    'url' => route('restaurant.show', $product->commerce),
+                    'url' => route('commerce.show', $product->commerce),
                     'icon' => '🛍️'
                 ];
             });
