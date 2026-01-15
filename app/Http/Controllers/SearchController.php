@@ -83,7 +83,7 @@ class SearchController extends Controller
 
         // Recherche dans les commerces (5 résultats max)
         $commerces = Commerce::active()
-            ->select('id', 'name', 'city', 'commerce_type_id')
+            ->select('id', 'name', 'slug', 'city', 'commerce_type_id')
             ->with('commerceType:id,name')
             ->where(function($q) use ($query) {
                 $q->where('name', 'LIKE', '%' . $query . '%')
@@ -105,7 +105,7 @@ class SearchController extends Controller
         // Recherche dans les produits (5 résultats max)
         $products = Product::available()
             ->select('id', 'name', 'price', 'commerce_id')
-            ->with('commerce:id,name')
+            ->with('commerce:id,name,slug')
             ->withActiveCommerce()
             ->whereHas('commerce', function($q) {
                 $q->where('is_active', true);
