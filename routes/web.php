@@ -119,11 +119,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // Gestion complète des demandes de course (admin seulement - création, modification, suppression)
         Route::resource('errand-requests', \App\Http\Controllers\Admin\ErrandRequestController::class)->except(['index', 'show', 'update-status', 'logs', 'stats', 'export']);
-        Route::post('errand-requests/{errandRequest}/create', [\App\Http\Controllers\Admin\ErrandRequestController::class, 'create'])->name('errand-requests.create');
-        Route::post('errand-requests', [\App\Http\Controllers\Admin\ErrandRequestController::class, 'store'])->name('errand-requests.store');
-        Route::get('errand-requests/{errandRequest}/edit', [\App\Http\Controllers\Admin\ErrandRequestController::class, 'edit'])->name('errand-requests.edit');
-        Route::put('errand-requests/{errandRequest}', [\App\Http\Controllers\Admin\ErrandRequestController::class, 'update'])->name('errand-requests.update');
-        Route::delete('errand-requests/{errandRequest}', [\App\Http\Controllers\Admin\ErrandRequestController::class, 'destroy'])->name('errand-requests.destroy');
 
         // Gestion du profil admin
         Route::get('profile', [\App\Http\Controllers\Admin\AdminProfileController::class, 'index'])->name('profile.index');
