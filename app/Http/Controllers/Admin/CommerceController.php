@@ -57,9 +57,33 @@ class CommerceController extends Controller
             'description' => 'nullable|string',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'is_active' => 'boolean',
+            'opening_hours' => 'nullable|array',
             'categories' => 'nullable|array',
             'categories.*' => 'exists:categories,id'
         ]);
+
+        // Traiter les horaires d'ouverture
+        if ($request->has('opening_hours')) {
+            $openingHours = [];
+            $days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+            
+            foreach ($days as $day) {
+                $dayData = $request->input("opening_hours.{$day}", []);
+                
+                if (isset($dayData['closed']) && $dayData['closed'] == '1') {
+                    $openingHours[$day] = ['closed' => true];
+                } elseif (isset($dayData['open_24h']) && $dayData['open_24h'] == '1') {
+                    $openingHours[$day] = ['open_24h' => true];
+                } elseif (!empty($dayData['open']) && !empty($dayData['close'])) {
+                    $openingHours[$day] = [
+                        'open' => $dayData['open'],
+                        'close' => $dayData['close']
+                    ];
+                }
+            }
+            
+            $validated['opening_hours'] = !empty($openingHours) ? $openingHours : null;
+        }
 
         // Gestion du logo
         if ($request->hasFile('logo')) {
@@ -146,9 +170,33 @@ class CommerceController extends Controller
             'description' => 'nullable|string',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'is_active' => 'boolean',
+            'opening_hours' => 'nullable|array',
             'categories' => 'nullable|array',
             'categories.*' => 'exists:categories,id'
         ]);
+
+        // Traiter les horaires d'ouverture
+        if ($request->has('opening_hours')) {
+            $openingHours = [];
+            $days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+            
+            foreach ($days as $day) {
+                $dayData = $request->input("opening_hours.{$day}", []);
+                
+                if (isset($dayData['closed']) && $dayData['closed'] == '1') {
+                    $openingHours[$day] = ['closed' => true];
+                } elseif (isset($dayData['open_24h']) && $dayData['open_24h'] == '1') {
+                    $openingHours[$day] = ['open_24h' => true];
+                } elseif (!empty($dayData['open']) && !empty($dayData['close'])) {
+                    $openingHours[$day] = [
+                        'open' => $dayData['open'],
+                        'close' => $dayData['close']
+                    ];
+                }
+            }
+            
+            $validated['opening_hours'] = !empty($openingHours) ? $openingHours : null;
+        }
 
         // Gestion du logo
         if ($request->hasFile('logo')) {

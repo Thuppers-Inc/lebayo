@@ -381,6 +381,69 @@
                         <textarea class="form-control admin-form-control" id="description" name="description" rows="3" placeholder="Description du commerce..."></textarea>
                         <div class="invalid-feedback" id="description-error"></div>
                     </div>
+
+                    <!-- Horaires d'ouverture -->
+                    <div class="mb-3">
+                        <label class="form-label">Horaires d'ouverture</label>
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <small class="text-muted d-block mb-3">Configurez les horaires pour chaque jour. Si non configuré, le commerce sera considéré comme toujours ouvert.</small>
+                                @php
+                                    $days = [
+                                        'monday' => 'Lundi',
+                                        'tuesday' => 'Mardi',
+                                        'wednesday' => 'Mercredi',
+                                        'thursday' => 'Jeudi',
+                                        'friday' => 'Vendredi',
+                                        'saturday' => 'Samedi',
+                                        'sunday' => 'Dimanche'
+                                    ];
+                                @endphp
+                                @foreach($days as $dayKey => $dayName)
+                                    <div class="row mb-2 align-items-center">
+                                        <div class="col-md-2">
+                                            <strong>{{ $dayName }}</strong>
+                                        </div>
+                                        <div class="col-md-10">
+                                            <div class="d-flex gap-2 align-items-center flex-wrap">
+                                                <div class="form-check">
+                                                    <input class="form-check-input day-closed" type="checkbox" 
+                                                           id="closed_{{ $dayKey }}" 
+                                                           name="opening_hours[{{ $dayKey }}][closed]" 
+                                                           value="1"
+                                                           onchange="toggleDayHours('{{ $dayKey }}')">
+                                                    <label class="form-check-label" for="closed_{{ $dayKey }}">Fermé</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input day-24h" type="checkbox" 
+                                                           id="open_24h_{{ $dayKey }}" 
+                                                           name="opening_hours[{{ $dayKey }}][open_24h]" 
+                                                           value="1"
+                                                           onchange="toggleDayHours('{{ $dayKey }}')">
+                                                    <label class="form-check-label" for="open_24h_{{ $dayKey }}">24/24</label>
+                                                </div>
+                                                <div class="day-hours-inputs d-flex gap-2 align-items-center">
+                                                    <input type="time" 
+                                                           class="form-control form-control-sm" 
+                                                           id="open_{{ $dayKey }}" 
+                                                           name="opening_hours[{{ $dayKey }}][open]" 
+                                                           placeholder="Ouverture"
+                                                           style="width: 120px;">
+                                                    <span>-</span>
+                                                    <input type="time" 
+                                                           class="form-control form-control-sm" 
+                                                           id="close_{{ $dayKey }}" 
+                                                           name="opening_hours[{{ $dayKey }}][close]" 
+                                                           placeholder="Fermeture"
+                                                           style="width: 120px;">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="modal-footer">
@@ -491,6 +554,11 @@ function createFallbackFunctions() {
             document.getElementById('email').value = commerce.email || '';
             document.getElementById('description').value = commerce.description || '';
             document.getElementById('is_active').checked = commerce.is_active;
+            
+            // Charger les horaires d'ouverture
+            if (commerce.opening_hours) {
+                loadOpeningHours(commerce.opening_hours);
+            }
             
             // Afficher le logo actuel
             if (commerce.logo_url) {
@@ -677,6 +745,11 @@ function createOptimizedFunctions() {
                     document.getElementById('description').value = commerce.description || '';
                     document.getElementById('is_active').checked = commerce.is_active;
                     
+                    // Charger les horaires d'ouverture
+                    if (commerce.opening_hours) {
+                        loadOpeningHours(commerce.opening_hours);
+                    }
+                    
                     if (commerce.logo_url) {
                         document.getElementById('logoPreview').src = commerce.logo_url;
                         document.getElementById('currentLogo').classList.remove('d-none');
@@ -832,6 +905,69 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 });
     }
+
+    // Fonction pour gérer les horaires d'ouverture
+    window.toggleDayHours = function(day) {
+        const closedCheckbox = document.getElementById(`closed_${day}`);
+        const open24hCheckbox = document.getElementById(`open_24h_${day}`);
+        const openInput = document.getElementById(`open_${day}`);
+        const closeInput = document.getElementById(`close_${day}`);
+        
+        // Vérifier que tous les éléments existent
+        if (!closedCheckbox || !open24hCheckbox || !openInput || !closeInput) {
+            console.warn(`Éléments manquants pour le jour ${day}`);
+            return;
+        }
+        
+        if (closedCheckbox.checked) {
+            open24hCheckbox.checked = false;
+            openInput.disabled = true;
+            closeInput.disabled = true;
+        } else if (open24hCheckbox.checked) {
+            closedCheckbox.checked = false;
+            openInput.disabled = true;
+            closeInput.disabled = true;
+        } else {
+            openInput.disabled = false;
+            closeInput.disabled = false;
+        }
+    };
+
+    // Charger les horaires lors de l'édition
+    window.loadOpeningHours = function(openingHours) {
+        if (!openingHours) return;
+        
+        Object.keys(openingHours).forEach(day => {
+            const dayData = openingHours[day];
+            const closedCheckbox = document.getElementById(`closed_${day}`);
+            const open24hCheckbox = document.getElementById(`open_24h_${day}`);
+            const openInput = document.getElementById(`open_${day}`);
+            const closeInput = document.getElementById(`close_${day}`);
+            
+            // Vérifier que les éléments existent avant de les manipuler
+            if (!closedCheckbox || !open24hCheckbox || !openInput || !closeInput) {
+                console.warn(`Éléments manquants pour le jour ${day}`);
+                return;
+            }
+            
+            // Réinitialiser l'état du jour
+            closedCheckbox.checked = false;
+            open24hCheckbox.checked = false;
+            openInput.disabled = false;
+            closeInput.disabled = false;
+            
+            if (dayData.closed === true) {
+                closedCheckbox.checked = true;
+                toggleDayHours(day);
+            } else if (dayData.open_24h === true) {
+                open24hCheckbox.checked = true;
+                toggleDayHours(day);
+            } else if (dayData.open && dayData.close) {
+                openInput.value = dayData.open;
+                closeInput.value = dayData.close;
+            }
+        });
+    };
 
     console.log('✅ Initialisation terminée');
 });

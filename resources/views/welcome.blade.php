@@ -161,14 +161,17 @@
     
             <div class="grocery-grid">
                 @foreach($type->commerces->take(3) as $commerce)
-                <a href="{{ route('commerce.show', $commerce) }}" class="grocery-category-card">
+                @php
+                    $isOpen = $commerce->isOpen();
+                    $isRealEstate = in_array($commerce->commerceType->name ?? '', ['Immobilier', 'Résidence Meublée']);
+                @endphp
+                <a href="{{ route('commerce.show', $commerce) }}" class="grocery-category-card {{ !$isOpen ? 'commerce-closed' : '' }}">
                     <div class="grocery-image" style="background-image: url('{{ $commerce->placeholder_image }}');">
                         <div class="grocery-overlay">
-                            @if($commerce->is_active)
-                                <div class="grocery-badge">✅ Ouvert</div>
-                            @else
-                                <div class="grocery-badge">❌ Fermé</div>
-                            @endif
+                            <div class="status-badge status-badge-{{ $commerce->status_class }}">
+                                <span class="status-icon">{{ $commerce->status_icon }}</span>
+                                <span class="status-label">{{ $commerce->status_label }}</span>
+                            </div>
                         </div>
                     </div>
                     <div class="grocery-info">

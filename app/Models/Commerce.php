@@ -218,12 +218,22 @@ class Commerce extends Model
 
     /**
      * Résoudre le modèle pour le route model binding
+     * Gère à la fois les IDs numériques (pour l'admin) et les slugs (pour le frontend)
      */
     public function resolveRouteBinding($value, $field = null)
     {
-        $field = $field ?: $this->getRouteKeyName();
+        // Si un champ spécifique est demandé, l'utiliser
+        if ($field !== null) {
+            return $this->where($field, $value)->firstOrFail();
+        }
         
-        return $this->where($field, $value)->firstOrFail();
+        // Si c'est un ID numérique (pour les routes admin), chercher par ID
+        if (is_numeric($value)) {
+            return $this->where('id', $value)->firstOrFail();
+        }
+        
+        // Sinon, chercher par slug (pour les routes frontend)
+        return $this->where('slug', $value)->firstOrFail();
     }
 
     /**
@@ -265,5 +275,96 @@ class Commerce extends Model
         $maxTime = $minTime + 10 + (($seed * 3) % 11); // Entre minTime+10 et minTime+20
         
         return $minTime . '-' . $maxTime;
+    }
+
+    /**
+     * Vérifie si le commerce est ouvert selon les horaires
+     * Retourne true si ouvert, false si fermé
+     */
+    public function isOpen(): bool
+    {
+        // Si pas d'horaires configurés, considérer comme toujours ouvert
+        if (empty($this->opening_hours) || !is_array($this->opening_hours)) {
+            return true;
+        }
+
+        $now = now();
+        // Carbon retourne les jours en anglais en minuscules
+        $currentDay = strtolower($now->format('l')); // 'monday', 'tuesday', etc.
+        $currentTime = $now->format('H:i'); // '14:30'
+
+        // Vérifier si le jour actuel est dans les horaires
+        if (!isset($this->opening_hours[$currentDay])) {
+            // Si le jour n'est pas configuré, considérer comme ouvert (comportement par défaut)
+            return true;
+        }
+
+        $dayHours = $this->opening_hours[$currentDay];
+
+        // Si fermé ce jour
+        if (isset($dayHours['closed']) && $dayHours['closed'] === true) {
+            return false;
+        }
+
+        // Si ouvert 24/7 ce jour
+        if (isset($dayHours['open_24h']) && $dayHours['open_24h'] === true) {
+            return true;
+        }
+
+        // Vérifier les heures d'ouverture/fermeture
+        if (isset($dayHours['open']) && isset($dayHours['close'])) {
+            $openTime = $dayHours['open'];
+            $closeTime = $dayHours['close'];
+
+            // Gérer le cas où la fermeture est après minuit (ex: 22:00 - 02:00)
+            if ($closeTime < $openTime) {
+                // Le commerce ferme le lendemain
+                return $currentTime >= $openTime || $currentTime <= $closeTime;
+            } else {
+                // Horaires normaux
+                return $currentTime >= $openTime && $currentTime <= $closeTime;
+            }
+        }
+
+        // Si les horaires ne sont pas valides mais le jour est configuré, considérer comme ouvert
+        return true;
+    }
+
+    /**
+     * Accessor pour le statut (ouvert/fermé ou disponible/indisponible)
+     */
+    public function getStatusAttribute(): string
+    {
+        return $this->isOpen() ? 'open' : 'closed';
+    }
+
+    /**
+     * Accessor pour le label du statut selon le type de commerce
+     */
+    public function getStatusLabelAttribute(): string
+    {
+        $isRealEstate = in_array($this->commerceType->name ?? '', ['Immobilier', 'Résidence Meublée']);
+        
+        if ($this->isOpen()) {
+            return $isRealEstate ? 'Disponible' : 'Ouvert';
+        } else {
+            return $isRealEstate ? 'Indisponible' : 'Fermé';
+        }
+    }
+
+    /**
+     * Accessor pour la classe CSS du statut
+     */
+    public function getStatusClassAttribute(): string
+    {
+        return $this->isOpen() ? 'success' : 'danger';
+    }
+
+    /**
+     * Accessor pour l'icône du statut
+     */
+    public function getStatusIconAttribute(): string
+    {
+        return $this->isOpen() ? '🟢' : '🔴';
     }
 } 

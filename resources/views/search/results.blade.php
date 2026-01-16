@@ -51,9 +51,16 @@
                     
                     <div class="commerces-results-grid">
                         @foreach($commerces as $commerce)
-                            <a href="{{ route('commerce.show', $commerce) }}" class="commerce-result-card">
+                            @php
+                                $isOpen = $commerce->isOpen();
+                            @endphp
+                            <a href="{{ route('commerce.show', $commerce) }}" class="commerce-result-card {{ !$isOpen ? 'commerce-closed' : '' }}">
                                 <div class="commerce-image" style="background-image: url('{{ $commerce->placeholder_image }}');">
                                     <div class="commerce-overlay">
+                                        <div class="status-badge status-badge-{{ $commerce->status_class }}">
+                                            <span class="status-icon">{{ $commerce->status_icon }}</span>
+                                            <span class="status-label">{{ $commerce->status_label }}</span>
+                                        </div>
                                         <div class="commerce-badge">{{ $commerce->commerceType->name }}</div>
                                     </div>
                                 </div>

@@ -43,9 +43,19 @@
         @if($commerces->count() > 0)
             <div class="commerces-grid">
                 @foreach($commerces as $commerce)
-                    <a href="{{ route('commerce.show', $commerce) }}" class="commerce-card">
+                    @php
+                        $isOpen = $commerce->isOpen();
+                        $isRealEstate = in_array($commerce->commerceType->name ?? '', ['Immobilier', 'Résidence Meublée']);
+                    @endphp
+                    <a href="{{ route('commerce.show', $commerce) }}" class="commerce-card {{ !$isOpen ? 'commerce-closed' : '' }}">
                         <div class="commerce-image" style="background-image: url('{{ $commerce->placeholder_image }}');">
                             <div class="commerce-overlay">
+                                <!-- Badge de statut -->
+                                <div class="status-badge status-badge-{{ $commerce->status_class }}">
+                                    <span class="status-icon">{{ $commerce->status_icon }}</span>
+                                    <span class="status-label">{{ $commerce->status_label }}</span>
+                                </div>
+                                
                                 @if($commerce->products_count >= 20)
                                     <div class="commerce-badge">
                                         <span class="badge-icon">⭐</span>

@@ -31,7 +31,7 @@ class CartController extends Controller
 
         $cartItems = $cart->items()
             ->with(['product' => function($query) {
-                $query->with('commerce');
+                $query->with('commerce.commerceType');
             }])
             ->get();
 

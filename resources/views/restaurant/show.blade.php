@@ -17,6 +17,11 @@
                         <p class="restaurant-subtitle">{{ $commerce->description ?: $commerce->commerce_type_name }}</p>
                         
                         <div class="restaurant-badges">
+                            <!-- Badge de statut -->
+                            <div class="status-badge status-badge-{{ $commerce->status_class }}">
+                                <span class="status-icon">{{ $commerce->status_icon }}</span>
+                                <span class="status-label">{{ $commerce->status_label }}</span>
+                            </div>
                             <div class="rating-badge">
                                 <span class="rating-star">⭐</span>
                                 <span class="rating-value">{{ number_format($commerce->rating, 1) }}</span>
@@ -113,15 +118,22 @@
                                             @endif
                                         </div>
                                         
-                                        @if($product->is_available && $product->stock > 0)
-                                            @php
-                                                $isRealEstate = in_array($commerce->commerceType->name ?? '', ['Immobilier', 'Résidence Meublée']);
-                                                $buttonText = $isRealEstate ? 'Réserver' : 'Ajouter au panier';
-                                                $buttonIcon = $isRealEstate ? '🔑' : '🛒';
-                                            @endphp
+                                        @php
+                                            $isOpen = $commerce->isOpen();
+                                            $isRealEstate = in_array($commerce->commerceType->name ?? '', ['Immobilier', 'Résidence Meublée']);
+                                            $buttonText = $isRealEstate ? 'Réserver' : 'Ajouter au panier';
+                                            $buttonIcon = $isRealEstate ? '🔑' : '🛒';
+                                        @endphp
+                                        
+                                        @if($product->is_available && $product->stock > 0 && $isOpen)
                                             <button type="button" class="add-to-cart-btn" data-product-id="{{ $product->id }}" data-product-name="{{ $product->name }}">
                                                 <span class="cart-icon">{{ $buttonIcon }}</span>
                                                 {{ $buttonText }}
+                                            </button>
+                                        @elseif(!$isOpen)
+                                            <button type="button" class="add-to-cart-btn disabled" disabled title="Commerce fermé">
+                                                <span class="cart-icon">🔒</span>
+                                                {{ $isRealEstate ? 'Indisponible' : 'Fermé' }}
                                             </button>
                                         @else
                                             <button type="button" class="add-to-cart-btn disabled" disabled>
