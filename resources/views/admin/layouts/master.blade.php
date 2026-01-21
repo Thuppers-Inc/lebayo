@@ -27,6 +27,10 @@
       content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
     />
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    
+    <!-- Configuration Pusher pour Laravel Echo (ne jamais exposer les secrets) -->
+    <meta name="pusher-key" content="{{ env('PUSHER_APP_KEY') }}">
+    <meta name="pusher-cluster" content="{{ env('PUSHER_APP_CLUSTER', 'eu') }}">
 
     <title>@yield('title', 'Tableau de bord') - Admin Lebayo</title>
 
@@ -56,6 +60,9 @@
   
   <!-- Composants Réutilisables Admin -->
   <link rel="stylesheet" href="{{ asset('admin-assets/assets/css/admin-components.css') }}" />
+  
+  <!-- Notifications temps réel -->
+  <link rel="stylesheet" href="{{ asset('admin-assets/css/order-notifications.css') }}" />
 
     <!-- Vendors CSS -->
     <link rel="stylesheet" href="{{ asset('admin-assets/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css') }}" />
@@ -130,6 +137,50 @@
 
     <!-- Page Scripts -->
     @stack('scripts')
+
+    <!-- Laravel Echo + Pusher depuis CDN (pour les notifications temps réel) -->
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/laravel-echo@1.15.3/dist/echo.iife.js"></script>
+    
+    <!-- Initialisation Echo -->
+    <script>
+        (function() {
+            // Récupérer la configuration depuis les meta tags
+            const pusherKey = document.querySelector('meta[name="pusher-key"]')?.content;
+            const pusherCluster = document.querySelector('meta[name="pusher-cluster"]')?.content || 'eu';
+            
+            if (!pusherKey) {
+                console.warn('[Echo] Pusher key manquante - Broadcasting désactivé');
+                return;
+            }
+            
+            // Initialiser Echo
+            window.Echo = new Echo({
+                broadcaster: 'pusher',
+                key: pusherKey,
+                cluster: pusherCluster,
+                forceTLS: true,
+                encrypted: true,
+                disableStats: true,
+            });
+            
+            console.log('[Echo] Initialisé avec succès');
+            
+            // Fonction de test
+            window.testEcho = function() {
+                if (!window.Echo) {
+                    console.error('Echo n\'est pas initialisé');
+                    return;
+                }
+                const socketId = window.Echo.socketId();
+                console.log('Echo status:', socketId ? 'Connected (Socket ID: ' + socketId + ')' : 'Not connected');
+                return socketId ? 'Connected' : 'Not connected';
+            };
+        })();
+    </script>
+    
+    <!-- Système de notifications pour les commandes -->
+    <script src="{{ asset('admin-assets/js/order-notifications.js') }}"></script>
 
     <!-- Place this tag in your head or just before your close body tag. -->
     <script async defer src="https://buttons.github.io/buttons.js"></script>

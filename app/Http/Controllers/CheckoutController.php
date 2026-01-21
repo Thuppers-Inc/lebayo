@@ -10,6 +10,7 @@ use App\Models\Cart;
 use App\Models\Address;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Events\NouvelleCommande;
 
 class CheckoutController extends Controller
 {
@@ -240,6 +241,10 @@ class CheckoutController extends Controller
                 'total' => $order->total
             ]);
 
+            // Diffuser l'event de nouvelle commande pour le dashboard admin
+            // Cet event déclenchera une notification temps réel avec son
+            event(new NouvelleCommande($order));
+
             return redirect()->route('checkout.success', $order->order_number)
                 ->with('success', 'Votre commande a été passée avec succès !');
 
@@ -329,4 +334,4 @@ class CheckoutController extends Controller
             ]
         ];
     }
-} 
+}

@@ -1,0 +1,25 @@
+# Dossier pour les fichiers audio de notification
+
+## Fichier requis
+- notification.mp3 : Son de notification pour les nouvelles commandes
+
+## Comment ajouter le fichier audio
+
+1. Téléchargez ou créez un fichier audio court (1-2 secondes) au format MP3
+2. Nommez-le exactement `notification.mp3`
+3. Placez-le dans ce dossier `/public/sounds/`
+
+## Recommandations
+- Durée : 1-2 secondes maximum
+- Format : MP3 (meilleure compatibilité navigateurs)
+- Qualité : Bitrate 128kbps suffisant
+- Volume : Normalisé, pas trop fort
+
+## Sources gratuites de sons
+- https://freesound.org/
+- https://www.zapsplat.com/
+- https://mixkit.co/free-sound-effects/
+
+## Note
+Le fichier audio n'est pas inclus dans le dépôt Git pour des raisons de taille.
+Il doit être ajouté manuellement sur chaque environnement.
